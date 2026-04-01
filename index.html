@@ -4,28 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>PodiumBeer – Auditoría de Desempeño Cervecero</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-gradient-fill"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: #06232e;
             color: #fff;
             position: relative;
         }
-
         body::before {
             content: "";
             position: fixed;
@@ -33,13 +24,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(6, 35, 46, 0.56), rgba(6, 35, 46, 0.56)), url('assets/bg_cerveceria.jpg');
+            background: linear-gradient(rgba(6,35,46,0.56), rgba(6,35,46,0.56)), url('assets/bg_cerveceria.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             z-index: -2;
         }
-
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -47,63 +37,30 @@
             position: relative;
             z-index: 1;
         }
-
-        /* Header solo con logo */
-        .header {
-            text-align: center;
-            margin: 0 auto 1rem auto;
-        }
-
-        .logo {
-            max-width: 85%;
-            width: auto;
-            height: auto;
-            max-height: 90px;
-            object-fit: contain;
-        }
-
-        /* Tarjetas de métricas */
+        .header { text-align: center; margin: 0 auto 1rem auto; }
+        .logo { max-width: 85%; width: auto; height: auto; max-height: 90px; object-fit: contain; }
         .stats {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 1rem;
             margin-bottom: 2rem;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(8px);
             padding: 1rem;
             border-radius: 2rem;
         }
-
-        .stat {
-            text-align: center;
-            flex: 1;
-            min-width: 100px;
-        }
-
-        .stat-number {
-            font-size: clamp(1.5rem, 5vw, 2.2rem);
-            font-weight: 800;
-            color: #f7c32f;
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #ccc;
-        }
-
-        /* Tarjetas de gráficos */
+        .stat { text-align: center; flex: 1; min-width: 100px; }
+        .stat-number { font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 800; color: #f7c32f; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
         .card {
-            background: rgba(10, 25, 35, 0.75);
+            background: rgba(10,25,35,0.75);
             backdrop-filter: blur(10px);
             border-radius: 28px;
             padding: 1.2rem;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(30, 171, 155, 0.3);
+            border: 1px solid rgba(30,171,155,0.3);
         }
-
         .card-title {
             font-size: 1.3rem;
             font-weight: 700;
@@ -112,19 +69,8 @@
             border-left: 5px solid #e32c6c;
             padding-left: 1rem;
         }
-
-        .chart-container {
-            width: 100%;
-            min-height: 350px;
-            position: relative;
-        }
-
-        canvas, svg {
-            max-width: 100%;
-            height: auto;
-        }
-
-        /* Tabla responsiva */
+        .chart-container { width: 100%; min-height: 350px; position: relative; }
+        canvas, svg { max-width: 100%; height: auto; }
         .auditoria-header {
             display: flex;
             justify-content: space-between;
@@ -133,63 +79,41 @@
             margin-bottom: 1rem;
             gap: 0.8rem;
         }
-
         .search-box {
             padding: 0.5rem 1rem;
             border-radius: 40px;
             border: none;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255,255,255,0.15);
             color: white;
             font-size: 0.85rem;
             width: 100%;
             max-width: 250px;
         }
-
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .medals-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.8rem;
             min-width: 600px;
         }
-
-        .medals-table th,
-        .medals-table td {
+        .medals-table th, .medals-table td {
             padding: 0.7rem 0.5rem;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
         .medals-table th {
-            background: rgba(227, 44, 108, 0.3);
+            background: rgba(227,44,108,0.3);
             color: #f7c32f;
             font-weight: 600;
         }
-
-        .blur-column {
-            filter: blur(5px);
-            transition: filter 0.2s;
-        }
-
-        .medals-table tr:hover .blur-column {
-            filter: blur(0);
-        }
-
-        /* Para móvil: al tocar la fila se quita el blur */
+        .blur-column { filter: blur(5px); transition: filter 0.2s; }
+        .medals-table tr:hover .blur-column { filter: blur(0); }
         @media (hover: none) and (pointer: coarse) {
-            .medals-table tr:active .blur-column {
-                filter: blur(0);
-            }
+            .medals-table tr:active .blur-column { filter: blur(0); }
         }
-
         .medal-gold { color: #f7c32f; font-weight: bold; }
         .medal-silver { color: #c0c0c0; font-weight: bold; }
         .medal-bronze { color: #cd7f32; font-weight: bold; }
-
         .btn-premium {
             display: inline-block;
             background: #e32c6c;
@@ -202,83 +126,45 @@
             transition: 0.2s;
             font-size: 0.9rem;
         }
-
-        .btn-premium:hover {
-            background: #f7c32f;
-            color: #06232e;
-        }
-
+        .btn-premium:hover { background: #f7c32f; color: #06232e; }
         footer {
             text-align: center;
             padding: 1.5rem 0 0.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255,255,255,0.1);
             margin-top: 1.5rem;
         }
-
         .social-icons {
             display: flex;
             justify-content: center;
             gap: 1.2rem;
             margin-bottom: 0.8rem;
         }
-
-        .social-icon {
-            width: 28px;
-            height: 28px;
-            transition: transform 0.2s;
+        .social-icon { width: 28px; height: 28px; transition: transform 0.2s; }
+        .social-icon:hover { transform: scale(1.1); }
+        .error-message {
+            background: #e32c6c;
+            color: white;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: bold;
         }
-
-        .social-icon:hover {
-            transform: scale(1.1);
-        }
-
-        /* Ajustes específicos para móvil */
         @media (max-width: 768px) {
-            .container {
-                padding: 0.8rem;
-            }
-            .logo {
-                max-width: 70%;
-                max-height: 70px;
-            }
-            .stats {
-                gap: 0.5rem;
-                padding: 0.8rem;
-            }
-            .stat-number {
-                font-size: 1.2rem;
-            }
-            .stat-label {
-                font-size: 0.6rem;
-            }
-            .card-title {
-                font-size: 1.1rem;
-            }
-            .chart-container {
-                min-height: 280px;
-            }
-            .medals-table {
-                font-size: 0.7rem;
-                min-width: 550px;
-            }
-            .medals-table th,
-            .medals-table td {
-                padding: 0.5rem 0.3rem;
-            }
+            .container { padding: 0.8rem; }
+            .logo { max-width: 70%; max-height: 70px; }
+            .stats { gap: 0.5rem; padding: 0.8rem; }
+            .stat-number { font-size: 1.2rem; }
+            .stat-label { font-size: 0.6rem; }
+            .card-title { font-size: 1.1rem; }
+            .chart-container { min-height: 280px; }
+            .medals-table { font-size: 0.7rem; min-width: 550px; }
+            .medals-table th, .medals-table td { padding: 0.5rem 0.3rem; }
         }
-
         @media (max-width: 480px) {
-            .logo {
-                max-width: 85%;
-            }
-            .stats {
-                flex-direction: column;
-                align-items: center;
-                gap: 0.8rem;
-            }
-            .stat {
-                width: 100%;
-            }
+            .logo { max-width: 85%; }
+            .stats { flex-direction: column; align-items: center; gap: 0.8rem; }
+            .stat { width: 100%; }
         }
     </style>
 </head>
@@ -287,34 +173,24 @@
     <header class="header">
         <img src="assets/logo_podiumbeer.png" alt="PodiumBeer" class="logo">
     </header>
-
+    <div id="error-message" class="error-message" style="display: none;"></div>
     <div class="stats" id="stats-placeholder">
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Total Medallas</div></div>
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Medallas Oro</div></div>
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Certámenes</div></div>
     </div>
-
     <div class="card">
         <div class="card-title">📈 Evolución Estratégica</div>
-        <div class="chart-container">
-            <canvas id="bloombergChart" width="800" height="400" style="width:100%; height:auto; max-height:450px"></canvas>
-        </div>
+        <div class="chart-container"><canvas id="bloombergChart" width="800" height="400"></canvas></div>
     </div>
-
     <div class="card">
         <div class="card-title">🏆 Ranking de Cervecerías (Top 15)</div>
-        <div class="chart-container">
-            <canvas id="rankingChart" width="800" height="500" style="width:100%; height:auto; max-height:550px"></canvas>
-        </div>
+        <div class="chart-container"><canvas id="rankingChart" width="800" height="500"></canvas></div>
     </div>
-
     <div class="card">
         <div class="card-title">🔗 Trazabilidad de Prestigio</div>
-        <div class="chart-container" id="sankey-container">
-            <svg id="sankey-svg" width="100%" height="500" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"></svg>
-        </div>
+        <div class="chart-container"><svg id="sankey-svg" width="100%" height="500" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"></svg></div>
     </div>
-
     <div class="card">
         <div class="card-title">📋 Auditoría Detallada</div>
         <div class="auditoria-header">
@@ -322,17 +198,14 @@
         </div>
         <div class="table-wrapper">
             <table class="medals-table">
-                <thead>
-                    <tr><th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></tr>
-                </thead>
-                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
+                <thead><tr><th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
+                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td>}</tbody>
             </table>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
             <a href="https://wa.me/56912345678?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
         </div>
     </div>
-
     <footer>
         <div class="social-icons">
             <a href="#"><img src="assets/icon_instagram.png" class="social-icon" alt="IG"></a>
@@ -342,54 +215,52 @@
         <p style="font-size:0.7rem; opacity:0.6;">PodiumBeer – Desarrollo de Catas Colaborativas</p>
     </footer>
 </div>
-
 <script>
-    // --------------------------------------------------------------
-    // 1. SUPABASE
-    // --------------------------------------------------------------
+    // === CONFIGURACIÓN CORRECTA DE SUPABASE ===
     const SUPABASE_URL = "https://jqinutwfunthyzhklqeig.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxaW51dHdmdW10eWh6a2xxZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTg5MTAsImV4cCI6MjA5MDU5NDkxMH0.GJY8bnuYi556G4mZW1Tx-c7eFeTXSN8TM22bXtiUVMs";
+    const SUPABASE_ANON_KEY = "sb_publisable_YBiADIm470mdio3VDUJN4w_xpv7S55N";
+
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let allData = [];
 
+    function showError(msg) {
+        const errDiv = document.getElementById('error-message');
+        errDiv.innerText = msg;
+        errDiv.style.display = 'block';
+    }
+
     async function obtenerMedallas() {
         try {
+            console.log("Conectando a Supabase...");
             const { data, error } = await supabase
                 .from('medallas')
                 .select('certamen, fecha, anio, cerveceria, cerveza_ganadora, estilo, medalla_base, pais');
             if (error) throw error;
+            console.log(`✅ Datos obtenidos: ${data.length} registros`);
             return data || [];
         } catch (err) {
-            console.error('Error Supabase:', err);
+            console.error("Error en Supabase:", err);
+            showError(`Error de conexión: ${err.message}. Revisa que la tabla se llame 'medallas' y que RLS esté desactivada o configurada.`);
             return [];
         }
     }
 
-    // --------------------------------------------------------------
-    // 2. ESTADÍSTICAS
-    // --------------------------------------------------------------
     function updateStats(data) {
+        if (!data.length) return;
         const total = data.length;
         const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
         const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
-        const statsDiv = document.getElementById('stats-placeholder');
-        if (statsDiv) {
-            statsDiv.children[0].children[0].innerText = total;
-            statsDiv.children[1].children[0].innerText = oro;
-            statsDiv.children[2].children[0].innerText = certamenes;
-        }
+        document.getElementById('stats-placeholder').children[0].children[0].innerText = total;
+        document.getElementById('stats-placeholder').children[1].children[0].innerText = oro;
+        document.getElementById('stats-placeholder').children[2].children[0].innerText = certamenes;
     }
 
-    // --------------------------------------------------------------
-    // 3. GRÁFICO BLOOMBERG (usa anio o extrae de fecha)
-    // --------------------------------------------------------------
     let bloombergChart;
     function renderBloomberg(data) {
         const yearMap = new Map();
         data.forEach(item => {
             let year = item.anio;
             if (!year && item.fecha) {
-                // fecha viene como YYYY-MM (ej. 2025-11)
                 const match = item.fecha.match(/^(\d{4})/);
                 if (match) year = match[1];
             }
@@ -413,7 +284,7 @@
         bloombergChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels,
                 datasets: [{
                     label: 'Medallas por año',
                     data: values,
@@ -436,21 +307,13 @@
                     legend: { labels: { color: '#fff' } }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 2500,
-                        ticks: { stepSize: 500, color: '#fff' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
-                    },
+                    y: { beginAtZero: true, max: 2500, ticks: { stepSize: 500, color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
                     x: { ticks: { color: '#fff' }, grid: { display: false } }
                 }
             }
         });
     }
 
-    // --------------------------------------------------------------
-    // 4. RANKING BARRAS HORIZONTALES APILADAS
-    // --------------------------------------------------------------
     let rankingChart;
     function renderRanking(data) {
         const breweries = {};
@@ -477,7 +340,7 @@
         rankingChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: labels,
+                labels,
                 datasets: [
                     { label: '🥇 Oro', data: oro, backgroundColor: '#e32c6c', stack: 'stack' },
                     { label: '🥈 Plata', data: plata, backgroundColor: '#1eab9b', stack: 'stack' },
@@ -500,9 +363,6 @@
         });
     }
 
-    // --------------------------------------------------------------
-    // 5. SANKEY
-    // --------------------------------------------------------------
     function renderSankey(data) {
         const flows = new Map();
         data.forEach(item => {
@@ -551,9 +411,6 @@
             .append("title").text(d => `${d.source.name} → ${d.target.name}: ${d.value}`);
     }
 
-    // --------------------------------------------------------------
-    // 6. TABLA CON BUSCADOR
-    // --------------------------------------------------------------
     function renderTable(data, filter = "") {
         const tbody = document.getElementById('tableBody');
         const filtered = data.filter(row => {
@@ -562,7 +419,7 @@
             return text.includes(filter);
         });
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
+            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>'; // fijo error de sintaxis
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
@@ -585,13 +442,11 @@
         }).join('');
     }
 
-    // --------------------------------------------------------------
-    // 7. INICIO
-    // --------------------------------------------------------------
     async function init() {
         const data = await obtenerMedallas();
         if (!data.length) {
-            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar los datos.</td></tr>';
+            const tbody = document.getElementById('tableBody');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos. Revisa la consola (F12).</td></tr>';
             return;
         }
         allData = data;
