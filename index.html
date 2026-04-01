@@ -117,6 +117,9 @@
         }
         .blur-column { filter: blur(5px); transition: filter 0.2s; }
         .medals-table tr:hover .blur-column { filter: blur(0); }
+        @media (hover: none) and (pointer: coarse) {
+            .medals-table tr:active .blur-column { filter: blur(0); }
+        }
         .medal-gold { color: #f7c32f; font-weight: bold; }
         .medal-silver { color: #c0c0c0; font-weight: bold; }
         .medal-bronze { color: #cd7f32; font-weight: bold; }
@@ -155,6 +158,7 @@
             margin-bottom: 1rem;
             text-align: center;
             font-weight: bold;
+            white-space: pre-wrap;
         }
         @media (max-width: 768px) {
             .container { padding: 0.8rem; }
@@ -212,8 +216,8 @@
             <table class="medals-table">
                 <thead> ...
 <th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
-                <tbody id="tableBody"><td colspan="7">Cargando datos...</td></tbody>
-             </table>
+                <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
+              </table>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
             <a href="https://wa.me/56912345678?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
@@ -237,19 +241,19 @@
         const errDiv = document.getElementById('error-message');
         errDiv.innerText = msg;
         errDiv.style.display = 'block';
+        console.error(msg);
     }
 
     async function cargarCSV() {
         try {
             const response = await fetch('BBDD_Medallero_Chile.csv');
-            if (!response.ok) throw new Error(`No se pudo cargar el CSV: ${response.status}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const texto = await response.text();
             
-            // Parsear CSV
+            // Parsear CSV con separador ;
             const lineas = texto.split('\n');
             const encabezados = lineas[0].split(';');
             const datos = [];
-            
             for (let i = 1; i < lineas.length; i++) {
                 if (!lineas[i].trim()) continue;
                 const valores = lineas[i].split(';');
@@ -259,11 +263,10 @@
                 });
                 datos.push(fila);
             }
-            
             console.log(`✅ CSV cargado: ${datos.length} registros`);
             return datos;
         } catch (err) {
-            showError(`❌ Error al cargar CSV: ${err.message}. Asegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz del repositorio.`);
+            showError(`❌ Error al cargar CSV: ${err.message}\n\nAsegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz del repositorio.`);
             return [];
         }
     }
@@ -308,7 +311,7 @@
             type: 'line',
             data: {
                 labels,
-                datasets: [{ label: 'Medallas por año', data: values, fill: true, backgroundColor: gradient, borderColor: '#f7c32f', borderWidth: 3, pointBackgroundColor: '#f7c32f', pointBorderColor: '#fff', pointRadius: 5, tension: 0.4 }]
+                datasets: [{ label: 'Medallas por año', data: values, fill: true, backgroundColor: gradient, borderColor: '#f7c32f', borderWidth: 3, pointBackgroundColor: '#f7c32f', pointBorderColor: '#fff', pointRadius: 5, pointHoverRadius: 8, tension: 0.4 }]
             },
             options: {
                 responsive: true, maintainAspectRatio: true,
@@ -420,7 +423,7 @@
             else if (med === 'plata') medClass = 'medal-silver';
             else if (med === 'bronce') medClass = 'medal-bronze';
             return `
-                 <tr>
+                <tr>
                     <td>${item.certamen || '-'}</td>
                     <td>${item.fecha || item.anio || '-'}</td>
                     <td class="blur-column">${item.cerveceria || '-'}</td>
