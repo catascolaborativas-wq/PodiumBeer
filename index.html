@@ -149,6 +149,7 @@
             margin-bottom: 1rem;
             text-align: center;
             font-weight: bold;
+            white-space: pre-wrap;
         }
         @media (max-width: 768px) {
             .container { padding: 0.8rem; }
@@ -199,8 +200,8 @@
         <div class="table-wrapper">
             <table class="medals-table">
                 <thead><tr><th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
-                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
-            </table>
+                <tbody id="tableBody">}<td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
+             </table>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
             <a href="https://wa.me/56912345678?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
@@ -216,7 +217,7 @@
     </footer>
 </div>
 <script>
-    // === CREDENCIALES CORRECTAS DE SUPABASE (usando publishable key) ===
+    // === CREDENCIALES CORRECTAS DE SUPABASE ===
     const SUPABASE_URL = "https://jqinutwfunthyzhklqeig.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_YBiADIm470mdio3VDUJN4w_xpv7S55N";
 
@@ -233,15 +234,21 @@
     async function obtenerMedallas() {
         try {
             console.log("Conectando a Supabase...");
-            const { data, error } = await supabase
+            // Probar primero la conexión con un select simple
+            const { data, error, status } = await supabase
                 .from('medallas')
                 .select('certamen, fecha, anio, cerveceria, cerveza_ganadora, estilo, medalla_base, pais');
-            if (error) throw error;
+
+            if (error) {
+                throw new Error(`Error de Supabase: ${error.message} (status: ${status})`);
+            }
+            if (!data || data.length === 0) {
+                throw new Error("La consulta devolvió 0 registros. Verifica que la tabla tenga datos.");
+            }
             console.log(`✅ Datos obtenidos: ${data.length} registros`);
-            return data || [];
+            return data;
         } catch (err) {
-            console.error("Error en Supabase:", err);
-            showError(`Error de conexión: ${err.message}. Revisa que la tabla se llame 'medallas' y que RLS esté desactivada o con políticas.`);
+            showError(`❌ ${err.message}\n\n🔍 Verifica que la tabla se llame 'medallas' (todo minúsculas) y que la URL y la clave sean las correctas.\n📌 En Supabase, asegúrate de que RLS esté desactivado o que la clave publicable tenga permisos de lectura.`);
             return [];
         }
     }
@@ -448,7 +455,7 @@
         const data = await obtenerMedallas();
         if (!data.length) {
             const tbody = document.getElementById('tableBody');
-            if (tbody) tbody.innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos. Revisa la consola (F12).</td></tr>';
+            if (tbody) tbody.innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos. Lee el mensaje rojo de arriba.</td></tr>';
             return;
         }
         allData = data;
