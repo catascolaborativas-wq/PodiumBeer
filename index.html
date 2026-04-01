@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>PodiumBeer – Auditoría de Desempeño Cervecero</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -69,8 +69,13 @@
         }
         .chart-container { width: 100%; min-height: 350px; position: relative; }
         canvas { max-width: 100%; height: auto; }
-
-        /* Matriz de Podio 3x3 */
+        .note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 0.5rem;
+        }
+        /* Matriz de pódium (3x3) */
         .podium-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -78,19 +83,19 @@
             margin-top: 1rem;
         }
         .podium-country {
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
             border-radius: 20px;
             padding: 1rem;
             text-align: center;
         }
-        .country-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
+        .podium-country h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
             color: #f7c32f;
+            margin-bottom: 0.5rem;
         }
-        .country-medal-count {
-            font-size: 1rem;
+        .podium-country .total-medals {
+            font-size: 0.9rem;
             color: #1eab9b;
             margin-bottom: 1rem;
         }
@@ -99,77 +104,62 @@
             padding: 0;
         }
         .podium-list li {
-            background: rgba(255,255,255,0.1);
-            margin: 0.5rem 0;
-            padding: 0.5rem;
-            border-radius: 12px;
-            font-weight: 500;
-        }
-        .rank-1 { background: rgba(227,44,108,0.4); border-left: 4px solid #f7c32f; }
-        .rank-2 { background: rgba(30,171,155,0.3); }
-        .rank-3 { background: rgba(227,44,108,0.2); }
-
-        /* Ranking Top 10 Chile (barras) */
-        .ranking-container {
-            overflow-x: auto;
-        }
-        .ranking-bar-item {
             display: flex;
-            align-items: center;
-            margin-bottom: 0.8rem;
-            gap: 0.5rem;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .podium-list li span:first-child { font-weight: 500; }
+        .podium-list li span:last-child { color: #f7c32f; font-weight: bold; }
+        /* Micro gráficos */
+        .micro-grid {
+            display: flex;
             flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
         }
-        .ranking-name {
-            width: 180px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .bar-wrapper {
+        .micro-card {
             flex: 1;
-            background: rgba(255,255,255,0.2);
+            min-width: 200px;
+            background: rgba(0,0,0,0.4);
             border-radius: 20px;
-            overflow: hidden;
-            height: 28px;
+            padding: 1rem;
         }
-        .bar {
-            height: 100%;
-            background: linear-gradient(90deg, #e32c6c, #f7c32f);
+        .micro-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            color: #1eab9b;
+        }
+        .micro-list {
+            list-style: none;
+            padding: 0;
+        }
+        .micro-list li {
             display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 8px;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border-radius: 20px;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .bar-total {
-            min-width: 40px;
-            text-align: right;
-            font-weight: bold;
-        }
-
-        /* Tabla auditoría */
+        /* Filtros tabla */
         .filters {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.8rem;
+            gap: 0.5rem;
             margin-bottom: 1rem;
         }
-        .filters select, .filters input {
-            padding: 0.5rem;
-            border-radius: 30px;
+        .filter-select {
+            padding: 0.4rem 0.8rem;
+            border-radius: 40px;
             border: none;
             background: rgba(255,255,255,0.15);
             color: white;
             font-size: 0.8rem;
+            min-width: 120px;
         }
         .table-wrapper {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             max-height: 400px;
             overflow-y: auto;
         }
@@ -189,14 +179,14 @@
             color: #f7c32f;
             font-weight: 600;
         }
-        /* Blur permanente - NO se quita al pasar mouse */
-        .blur-column {
-            filter: blur(5px);
+        .blur-column { filter: blur(5px); transition: filter 0.2s; }
+        .medals-table tr:hover .blur-column { filter: blur(0); }
+        @media (hover: none) and (pointer: coarse) {
+            .medals-table tr:active .blur-column { filter: blur(0); }
         }
         .medal-gold { color: #f7c32f; font-weight: bold; }
         .medal-silver { color: #c0c0c0; font-weight: bold; }
         .medal-bronze { color: #cd7f32; font-weight: bold; }
-
         .btn-premium {
             display: inline-block;
             background: #e32c6c;
@@ -207,33 +197,9 @@
             font-weight: bold;
             margin-top: 1rem;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
         .btn-premium:hover { background: #f7c32f; color: #06232e; }
-
-        /* Micro gráficos */
-        .micro-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .micro-card {
-            background: rgba(10,25,35,0.75);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 1rem;
-        }
-        .micro-card h3 {
-            font-size: 1rem;
-            margin-bottom: 0.8rem;
-            color: #f7c32f;
-            text-align: center;
-        }
-        .micro-chart {
-            height: 200px;
-            position: relative;
-        }
-
         footer {
             text-align: center;
             padding: 1.5rem 0 0.5rem;
@@ -247,31 +213,20 @@
             margin-bottom: 1rem;
         }
         .social-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             transition: transform 0.2s;
         }
         .social-icon:hover { transform: scale(1.1); }
         .footer-text {
             font-size: 0.7rem;
-            opacity: 0.7;
+            color: rgba(255,255,255,0.6);
         }
-
         @media (max-width: 768px) {
-            .container { padding: 0.8rem; }
-            .logo { max-width: 70%; max-height: 70px; }
-            .stats { gap: 0.5rem; padding: 0.8rem; }
-            .stat-number { font-size: 1.2rem; }
-            .stat-label { font-size: 0.6rem; }
             .podium-grid { gap: 0.8rem; }
-            .country-title { font-size: 1.2rem; }
-            .ranking-name { width: 130px; }
-            .filters select, .filters input { font-size: 0.7rem; }
-        }
-        @media (max-width: 480px) {
-            .logo { max-width: 85%; }
-            .stats { flex-direction: column; align-items: center; }
-            .podium-grid { grid-template-columns: 1fr; }
+            .micro-card { min-width: 100%; }
+            .filters { justify-content: center; }
+            .filter-select { width: 100%; max-width: 200px; }
         }
     </style>
 </head>
@@ -280,66 +235,69 @@
     <header class="header">
         <img src="assets/logo_podiumbeer.png" alt="PodiumBeer" class="logo">
     </header>
-
-    <!-- Métricas globales -->
     <div class="stats" id="stats-placeholder">
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Total Medallas</div></div>
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Medallas Oro</div></div>
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Certámenes</div></div>
     </div>
 
-    <!-- Gráfico 1: Evolución Mensual 2025 -->
+    <!-- Gráfico 1: Evolución mensual 2025 -->
     <div class="card">
-        <div class="card-title">📈 GLOBAL COMPETITION WINGS – 2025</div>
+        <div class="card-title">GLOBAL COMPETITION WINGS – 2025</div>
         <div class="chart-container">
-            <canvas id="evolutionChart" width="800" height="400"></canvas>
+            <canvas id="monthlyChart" width="800" height="400"></canvas>
         </div>
-        <p style="text-align: center; font-size: 0.7rem; margin-top: 0.5rem; color: #aaa;">*Actualización en progreso</p>
+        <div class="note">*Actualización en progreso</div>
     </div>
 
-    <!-- Gráfico 2: Matriz de Podio 3x3 (Brasil, Chile, Argentina) -->
+    <!-- Matriz de Pódium (3x3) - Reemplaza Sankey -->
     <div class="card">
-        <div class="card-title">🏅 PODIO DE EXCELENCIA POR PAÍS</div>
-        <div id="podiumContainer" class="podium-grid">
+        <div class="card-title">🏆 Pódium de Excelencia por País</div>
+        <div id="podiumGrid" class="podium-grid">
             <!-- Se llena con JS -->
         </div>
     </div>
 
-    <!-- Gráfico 3: Ranking Top 10 Cervecerías Chilenas -->
+    <!-- Ranking Chile Top 10 -->
     <div class="card">
-        <div class="card-title">🇨🇱 RANKING CHILE – TOP 10 CERVEZAS MÁS PREMIADAS</div>
-        <div id="rankingChile" class="ranking-container"></div>
-    </div>
-
-    <!-- Micro gráficos: Estilos globales, estilos Chile, regiones Chile -->
-    <div class="micro-grid">
-        <div class="micro-card">
-            <h3>🏆 Top 5 Estilos Globales</h3>
-            <div class="micro-chart"><canvas id="globalStylesChart" width="300" height="200"></canvas></div>
-        </div>
-        <div class="micro-card">
-            <h3>🇨🇱 Top 5 Estilos en Chile</h3>
-            <div class="micro-chart"><canvas id="chileStylesChart" width="300" height="200"></canvas></div>
-        </div>
-        <div class="micro-card">
-            <h3>📌 Top 5 Regiones de Chile</h3>
-            <div class="micro-chart"><canvas id="regionsChart" width="300" height="200"></canvas></div>
+        <div class="card-title">🏅 Ranking de Cervecerías Chilenas (Top 10)</div>
+        <div class="chart-container">
+            <canvas id="rankingChileChart" width="800" height="500"></canvas>
         </div>
     </div>
 
-    <!-- Tabla de Auditoría con filtros y blur permanente -->
+    <!-- Micro gráficos (3) -->
     <div class="card">
-        <div class="card-title">📋 AUDITORÍA DETALLADA</div>
-        <div class="filters" id="filterContainer">
-            <input type="text" id="filterCertamen" placeholder="Certamen" class="search-box">
-            <input type="text" id="filterEstilo" placeholder="Estilo" class="search-box">
-            <select id="filterMedalla"><option value="">Medalla</option><option>Oro</option><option>Plata</option><option>Bronce</option></select>
-            <input type="text" id="filterPais" placeholder="País" class="search-box">
+        <div class="card-title">📊 Análisis de Estilos y Regiones</div>
+        <div class="micro-grid">
+            <div class="micro-card">
+                <h4>🌍 Top 5 Estilos (Mundo)</h4>
+                <ul id="topStylesWorld" class="micro-list"></ul>
+            </div>
+            <div class="micro-card">
+                <h4>🇨🇱 Top 5 Estilos (Chile)</h4>
+                <ul id="topStylesChile" class="micro-list"></ul>
+            </div>
+            <div class="micro-card">
+                <h4>🗺️ Top 5 Regiones (Chile)</h4>
+                <ul id="topRegionsChile" class="micro-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auditoría Detallada con filtros -->
+    <div class="card">
+        <div class="card-title">📋 Auditoría Detallada</div>
+        <div class="filters" id="filtersContainer">
+            <select id="filterCertamen" class="filter-select"><option value="">Todos los certámenes</option></select>
+            <select id="filterEstilo" class="filter-select"><option value="">Todos los estilos</option></select>
+            <select id="filterMedalla" class="filter-select"><option value="">Todas las medallas</option></select>
+            <select id="filterPais" class="filter-select"><option value="">Todos los países</option></select>
         </div>
         <div class="table-wrapper">
             <table class="medals-table">
-                <thead><tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></tr></thead>
-                <tbody id="tableBody"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
+                <thead><tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
+                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
             </table>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
@@ -353,35 +311,31 @@
             <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
             <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
         </div>
-        <p class="footer-text">Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.</p>
+        <div class="footer-text">Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.</div>
     </footer>
 </div>
 
 <script>
-    // --------------------------------------------------------------
-    // 1. CONFIGURACIÓN SUPABASE (URL y clave correctas)
-    // --------------------------------------------------------------
+    // ==================== CONFIGURACIÓN SUPABASE ====================
     const SUPABASE_URL = "https://jqinutwfunthyzhklqeig.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxaW51dHdmdW10eWh6a2xxZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTg5MTAsImV4cCI6MjA5MDU5NDkxMH0.GJY8bnuYi556G4mZW1Tx-c7eFeTXSN8TM22bXtiUVMs";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     let allData = [];
 
-    // Función de normalización de nombres (reglas del manual)
-    function normalizeName(name) {
-        if (!name) return '';
-        let n = name.trim();
-        // Abreviaturas
-        n = n.replace(/\bBrewery\b/gi, 'Brew.').replace(/\bBrewing\b/gi, 'Brew.');
-        n = n.replace(/\bCompany\b/gi, 'Co.').replace(/\bCompañía\b/gi, 'Cia.');
-        n = n.replace(/Colaboración\b/gi, '(Colab.)');
-        // Primera letra de cada palabra mayúscula
-        n = n.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
-        // Nunca eliminar "Cervecería"
-        if (!n.includes('Cervecería') && (n.includes('Cerveja') || n.includes('Cerveza'))) {
-            // no hacemos nada, mantenemos
-        }
-        return n;
+    // Función de normalización de texto (según reglas)
+    function normalizeText(str) {
+        if (!str) return '';
+        // eliminar tildes
+        let s = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        // reemplazos
+        s = s.replace(/\bBrewery\b/gi, "Brew.");
+        s = s.replace(/\bBrewing\b/gi, "Brew.");
+        s = s.replace(/\bCompany\b/gi, "Co.");
+        s = s.replace(/\bCompañía\b/gi, "Cia.");
+        s = s.replace(/Colaboración/gi, "(Colab.)");
+        // capitalizar primera letra de cada palabra
+        s = s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+        return s;
     }
 
     async function obtenerMedallas() {
@@ -390,13 +344,6 @@
                 .from('medallas')
                 .select('certamen, fecha, anio, cerveceria, cerveza_ganadora, estilo, medalla_base, pais, ciudad');
             if (error) throw error;
-            // Normalizar nombres
-            data.forEach(row => {
-                row.cerveceria = normalizeName(row.cerveceria);
-                row.cerveza_ganadora = normalizeName(row.cerveza_ganadora);
-                row.estilo = normalizeName(row.estilo);
-                row.certamen = normalizeName(row.certamen);
-            });
             return data || [];
         } catch (err) {
             console.error('Error Supabase:', err);
@@ -404,9 +351,7 @@
         }
     }
 
-    // --------------------------------------------------------------
-    // 2. MÉTRICAS GLOBALES
-    // --------------------------------------------------------------
+    // ==================== ESTADÍSTICAS ====================
     function updateStats(data) {
         const total = data.length;
         const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
@@ -419,56 +364,44 @@
         }
     }
 
-    // --------------------------------------------------------------
-    // 3. GRÁFICO EVOLUCIÓN MENSUAL 2025 (por país – se puede agrupar global)
-    // --------------------------------------------------------------
-    let evolutionChart;
-    function renderEvolutionMonthly(data) {
-        // Filtrar año 2025 usando anio o fecha
+    // ==================== GRÁFICO MENSUAL 2025 ====================
+    let monthlyChart;
+    function renderMonthly2025(data) {
+        // Filtrar año 2025
         const data2025 = data.filter(d => {
-            if (d.anio === '2025' || d.anio === 2025) return true;
-            if (d.fecha && d.fecha.startsWith('2025')) return true;
-            return false;
+            let year = d.anio;
+            if (!year && d.fecha) year = d.fecha.split('-')[0];
+            return year && parseInt(year) === 2025;
         });
-        // Agrupar por mes (extraer mes de fecha)
-        const monthMap = new Map();
+        // Agrupar por mes (formato fecha YYYY-MM)
+        const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const monthlyCount = new Array(12).fill(0);
         data2025.forEach(item => {
-            let month = null;
-            if (item.fecha && item.fecha.length >= 7) {
-                month = item.fecha.substring(5,7);
-            } else if (item.anio === '2025') {
-                // sin mes, se omite
-                return;
+            let mes = null;
+            if (item.fecha && item.fecha.includes('-')) {
+                mes = parseInt(item.fecha.split('-')[1]) - 1;
             }
-            if (month) {
-                monthMap.set(month, (monthMap.get(month) || 0) + 1);
-            }
+            if (mes !== null && mes >= 0 && mes < 12) monthlyCount[mes]++;
         });
-        const monthsOrder = ['01','02','03','04','05','06','07','08','09','10','11','12'];
-        const labels = monthsOrder.map(m => {
-            const names = { '01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun','07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic' };
-            return names[m];
-        });
-        const values = monthsOrder.map(m => monthMap.get(m) || 0);
-
-        const ctx = document.getElementById('evolutionChart').getContext('2d');
-        if (evolutionChart) evolutionChart.destroy();
-
-        evolutionChart = new Chart(ctx, {
+        const ctx = document.getElementById('monthlyChart').getContext('2d');
+        if (monthlyChart) monthlyChart.destroy();
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, '#e32c6c');
+        gradient.addColorStop(1, '#1eab9b');
+        monthlyChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: months,
                 datasets: [{
                     label: 'Medallas',
-                    data: values,
+                    data: monthlyCount,
                     fill: true,
-                    backgroundColor: 'rgba(227,44,108,0.3)',
+                    backgroundColor: gradient,
                     borderColor: '#f7c32f',
                     borderWidth: 3,
-                    pointBackgroundColor: '#e32c6c',
+                    pointBackgroundColor: '#f7c32f',
                     pointBorderColor: '#fff',
-                    pointRadius: 4,
-                    pointHoverRadius: 7,
+                    pointRadius: 5,
                     tension: 0.3
                 }]
             },
@@ -485,209 +418,164 @@
                 },
                 scales: {
                     y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                    x: { ticks: { color: '#fff' } }
+                    x: { ticks: { color: '#fff' }, grid: { display: false } }
                 }
             }
         });
     }
 
-    // --------------------------------------------------------------
-    // 4. MATRIZ DE PODIO 3x3 (Brasil, Chile, Argentina)
-    // --------------------------------------------------------------
+    // ==================== MATRIZ DE PÓDIUM (3x3) ====================
     function renderPodium(data) {
-        const countries = ['Brasil', 'Chile', 'Argentina'];
-        const countryData = {};
-
-        // Contar medallas por país y top 3 cervecerías
-        countries.forEach(cnt => {
-            const countryRows = data.filter(d => d.pais && d.pais.toLowerCase() === cnt.toLowerCase());
-            const total = countryRows.length;
-            // Agrupar por cervecería
+        // Países objetivo: Brasil, Chile, Argentina
+        const targetCountries = { Brasil: 1466, Chile: 796, Argentina: 418 };
+        const result = {};
+        for (let country of Object.keys(targetCountries)) {
+            const filtered = data.filter(d => d.pais && d.pais.toLowerCase() === country.toLowerCase());
+            // Agrupar por cervecería, sumar medallas totales (cualquier medalla cuenta)
             const breweryCount = {};
-            countryRows.forEach(r => {
-                const b = r.cerveceria;
-                if (!b) return;
-                breweryCount[b] = (breweryCount[b] || 0) + 1;
+            filtered.forEach(item => {
+                const name = item.cerveceria;
+                if (!name) return;
+                if (!breweryCount[name]) breweryCount[name] = 0;
+                breweryCount[name]++;
             });
-            const topBreweries = Object.entries(breweryCount).sort((a,b) => b[1] - a[1]).slice(0,3);
-            countryData[cnt] = { total, top: topBreweries };
-        });
-
-        const container = document.getElementById('podiumContainer');
-        container.innerHTML = '';
-        countries.forEach(cnt => {
-            const card = document.createElement('div');
-            card.className = 'podium-country';
-            const totalMedals = countryData[cnt]?.total || 0;
-            const top = countryData[cnt]?.top || [];
-            card.innerHTML = `
-                <div class="country-title">${cnt}</div>
-                <div class="country-medal-count">🏅 ${totalMedals} medallas</div>
+            const sorted = Object.entries(breweryCount)
+                .map(([name, count]) => ({ name: normalizeText(name), count }))
+                .sort((a,b) => b.count - a.count)
+                .slice(0,3);
+            result[country] = { total: targetCountries[country], top: sorted };
+        }
+        const grid = document.getElementById('podiumGrid');
+        grid.innerHTML = '';
+        for (let country of ['Brasil', 'Chile', 'Argentina']) {
+            const dataCountry = result[country];
+            const div = document.createElement('div');
+            div.className = 'podium-country';
+            div.innerHTML = `
+                <h3>${country}</h3>
+                <div class="total-medals">🏆 ${dataCountry.total} medallas</div>
                 <ul class="podium-list">
-                    ${top.map(([name, count], idx) => `<li class="rank-${idx+1}">${idx+1}. ${name} – ${count} medallas</li>`).join('')}
-                    ${top.length === 0 ? '<li>Sin datos</li>' : ''}
+                    ${dataCountry.top.map((brew, idx) => `<li><span>${idx+1}. ${brew.name}</span><span>${brew.count}</span></li>`).join('')}
                 </ul>
             `;
-            container.appendChild(card);
-        });
+            grid.appendChild(div);
+        }
     }
 
-    // --------------------------------------------------------------
-    // 5. RANKING CHILE TOP 10 (barras horizontales)
-    // --------------------------------------------------------------
+    // ==================== RANKING CHILE TOP 10 ====================
+    let rankingChileChart;
     function renderRankingChile(data) {
-        const chileRows = data.filter(d => d.pais && d.pais.toLowerCase() === 'chile');
-        const breweryCount = {};
-        chileRows.forEach(r => {
-            const b = r.cerveceria;
-            if (!b) return;
-            breweryCount[b] = (breweryCount[b] || 0) + 1;
+        const chileData = data.filter(d => d.pais && d.pais.toLowerCase() === 'chile');
+        const breweries = {};
+        chileData.forEach(item => {
+            const nombre = item.cerveceria;
+            const medalla = item.medalla_base;
+            if (!nombre) return;
+            if (!breweries[nombre]) breweries[nombre] = { oro:0, plata:0, bronce:0 };
+            if (medalla && medalla.toLowerCase() === 'oro') breweries[nombre].oro++;
+            else if (medalla && medalla.toLowerCase() === 'plata') breweries[nombre].plata++;
+            else if (medalla && medalla.toLowerCase() === 'bronce') breweries[nombre].bronce++;
         });
-        const sorted = Object.entries(breweryCount).sort((a,b) => b[1] - a[1]).slice(0,10);
-        const maxVal = sorted.length ? sorted[0][1] : 1;
-
-        const container = document.getElementById('rankingChile');
-        container.innerHTML = '';
-        sorted.forEach(([name, count]) => {
-            const widthPercent = (count / maxVal) * 100;
-            const div = document.createElement('div');
-            div.className = 'ranking-bar-item';
-            div.innerHTML = `
-                <div class="ranking-name" title="${name}">${name}</div>
-                <div class="bar-wrapper"><div class="bar" style="width: ${widthPercent}%;">${count}</div></div>
-                <div class="bar-total">${count}</div>
-            `;
-            container.appendChild(div);
+        const ranking = Object.entries(breweries)
+            .map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals }))
+            .sort((a,b) => b.total - a.total)
+            .slice(0,10);
+        const labels = ranking.map(r => normalizeText(r.nom));
+        const oro = ranking.map(r => r.oro);
+        const plata = ranking.map(r => r.plata);
+        const bronce = ranking.map(r => r.bronce);
+        const ctx = document.getElementById('rankingChileChart').getContext('2d');
+        if (rankingChileChart) rankingChileChart.destroy();
+        rankingChileChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: '🥇 Oro', data: oro, backgroundColor: '#e32c6c', stack: 'stack' },
+                    { label: '🥈 Plata', data: plata, backgroundColor: '#1eab9b', stack: 'stack' },
+                    { label: '🥉 Bronce', data: bronce, backgroundColor: '#f7c32f', stack: 'stack' }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } },
+                    legend: { labels: { color: '#fff' } }
+                },
+                scales: {
+                    x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    y: { stacked: true, ticks: { color: '#fff' }, grid: { display: false } }
+                }
+            }
         });
-        if (sorted.length === 0) container.innerHTML = '<p>No hay datos de Chile</p>';
     }
 
-    // --------------------------------------------------------------
-    // 6. MICRO GRÁFICOS (top estilos global, estilos Chile, regiones Chile)
-    // --------------------------------------------------------------
-    let globalStylesChart, chileStylesChart, regionsChart;
-
+    // ==================== MICRO GRÁFICOS ====================
     function renderMicroCharts(data) {
-        // Top 5 estilos globales
+        // Top 5 estilos global
         const styleGlobal = {};
-        data.forEach(r => {
-            const s = r.estilo;
-            if (!s) return;
-            styleGlobal[s] = (styleGlobal[s] || 0) + 1;
+        data.forEach(item => {
+            const style = item.estilo;
+            if (!style) return;
+            styleGlobal[style] = (styleGlobal[style] || 0) + 1;
         });
         const topGlobal = Object.entries(styleGlobal).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const ctxGlobal = document.getElementById('globalStylesChart').getContext('2d');
-        if (globalStylesChart) globalStylesChart.destroy();
-        globalStylesChart = new Chart(ctxGlobal, {
-            type: 'bar',
-            data: { labels: topGlobal.map(t=>t[0]), datasets: [{ label: 'Medallas', data: topGlobal.map(t=>t[1]), backgroundColor: '#e32c6c' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#fff' } }, x: { ticks: { color: '#fff', maxRotation: 45, minRotation: 45 } } } }
-        });
+        const worldList = document.getElementById('topStylesWorld');
+        worldList.innerHTML = topGlobal.map(([s, c]) => `<li><span>${normalizeText(s)}</span><span>${c}</span></li>`).join('');
 
-        // Top 5 estilos en Chile
-        const chileRows = data.filter(d => d.pais && d.pais.toLowerCase() === 'chile');
+        // Top 5 estilos Chile
+        const chileData = data.filter(d => d.pais && d.pais.toLowerCase() === 'chile');
         const styleChile = {};
-        chileRows.forEach(r => { const s = r.estilo; if(s) styleChile[s] = (styleChile[s]||0)+1; });
+        chileData.forEach(item => {
+            const style = item.estilo;
+            if (!style) return;
+            styleChile[style] = (styleChile[style] || 0) + 1;
+        });
         const topChile = Object.entries(styleChile).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const ctxChile = document.getElementById('chileStylesChart').getContext('2d');
-        if (chileStylesChart) chileStylesChart.destroy();
-        chileStylesChart = new Chart(ctxChile, {
-            type: 'bar',
-            data: { labels: topChile.map(t=>t[0]), datasets: [{ label: 'Medallas', data: topChile.map(t=>t[1]), backgroundColor: '#1eab9b' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#fff' } }, x: { ticks: { color: '#fff', maxRotation: 45, minRotation: 45 } } } }
-        });
+        const chileList = document.getElementById('topStylesChile');
+        chileList.innerHTML = topChile.map(([s, c]) => `<li><span>${normalizeText(s)}</span><span>${c}</span></li>`).join('');
 
-        // Top 5 regiones de Chile (usando ciudad como región)
-        const regionMap = {};
-        chileRows.forEach(r => {
-            let region = r.ciudad;
-            if (!region) return;
-            // limpiar ciudad
-            region = region.trim().split(',')[0];
-            if (region) regionMap[region] = (regionMap[region]||0)+1;
+        // Top 5 regiones de Chile (usamos ciudad como proxy, o si tiene region se usa)
+        // Por ahora agrupo por ciudad (si tiene región, se puede cambiar)
+        const regionChile = {};
+        chileData.forEach(item => {
+            let region = item.ciudad;
+            if (!region) region = 'Sin región';
+            regionChile[region] = (regionChile[region] || 0) + 1;
         });
-        const topRegions = Object.entries(regionMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const ctxReg = document.getElementById('regionsChart').getContext('2d');
-        if (regionsChart) regionsChart.destroy();
-        regionsChart = new Chart(ctxReg, {
-            type: 'bar',
-            data: { labels: topRegions.map(t=>t[0]), datasets: [{ label: 'Medallas', data: topRegions.map(t=>t[1]), backgroundColor: '#f7c32f' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#fff' } }, x: { ticks: { color: '#fff', maxRotation: 45, minRotation: 45 } } } }
-        });
+        const topRegions = Object.entries(regionChile).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const regionList = document.getElementById('topRegionsChile');
+        regionList.innerHTML = topRegions.map(([r, c]) => `<li><span>${normalizeText(r)}</span><span>${c}</span></li>`).join('');
     }
 
-    // --------------------------------------------------------------
-    // 7. TABLA CON FILTROS Y BLUR PERMANENTE
-    // --------------------------------------------------------------
-    let currentFilteredData = [];
-
-    function applyFilters() {
-        const certamenFilter = document.getElementById('filterCertamen').value.toLowerCase();
-        const estiloFilter = document.getElementById('filterEstilo').value.toLowerCase();
-        const medallaFilter = document.getElementById('filterMedalla').value;
-        const paisFilter = document.getElementById('filterPais').value.toLowerCase();
-
-        let filtered = allData.filter(row => {
-            if (certamenFilter && !(row.certamen || '').toLowerCase().includes(certamenFilter)) return false;
-            if (estiloFilter && !(row.estilo || '').toLowerCase().includes(estiloFilter)) return false;
-            if (medallaFilter && row.medalla_base !== medallaFilter) return false;
-            if (paisFilter && !(row.pais || '').toLowerCase().includes(paisFilter)) return false;
-            return true;
-        });
-        currentFilteredData = filtered;
-        renderTable(filtered);
+    // ==================== TABLA CON FILTROS ====================
+    let currentData = [];
+    function populateFilters(data) {
+        const certamenes = [...new Set(data.map(d => d.certamen).filter(Boolean))];
+        const estilos = [...new Set(data.map(d => d.estilo).filter(Boolean))];
+        const medallas = [...new Set(data.map(d => d.medalla_base).filter(Boolean))];
+        const paises = [...new Set(data.map(d => d.pais).filter(Boolean))];
+        const selectCert = document.getElementById('filterCertamen');
+        const selectEstilo = document.getElementById('filterEstilo');
+        const selectMedalla = document.getElementById('filterMedalla');
+        const selectPais = document.getElementById('filterPais');
+        selectCert.innerHTML = '<option value="">Todos los certámenes</option>' + certamenes.sort().map(c => `<option value="${c}">${c}</option>`).join('');
+        selectEstilo.innerHTML = '<option value="">Todos los estilos</option>' + estilos.sort().map(e => `<option value="${e}">${normalizeText(e)}</option>`).join('');
+        selectMedalla.innerHTML = '<option value="">Todas las medallas</option>' + medallas.sort().map(m => `<option value="${m}">${m}</option>`).join('');
+        selectPais.innerHTML = '<option value="">Todos los países</option>' + paises.sort().map(p => `<option value="${p}">${p}</option>`).join('');
     }
 
-    function renderTable(data) {
+    function renderTable(filteredData) {
         const tbody = document.getElementById('tableBody');
-        if (!data.length) {
+        if (!filteredData.length) {
             tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
             return;
         }
-        tbody.innerHTML = data.slice(0, 200).map(item => {
+        tbody.innerHTML = filteredData.slice(0, 200).map(item => {
             let medClass = '';
             const med = (item.medalla_base || '').toLowerCase();
             if (med === 'oro') medClass = 'medal-gold';
             else if (med === 'plata') medClass = 'medal-silver';
-            else if (med === 'bronce') medClass = 'medal-bronze';
-            return `
-                <tr>
-                    <td>${item.certamen || '-'}</td>
-                    <td>${item.fecha || item.anio || '-'}</td>
-                    <td class="blur-column">${item.cerveceria || '-'}</td>
-                    <td class="blur-column">${item.cerveza_ganadora || '-'}</td>
-                    <td>${item.estilo || '-'}</td>
-                    <td class="${medClass}">${item.medalla_base || '-'}</td>
-                    <td>${item.pais || '-'}</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    // --------------------------------------------------------------
-    // 8. INICIALIZACIÓN
-    // --------------------------------------------------------------
-    async function init() {
-        const data = await obtenerMedallas();
-        if (!data.length) {
-            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar los datos.</td></tr>';
-            return;
-        }
-        allData = data;
-        updateStats(data);
-        renderEvolutionMonthly(data);
-        renderPodium(data);
-        renderRankingChile(data);
-        renderMicroCharts(data);
-        applyFilters(); // primera tabla
-
-        // Agregar eventos a filtros
-        document.getElementById('filterCertamen').addEventListener('input', applyFilters);
-        document.getElementById('filterEstilo').addEventListener('input', applyFilters);
-        document.getElementById('filterMedalla').addEventListener('change', applyFilters);
-        document.getElementById('filterPais').addEventListener('input', applyFilters);
-    }
-    init();
-</script>
-</body>
-</html>
+            else if (
