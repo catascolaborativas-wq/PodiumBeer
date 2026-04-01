@@ -31,24 +31,21 @@
             z-index: -2;
         }
         .container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 1rem;
             position: relative;
             z-index: 1;
         }
-        /* Header con logo grande y centrado */
         .header {
             text-align: center;
             margin: 0 auto 1.5rem auto;
         }
         .logo {
-            max-width: 320px;
+            max-width: 280px;
             width: 100%;
             height: auto;
-            display: inline-block;
         }
-        /* Stats */
         .stats {
             display: flex;
             flex-wrap: wrap;
@@ -76,7 +73,6 @@
             letter-spacing: 1px;
             color: #ccc;
         }
-        /* Grid para gráficos: dos columnas en pantallas grandes */
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -114,7 +110,6 @@
             max-width: 100%;
             height: auto;
         }
-        /* Tabla */
         .auditoria-header {
             display: flex;
             justify-content: space-between;
@@ -205,7 +200,6 @@
             font-weight: bold;
             white-space: pre-wrap;
         }
-        /* Ajustes extra para móvil */
         @media (max-width: 768px) {
             .container { padding: 0.8rem; }
             .logo { max-width: 200px; }
@@ -237,31 +231,22 @@
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Certámenes</div></div>
     </div>
 
-    <!-- Grid de dos columnas para los dos primeros gráficos -->
     <div class="charts-grid">
         <div class="card">
             <div class="card-title">📈 Evolución Estratégica</div>
-            <div class="chart-container">
-                <canvas id="bloombergChart" width="800" height="400"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="bloombergChart" width="800" height="400"></canvas></div>
         </div>
         <div class="card">
             <div class="card-title">🏆 Ranking de Cervecerías (Top 15)</div>
-            <div class="chart-container">
-                <canvas id="rankingChart" width="800" height="500"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="rankingChart" width="800" height="500"></canvas></div>
         </div>
     </div>
 
-    <!-- Sankey (ocupa todo el ancho) -->
     <div class="card">
         <div class="card-title">🔗 Trazabilidad de Prestigio</div>
-        <div class="chart-container">
-            <svg id="sankey-svg" width="100%" height="500" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"></svg>
-        </div>
+        <div class="chart-container"><svg id="sankey-svg" width="100%" height="500" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"></svg></div>
     </div>
 
-    <!-- Tabla (ocupa todo el ancho) -->
     <div class="card">
         <div class="card-title">📋 Auditoría Detallada</div>
         <div class="auditoria-header">
@@ -269,10 +254,9 @@
         </div>
         <div class="table-wrapper">
             <table class="medals-table">
-                <thead> ...
-<th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
-                <tbody id="tableBody"><td colspan="7" class="loading">Cargando datos...</td></tbody>
-             ?>
+                <thead><tr><th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></tr></thead>
+                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
+            </table>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
             <a href="https://wa.me/56912345678?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
@@ -290,10 +274,8 @@
 </div>
 
 <script>
-    // === CREDENCIALES DE SUPABASE ===
     const SUPABASE_URL = "https://jqinutwfunthyzhklqeig.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_YBiADIm470mdio3VDUJN4w_xpv7S55N";
-
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let allData = [];
 
@@ -306,16 +288,14 @@
 
     async function obtenerMedallas() {
         try {
-            console.log("Conectando a Supabase...");
             const { data, error } = await supabaseClient
                 .from('medallas')
                 .select('certamen, fecha, anio, cerveceria, cerveza_ganadora, estilo, medalla_base, pais');
-            if (error) throw new Error(`Supabase: ${error.message}`);
-            if (!data || data.length === 0) throw new Error("La consulta devolvió 0 registros.");
-            console.log(`✅ Datos obtenidos: ${data.length} registros`);
+            if (error) throw new Error(error.message);
+            if (!data || data.length === 0) throw new Error("No hay registros en la tabla.");
             return data;
         } catch (err) {
-            showError(`❌ ${err.message}\n\n🔍 Verifica que la tabla se llame 'medallas' (todo minúsculas) y que la URL y la clave sean las correctas.\n📌 En Supabase, asegúrate de que RLS esté desactivado o que la clave publicable tenga permisos de lectura.`);
+            showError(`❌ Error: ${err.message}\n\nRevisa que la tabla se llame 'medallas' (minúsculas) y que RLS esté desactivado.`);
             return [];
         }
     }
@@ -325,13 +305,13 @@
         const total = data.length;
         const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
         const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
-        const statsDiv = document.getElementById('stats-placeholder');
-        statsDiv.children[0].children[0].innerText = total;
-        statsDiv.children[1].children[0].innerText = oro;
-        statsDiv.children[2].children[0].innerText = certamenes;
+        const stats = document.getElementById('stats-placeholder').children;
+        stats[0].children[0].innerText = total;
+        stats[1].children[0].innerText = oro;
+        stats[2].children[0].innerText = certamenes;
     }
 
-    let bloombergChart;
+    let bloombergChart, rankingChart;
     function renderBloomberg(data) {
         const yearMap = new Map();
         data.forEach(item => {
@@ -351,7 +331,6 @@
 
         const ctx = document.getElementById('bloombergChart').getContext('2d');
         if (bloombergChart) bloombergChart.destroy();
-
         const gradient = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
         gradient.addColorStop(0, '#1eab9b');
         gradient.addColorStop(0.5, '#e32c6c');
@@ -361,36 +340,16 @@
             type: 'line',
             data: {
                 labels,
-                datasets: [{
-                    label: 'Medallas por año',
-                    data: values,
-                    fill: true,
-                    backgroundColor: gradient,
-                    borderColor: '#f7c32f',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#f7c32f',
-                    pointBorderColor: '#fff',
-                    pointRadius: 5,
-                    pointHoverRadius: 8,
-                    tension: 0.4
-                }]
+                datasets: [{ label: 'Medallas por año', data: values, fill: true, backgroundColor: gradient, borderColor: '#f7c32f', borderWidth: 3, pointBackgroundColor: '#f7c32f', pointBorderColor: '#fff', pointRadius: 5, pointHoverRadius: 8, tension: 0.4 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    tooltip: { mode: 'index' },
-                    legend: { labels: { color: '#fff' } }
-                },
-                scales: {
-                    y: { beginAtZero: true, max: 2500, ticks: { stepSize: 500, color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                    x: { ticks: { color: '#fff' }, grid: { display: false } }
-                }
+                responsive: true, maintainAspectRatio: true,
+                plugins: { tooltip: { mode: 'index' }, legend: { labels: { color: '#fff' } } },
+                scales: { y: { beginAtZero: true, max: 2500, ticks: { stepSize: 500, color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { ticks: { color: '#fff' }, grid: { display: false } } }
             }
         });
     }
 
-    let rankingChart;
     function renderRanking(data) {
         const breweries = {};
         data.forEach(item => {
@@ -402,10 +361,7 @@
             else if (medalla && medalla.toLowerCase() === 'plata') breweries[nombre].plata++;
             else if (medalla && medalla.toLowerCase() === 'bronce') breweries[nombre].bronce++;
         });
-        const ranking = Object.entries(breweries)
-            .map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals }))
-            .sort((a,b) => b.total - a.total)
-            .slice(0,15);
+        const ranking = Object.entries(breweries).map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals })).sort((a,b) => b.total - a.total).slice(0,15);
         const labels = ranking.map(r => r.nom);
         const oro = ranking.map(r => r.oro);
         const plata = ranking.map(r => r.plata);
@@ -424,17 +380,9 @@
                 ]
             },
             options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } },
-                    legend: { labels: { color: '#fff' } }
-                },
-                scales: {
-                    x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                    y: { stacked: true, ticks: { color: '#fff' }, grid: { display: false } }
-                }
+                indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+                plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } }, legend: { labels: { color: '#fff' } } },
+                scales: { x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }, y: { stacked: true, ticks: { color: '#fff' }, grid: { display: false } } }
             }
         });
     }
@@ -474,8 +422,7 @@
 
         svg.append("g").selectAll("rect").data(sankeyNodes).enter().append("rect")
             .attr("x", d => d.x0).attr("y", d => d.y0).attr("height", d => d.y1 - d.y0).attr("width", d => d.x1 - d.x0)
-            .attr("fill", "#1eab9b").attr("stroke", "#f7c32f")
-            .append("title").text(d => d.name);
+            .attr("fill", "#1eab9b").attr("stroke", "#f7c32f").append("title").text(d => d.name);
 
         svg.append("g").selectAll("text").data(sankeyNodes).enter().append("text")
             .attr("x", d => d.x0 - 6).attr("y", d => (d.y0 + d.y1) / 2).attr("dy", "0.35em").attr("text-anchor", "end")
@@ -495,7 +442,7 @@
             return text.includes(filter);
         });
         if (filtered.length === 0) {
-            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
+            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
@@ -521,8 +468,7 @@
     async function init() {
         const data = await obtenerMedallas();
         if (!data.length) {
-            const tbody = document.getElementById('tableBody');
-            if (tbody) tbody.innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos. Lee el mensaje rojo de arriba.</td></tr>';
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos. Revisa el mensaje rojo.</td></tr>';
             return;
         }
         allData = data;
@@ -531,9 +477,7 @@
         renderRanking(data);
         renderSankey(data);
         renderTable(data);
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            renderTable(allData, e.target.value.toLowerCase());
-        });
+        document.getElementById('searchInput').addEventListener('input', (e) => renderTable(allData, e.target.value.toLowerCase()));
     }
     init();
 </script>
