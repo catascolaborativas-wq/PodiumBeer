@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>PodiumBeer - Auditoría de Desempeño Cervecero</title>
-    <!-- Fuentes -->
+    <title>PodiumBeer – Auditoría de Desempeño Cervecero</title>
+    
+    <!-- Fuentes premium -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chart.js y plugin para degradado facetado -->
+    
+    <!-- Chart.js + D3.js + Sankey -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-gradient-fill"></script>
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- D3 y Sankey -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
-    <!-- Estilos -->
+    
     <style>
         * {
             margin: 0;
@@ -29,7 +29,7 @@
             position: relative;
         }
 
-        /* Fondo de cervecería con overlay 56% en toda la página */
+        /* Fondo con overlay azul 56% en toda la página */
         body::before {
             content: "";
             position: fixed;
@@ -52,59 +52,52 @@
             z-index: 1;
         }
 
-        /* Header con métricas estilo Bloomberg */
-        .hero {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: flex-start;
+        /* Header con logo únicamente (el nombre está dentro del logo) */
+        .header {
+            text-align: center;
             margin-bottom: 2rem;
-            gap: 1rem;
         }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
+
         .logo {
-            height: 70px;
-            width: auto;
-            object-fit: contain;
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            margin: 0 auto;
+            display: block;
         }
-        .title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #f7c32f;
-            letter-spacing: -0.02em;
-        }
-        .subhead {
-            color: #1eab9b;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
+
+        /* Tarjetas de métricas */
         .stats {
             display: flex;
-            gap: 2rem;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            padding: 1rem 2rem;
-            border-radius: 40px;
             flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem 2rem;
+            border-radius: 40px;
         }
+
         .stat {
             text-align: center;
+            flex: 1;
+            min-width: 120px;
         }
+
         .stat-number {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: #f7c32f;
+            line-height: 1;
         }
+
         .stat-label {
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #ccc;
+            margin-top: 0.5rem;
         }
 
         /* Tarjetas de gráficos */
@@ -115,8 +108,9 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
             border: 1px solid rgba(30, 171, 155, 0.3);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
+
         .card-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -125,63 +119,88 @@
             border-left: 5px solid #e32c6c;
             padding-left: 1rem;
         }
+
         .chart-container {
-            position: relative;
             width: 100%;
-            height: auto;
             min-height: 400px;
         }
+
         canvas, svg {
             max-width: 100%;
             height: auto;
         }
 
-        /* Tabla con blur y buscador */
+        /* Tabla con blur */
         .auditoria-header {
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
             gap: 1rem;
         }
+
         .search-box {
             padding: 0.6rem 1rem;
             border-radius: 40px;
             border: none;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             font-size: 0.9rem;
             width: 250px;
         }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
         .table-wrapper {
             overflow-x: auto;
         }
+
         .medals-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
         }
-        .medals-table th, .medals-table td {
+
+        .medals-table th,
+        .medals-table td {
             padding: 0.8rem;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .medals-table th {
-            background: rgba(227,44,108,0.3);
+            background: rgba(227, 44, 108, 0.3);
             color: #f7c32f;
             font-weight: 600;
         }
+
         .blur-column {
             filter: blur(5px);
             transition: filter 0.2s;
         }
+
         .medals-table tr:hover .blur-column {
             filter: blur(0);
         }
-        .medal-gold { color: #f7c32f; font-weight: bold; }
-        .medal-silver { color: #c0c0c0; font-weight: bold; }
-        .medal-bronze { color: #cd7f32; font-weight: bold; }
+
+        .medal-gold {
+            color: #f7c32f;
+            font-weight: bold;
+        }
+
+        .medal-silver {
+            color: #c0c0c0;
+            font-weight: bold;
+        }
+
+        .medal-bronze {
+            color: #cd7f32;
+            font-weight: bold;
+        }
+
         .btn-premium {
             display: inline-block;
             background: #e32c6c;
@@ -195,56 +214,82 @@
             border: none;
             cursor: pointer;
         }
+
         .btn-premium:hover {
             background: #f7c32f;
             color: #06232e;
         }
+
         footer {
             text-align: center;
             padding: 2rem 0 1rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin-top: 2rem;
         }
+
         .social-icons {
             display: flex;
             justify-content: center;
             gap: 1.5rem;
             margin-bottom: 1rem;
         }
+
         .social-icon {
             width: 32px;
             height: 32px;
             transition: transform 0.2s;
         }
-        .social-icon:hover { transform: scale(1.1); }
+
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .hero { flex-direction: column; }
-            .stats { width: 100%; justify-content: center; }
-            .stat-number { font-size: 1.5rem; }
-            .card-title { font-size: 1.2rem; }
-            .container { padding: 1rem; }
+            .container {
+                padding: 1rem;
+            }
+
+            .logo {
+                max-width: 200px;
+            }
+
+            .stats {
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 1.2rem;
+            }
+
+            .medals-table th,
+            .medals-table td {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- Header con métricas -->
-    <div class="hero">
-        <div class="logo-area">
-            <img src="assets/logo_podiumbeer.png" alt="PodiumBeer" class="logo">
-            <div>
-                <div class="title">PODIUMBEER</div>
-                <div class="subhead">AUDITORÍA DE DESEMPEÑO CERVECERO</div>
-            </div>
-        </div>
-        <div class="stats" id="stats-placeholder">
-            <div class="stat"><div class="stat-number">--</div><div class="stat-label">Total Medallas</div></div>
-            <div class="stat"><div class="stat-number">--</div><div class="stat-label">Medallas Oro</div></div>
-            <div class="stat"><div class="stat-number">--</div><div class="stat-label">Certámenes</div></div>
-        </div>
+    <!-- Logo (el nombre está dentro de la imagen) -->
+    <header class="header">
+        <img src="assets/logo_podiumbeer.png" alt="PodiumBeer" class="logo">
+    </header>
+
+    <!-- Estadísticas dinámicas -->
+    <div class="stats" id="stats-placeholder">
+        <div class="stat"><div class="stat-number">--</div><div class="stat-label">Total Medallas</div></div>
+        <div class="stat"><div class="stat-number">--</div><div class="stat-label">Medallas Oro</div></div>
+        <div class="stat"><div class="stat-number">--</div><div class="stat-label">Certámenes</div></div>
     </div>
 
-    <!-- Gráfico Bloomberg: Evolución Estratégica (Área facetada) -->
+    <!-- Gráfico 1: Evolución Estratégica (Bloomberg) -->
     <div class="card">
         <div class="card-title">📈 Evolución Estratégica</div>
         <div class="chart-container">
@@ -252,7 +297,7 @@
         </div>
     </div>
 
-    <!-- Gráfico Ranking: Barras horizontales apiladas -->
+    <!-- Gráfico 2: Ranking de Cervecerías (barras horizontales apiladas) -->
     <div class="card">
         <div class="card-title">🏆 Ranking de Cervecerías (Top 15)</div>
         <div class="chart-container">
@@ -260,15 +305,15 @@
         </div>
     </div>
 
-    <!-- Diagrama Sankey -->
+    <!-- Gráfico 3: Sankey (Trazabilidad) -->
     <div class="card">
-        <div class="card-title">🔗 Trazabilidad de Prestigio (Sankey)</div>
+        <div class="card-title">🔗 Trazabilidad de Prestigio</div>
         <div class="chart-container" id="sankey-container">
             <svg id="sankey-svg" width="100%" height="500" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"></svg>
         </div>
     </div>
 
-    <!-- Tabla de auditoría con blur -->
+    <!-- Tabla con auditoría + blur + buscador -->
     <div class="card">
         <div class="card-title">📋 Auditoría Detallada</div>
         <div class="auditoria-header">
@@ -277,9 +322,19 @@
         <div class="table-wrapper">
             <table class="medals-table" id="auditTable">
                 <thead>
-                    <tr><th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></tr>
+                    <tr>
+                        <th>Certamen</th>
+                        <th>Fecha</th>
+                        <th>Cervecería</th>
+                        <th>Cerveza</th>
+                        <th>Estilo</th>
+                        <th>Medalla</th>
+                        <th>País</th>
+                    </tr>
                 </thead>
-                <tbody id="tableBody"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
+                <tbody id="tableBody">
+                    <tr><td colspan="7" class="loading">Cargando datos...</td></tr>
+                </tbody>
             </table>
         </div>
         <div style="text-align: center; margin-top: 1.5rem;">
@@ -293,54 +348,70 @@
             <a href="#"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
             <a href="#"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
         </div>
-        <p style="font-size:0.75rem; opacity:0.6;">PodiumBeer - Desarrollo de Catas Colaborativas</p>
+        <p style="font-size:0.75rem; opacity:0.6;">PodiumBeer – Desarrollo de Catas Colaborativas</p>
     </footer>
 </div>
 
 <script>
-    // Configuración Supabase
+    // --------------------------------------------------------------
+    // 1. CONFIGURACIÓN DE SUPABASE (usando tus datos reales)
+    // --------------------------------------------------------------
     const SUPABASE_URL = "https://jqinutwfunthyzhklqeig.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxaW51dHdmdW10eWh6a2xxZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTg5MTAsImV4cCI6MjA5MDU5NDkxMH0.GJY8bnuYi556G4mZW1Tx-c7eFeTXSN8TM22bXtiUVMs";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allData = [];
 
-    async function loadData() {
-        const { data, error } = await supabase.from('medallas').select('*');
-        if (error) { console.error(error); return []; }
-        allData = data || [];
-        return allData;
+    // Función para obtener datos (usa las columnas reales de tu CSV)
+    async function obtenerMedallas() {
+        try {
+            const { data, error } = await supabase
+                .from('medallas')
+                .select('certamen, fecha, anio, cerveceria, cerveza_ganadora, estilo, medalla_base, pais');
+            if (error) throw error;
+            console.log(`✅ Datos cargados: ${data.length} registros`);
+            return data || [];
+        } catch (err) {
+            console.error('❌ Error al cargar datos:', err);
+            return [];
+        }
     }
 
-    // Métricas globales
+    // --------------------------------------------------------------
+    // 2. ESTADÍSTICAS
+    // --------------------------------------------------------------
     function updateStats(data) {
         const total = data.length;
-        const oro = data.filter(d => d.medalla_base === 'Oro').length;
-        const certamenes = new Set(data.map(d => d.certamen)).size;
+        const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
+        const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
         document.querySelector('#stats-placeholder .stat:nth-child(1) .stat-number').innerText = total;
         document.querySelector('#stats-placeholder .stat:nth-child(2) .stat-number').innerText = oro;
         document.querySelector('#stats-placeholder .stat:nth-child(3) .stat-number').innerText = certamenes;
     }
 
-    // Gráfico Bloomberg: Área facetada con línea dorada (simulación de facetado con degradado)
+    // --------------------------------------------------------------
+    // 3. GRÁFICO BLOOMBERG (Área facetada + línea)
+    // --------------------------------------------------------------
     let bloombergChart;
     function renderBloomberg(data) {
-        // Agrupar por año (usando columna fecha o anio)
+        // Agrupar por año (usa columna 'anio' o extrae año de 'fecha')
         const yearMap = new Map();
         data.forEach(item => {
-            let year = item.anio || (item.fecha ? item.fecha.split('-')[0] : null);
-            if (!year) return;
-            year = year.toString();
-            yearMap.set(year, (yearMap.get(year) || 0) + 1);
+            let year = item.anio;
+            if (!year && item.fecha) year = item.fecha.split('-')[0];
+            if (year && !isNaN(parseInt(year))) {
+                year = parseInt(year).toString();
+                yearMap.set(year, (yearMap.get(year) || 0) + 1);
+            }
         });
-        const sorted = Array.from(yearMap.entries()).sort((a,b) => a[0] - b[0]);
+        const sorted = Array.from(yearMap.entries()).sort((a,b) => parseInt(a[0]) - parseInt(b[0]));
         const labels = sorted.map(y => y[0]);
         const values = sorted.map(v => v[1]);
 
         const ctx = document.getElementById('bloombergChart').getContext('2d');
         if (bloombergChart) bloombergChart.destroy();
 
-        // Configurar degradado personalizado para área
+        // Degradado cromático (azul → magenta → naranja)
         const gradient = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
         gradient.addColorStop(0, '#1eab9b');
         gradient.addColorStop(0.5, '#e32c6c');
@@ -350,28 +421,25 @@
             type: 'line',
             data: {
                 labels: labels,
-                datasets: [
-                    {
-                        label: 'Medallas por año',
-                        data: values,
-                        fill: true,
-                        backgroundColor: gradient,
-                        borderColor: '#f7c32f',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#f7c32f',
-                        pointBorderColor: '#fff',
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
-                        tension: 0.4,
-                        segment: { borderDash: ctx => [0,0] }
-                    }
-                ]
+                datasets: [{
+                    label: 'Medallas por año',
+                    data: values,
+                    fill: true,
+                    backgroundColor: gradient,
+                    borderColor: '#f7c32f',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#f7c32f',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    tension: 0.4
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    tooltip: { mode: 'index', intersect: false },
+                    tooltip: { mode: 'index' },
                     legend: { labels: { color: '#fff' } }
                 },
                 scales: {
@@ -387,25 +455,33 @@
         });
     }
 
-    // Ranking: barras horizontales apiladas (Chart.js)
+    // --------------------------------------------------------------
+    // 4. RANKING (Barras horizontales apiladas)
+    // --------------------------------------------------------------
     let rankingChart;
     function renderRanking(data) {
-        const cervecerias = {};
+        // Agrupar por cervecería, contando Oro/Plata/Bronce (usa medalla_base)
+        const breweries = {};
         data.forEach(item => {
             const nombre = item.cerveceria;
             const medalla = item.medalla_base;
             if (!nombre) return;
-            if (!cervecerias[nombre]) cervecerias[nombre] = { oro:0, plata:0, bronce:0 };
-            if (medalla === 'Oro') cervecerias[nombre].oro++;
-            else if (medalla === 'Plata') cervecerias[nombre].plata++;
-            else if (medalla === 'Bronce') cervecerias[nombre].bronce++;
+            if (!breweries[nombre]) breweries[nombre] = { oro: 0, plata: 0, bronce: 0 };
+            if (medalla && medalla.toLowerCase() === 'oro') breweries[nombre].oro++;
+            else if (medalla && medalla.toLowerCase() === 'plata') breweries[nombre].plata++;
+            else if (medalla && medalla.toLowerCase() === 'bronce') breweries[nombre].bronce++;
         });
-        const orden = Object.entries(cervecerias).map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals }))
-            .sort((a,b) => b.total - a.total).slice(0,15);
-        const labels = orden.map(c => c.nom);
-        const oro = orden.map(c => c.oro);
-        const plata = orden.map(c => c.plata);
-        const bronce = orden.map(c => c.bronce);
+
+        const ranking = Object.entries(breweries).map(([nom, vals]) => ({
+            nom,
+            total: vals.oro + vals.plata + vals.bronce,
+            ...vals
+        })).sort((a,b) => b.total - a.total).slice(0, 15);
+
+        const labels = ranking.map(r => r.nom);
+        const oro = ranking.map(r => r.oro);
+        const plata = ranking.map(r => r.plata);
+        const bronce = ranking.map(r => r.bronce);
 
         const ctx = document.getElementById('rankingChart').getContext('2d');
         if (rankingChart) rankingChart.destroy();
@@ -424,7 +500,11 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas`
+                        }
+                    },
                     legend: { labels: { color: '#fff' } }
                 },
                 scales: {
@@ -435,10 +515,12 @@
         });
     }
 
-    // Sankey
+    // --------------------------------------------------------------
+    // 5. SANKEY (Flujo: Certamen → Cervecería → Estilo → Medalla)
+    // --------------------------------------------------------------
     function renderSankey(data) {
-        // Agrupar por ruta: Certamen -> Cerveceria -> Estilo -> Medalla_base
         const flows = new Map();
+        // Agrupar rutas
         data.forEach(item => {
             const cert = item.certamen || 'Otro';
             const cev = item.cerveceria || 'Desconocida';
@@ -447,6 +529,8 @@
             const key = `${cert}|${cev}|${est}|${med}`;
             flows.set(key, (flows.get(key) || 0) + 1);
         });
+        if (flows.size === 0) return;
+
         const nodesSet = new Set();
         const links = [];
         for (let [path, val] of flows.entries()) {
@@ -471,10 +555,11 @@
             .extent([[50, 30], [width-50, height-40]]);
 
         const { nodes: sankeyNodes, links: sankeyLinks } = sankeyGenerator({
-            nodes: nodes.map(d => ({...d})),
+            nodes: nodes.map(d => ({ ...d })),
             links: graphLinks
         });
 
+        // Nodos
         svg.append("g")
             .selectAll("rect")
             .data(sankeyNodes)
@@ -516,45 +601,59 @@
             .text(d => `${d.source.name} → ${d.target.name}: ${d.value}`);
     }
 
-    // Tabla con blur y buscador
+    // --------------------------------------------------------------
+    // 6. TABLA CON BLUR Y BUSCADOR
+    // --------------------------------------------------------------
     function renderTable(data, filter = "") {
         const tbody = document.getElementById('tableBody');
         const filtered = data.filter(row => {
             if (!filter) return true;
-            return (row.cerveceria || '').toLowerCase().includes(filter) ||
-                   (row.estilo || '').toLowerCase().includes(filter) ||
-                   (row.cerveza_ganadora || '').toLowerCase().includes(filter);
+            const text = `${row.cerveceria || ''} ${row.estilo || ''} ${row.cerveza_ganadora || ''}`.toLowerCase();
+            return text.includes(filter);
         });
         if (filtered.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
             return;
         }
-        tbody.innerHTML = filtered.slice(0, 200).map(item => `
-            <tr>
-                <td>${item.certamen || '-'}</td>
-                <td>${item.fecha || item.anio || '-'}</td>
-                <td class="blur-column">${item.cerveceria || '-'}</td>
-                <td class="blur-column">${item.cerveza_ganadora || '-'}</td>
-                <td class="blur-column">${item.estilo || '-'}</td>
-                <td class="medal-${(item.medalla_base || '').toLowerCase()}">${item.medalla_base || '-'}</td>
-                <td>${item.pais || '-'}</td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = filtered.slice(0, 200).map(item => {
+            const medClass = item.medalla_base && item.medalla_base.toLowerCase() === 'oro' ? 'medal-gold' :
+                            (item.medalla_base && item.medalla_base.toLowerCase() === 'plata' ? 'medal-silver' :
+                            (item.medalla_base && item.medalla_base.toLowerCase() === 'bronce' ? 'medal-bronze' : ''));
+            return `
+                <tr>
+                    <td>${item.certamen || '-'}</td>
+                    <td>${item.fecha || item.anio || '-'}</td>
+                    <td class="blur-column">${item.cerveceria || '-'}</td>
+                    <td class="blur-column">${item.cerveza_ganadora || '-'}</td>
+                    <td class="blur-column">${item.estilo || '-'}</td>
+                    <td class="${medClass}">${item.medalla_base || '-'}</td>
+                    <td>${item.pais || '-'}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
-    // Inicialización
+    // --------------------------------------------------------------
+    // 7. INICIALIZACIÓN
+    // --------------------------------------------------------------
     async function init() {
-        const data = await loadData();
-        if (!data.length) return;
+        const data = await obtenerMedallas();
+        if (!data.length) {
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar los datos. Verifica conexión a Supabase.</td></tr>';
+            return;
+        }
+        allData = data;
         updateStats(data);
         renderBloomberg(data);
         renderRanking(data);
         renderSankey(data);
         renderTable(data);
+
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            renderTable(data, e.target.value.toLowerCase());
+            renderTable(allData, e.target.value.toLowerCase());
         });
     }
+
     init();
 </script>
 </body>
