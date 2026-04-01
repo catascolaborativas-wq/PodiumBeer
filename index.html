@@ -6,7 +6,6 @@
     <title>PodiumBeer – Auditoría de Desempeño Cervecero</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <style>
@@ -37,15 +36,8 @@
             position: relative;
             z-index: 1;
         }
-        .header {
-            text-align: center;
-            margin: 0 auto 1.5rem auto;
-        }
-        .logo {
-            max-width: 280px;
-            width: 100%;
-            height: auto;
-        }
+        .header { text-align: center; margin: 0 auto 1.5rem auto; }
+        .logo { max-width: 280px; width: 100%; height: auto; }
         .stats {
             display: flex;
             flex-wrap: wrap;
@@ -57,22 +49,9 @@
             padding: 1rem 2rem;
             border-radius: 2rem;
         }
-        .stat {
-            text-align: center;
-            flex: 1;
-            min-width: 120px;
-        }
-        .stat-number {
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
-            font-weight: 800;
-            color: #f7c32f;
-        }
-        .stat-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #ccc;
-        }
+        .stat { text-align: center; flex: 1; min-width: 120px; }
+        .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; color: #f7c32f; }
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -80,9 +59,7 @@
             margin-bottom: 1.5rem;
         }
         @media (min-width: 1024px) {
-            .charts-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+            .charts-grid { grid-template-columns: 1fr 1fr; }
         }
         .card {
             background: rgba(10,25,35,0.75);
@@ -101,15 +78,8 @@
             border-left: 5px solid #e32c6c;
             padding-left: 1rem;
         }
-        .chart-container {
-            width: 100%;
-            min-height: 350px;
-            position: relative;
-        }
-        canvas, svg {
-            max-width: 100%;
-            height: auto;
-        }
+        .chart-container { width: 100%; min-height: 350px; position: relative; }
+        canvas, svg { max-width: 100%; height: auto; }
         .auditoria-header {
             display: flex;
             justify-content: space-between;
@@ -128,10 +98,7 @@
             width: 100%;
             max-width: 250px;
         }
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .medals-table {
             width: 100%;
             border-collapse: collapse;
@@ -148,18 +115,8 @@
             color: #f7c32f;
             font-weight: 600;
         }
-        .blur-column {
-            filter: blur(5px);
-            transition: filter 0.2s;
-        }
-        .medals-table tr:hover .blur-column {
-            filter: blur(0);
-        }
-        @media (hover: none) and (pointer: coarse) {
-            .medals-table tr:active .blur-column {
-                filter: blur(0);
-            }
-        }
+        .blur-column { filter: blur(5px); transition: filter 0.2s; }
+        .medals-table tr:hover .blur-column { filter: blur(0); }
         .medal-gold { color: #f7c32f; font-weight: bold; }
         .medal-silver { color: #c0c0c0; font-weight: bold; }
         .medal-bronze { color: #cd7f32; font-weight: bold; }
@@ -198,7 +155,6 @@
             margin-bottom: 1rem;
             text-align: center;
             font-weight: bold;
-            white-space: pre-wrap;
         }
         @media (max-width: 768px) {
             .container { padding: 0.8rem; }
@@ -254,9 +210,10 @@
         </div>
         <div class="table-wrapper">
             <table class="medals-table">
-                <thead><tr><th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></tr></thead>
-                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
-            </table>
+                <thead> ...
+<th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
+                <tbody id="tableBody"><td colspan="7">Cargando datos...</td></tbody>
+             </table>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
             <a href="https://wa.me/56912345678?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
@@ -274,28 +231,39 @@
 </div>
 
 <script>
-    const SUPABASE_URL = "https://jqinutwfunthyzhklqeig.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_YBiADIm470mdio3VDUJN4w_xpv7S55N";
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let allData = [];
 
     function showError(msg) {
         const errDiv = document.getElementById('error-message');
         errDiv.innerText = msg;
         errDiv.style.display = 'block';
-        console.error(msg);
     }
 
-    async function obtenerMedallas() {
+    async function cargarCSV() {
         try {
-            const { data, error } = await supabaseClient
-                .from('medallas')
-                .select('certamen, fecha, anio, cerveceria, cerveza_ganadora, estilo, medalla_base, pais');
-            if (error) throw new Error(error.message);
-            if (!data || data.length === 0) throw new Error("No hay registros en la tabla.");
-            return data;
+            const response = await fetch('BBDD_Medallero_Chile.csv');
+            if (!response.ok) throw new Error(`No se pudo cargar el CSV: ${response.status}`);
+            const texto = await response.text();
+            
+            // Parsear CSV
+            const lineas = texto.split('\n');
+            const encabezados = lineas[0].split(';');
+            const datos = [];
+            
+            for (let i = 1; i < lineas.length; i++) {
+                if (!lineas[i].trim()) continue;
+                const valores = lineas[i].split(';');
+                const fila = {};
+                encabezados.forEach((enc, idx) => {
+                    fila[enc.trim()] = valores[idx] ? valores[idx].trim() : '';
+                });
+                datos.push(fila);
+            }
+            
+            console.log(`✅ CSV cargado: ${datos.length} registros`);
+            return datos;
         } catch (err) {
-            showError(`❌ Error: ${err.message}\n\nRevisa que la tabla se llame 'medallas' (minúsculas) y que RLS esté desactivado.`);
+            showError(`❌ Error al cargar CSV: ${err.message}. Asegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz del repositorio.`);
             return [];
         }
     }
@@ -340,7 +308,7 @@
             type: 'line',
             data: {
                 labels,
-                datasets: [{ label: 'Medallas por año', data: values, fill: true, backgroundColor: gradient, borderColor: '#f7c32f', borderWidth: 3, pointBackgroundColor: '#f7c32f', pointBorderColor: '#fff', pointRadius: 5, pointHoverRadius: 8, tension: 0.4 }]
+                datasets: [{ label: 'Medallas por año', data: values, fill: true, backgroundColor: gradient, borderColor: '#f7c32f', borderWidth: 3, pointBackgroundColor: '#f7c32f', pointBorderColor: '#fff', pointRadius: 5, tension: 0.4 }]
             },
             options: {
                 responsive: true, maintainAspectRatio: true,
@@ -389,7 +357,7 @@
 
     function renderSankey(data) {
         const flows = new Map();
-        data.forEach(item => {
+        data.slice(0, 500).forEach(item => {
             const cert = item.certamen || 'Otro';
             const cev = item.cerveceria || 'Desconocida';
             const est = item.estilo || 'Genérico';
@@ -442,7 +410,7 @@
             return text.includes(filter);
         });
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
+            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
@@ -452,7 +420,7 @@
             else if (med === 'plata') medClass = 'medal-silver';
             else if (med === 'bronce') medClass = 'medal-bronze';
             return `
-                <tr>
+                 <tr>
                     <td>${item.certamen || '-'}</td>
                     <td>${item.fecha || item.anio || '-'}</td>
                     <td class="blur-column">${item.cerveceria || '-'}</td>
@@ -460,15 +428,15 @@
                     <td class="blur-column">${item.estilo || '-'}</td>
                     <td class="${medClass}">${item.medalla_base || '-'}</td>
                     <td>${item.pais || '-'}</td>
-                </tr>
+                 </tr>
             `;
         }).join('');
     }
 
     async function init() {
-        const data = await obtenerMedallas();
+        const data = await cargarCSV();
         if (!data.length) {
-            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos. Revisa el mensaje rojo.</td></tr>';
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudo cargar el CSV. Revisa que el archivo esté en la raíz.</td></tr>';
             return;
         }
         allData = data;
