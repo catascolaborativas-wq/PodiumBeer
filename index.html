@@ -199,7 +199,7 @@
         <div class="table-wrapper">
             <table class="medals-table">
                 <thead><tr><th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
-                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td>}</tbody>
+                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
             </table>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
@@ -216,9 +216,9 @@
     </footer>
 </div>
 <script>
-    // === CONFIGURACIÓN CORRECTA DE SUPABASE ===
+    // === CREDENCIALES CORRECTAS DE SUPABASE (usando publishable key) ===
     const SUPABASE_URL = "https://jqinutwfunthyzhklqeig.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publisable_YBiADIm470mdio3VDUJN4w_xpv7S55N";
+    const SUPABASE_ANON_KEY = "sb_publishable_YBiADIm470mdio3VDUJN4w_xpv7S55N";
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let allData = [];
@@ -227,6 +227,7 @@
         const errDiv = document.getElementById('error-message');
         errDiv.innerText = msg;
         errDiv.style.display = 'block';
+        console.error(msg);
     }
 
     async function obtenerMedallas() {
@@ -240,7 +241,7 @@
             return data || [];
         } catch (err) {
             console.error("Error en Supabase:", err);
-            showError(`Error de conexión: ${err.message}. Revisa que la tabla se llame 'medallas' y que RLS esté desactivada o configurada.`);
+            showError(`Error de conexión: ${err.message}. Revisa que la tabla se llame 'medallas' y que RLS esté desactivada o con políticas.`);
             return [];
         }
     }
@@ -250,9 +251,10 @@
         const total = data.length;
         const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
         const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
-        document.getElementById('stats-placeholder').children[0].children[0].innerText = total;
-        document.getElementById('stats-placeholder').children[1].children[0].innerText = oro;
-        document.getElementById('stats-placeholder').children[2].children[0].innerText = certamenes;
+        const statsDiv = document.getElementById('stats-placeholder');
+        statsDiv.children[0].children[0].innerText = total;
+        statsDiv.children[1].children[0].innerText = oro;
+        statsDiv.children[2].children[0].innerText = certamenes;
     }
 
     let bloombergChart;
@@ -419,7 +421,7 @@
             return text.includes(filter);
         });
         if (filtered.length === 0) {
-            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>'; // fijo error de sintaxis
+            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
