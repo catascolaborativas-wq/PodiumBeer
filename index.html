@@ -2,11 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>PodiumBeer – Auditoría de Desempeño Cervecero</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <style>
@@ -37,29 +36,39 @@
             position: relative;
             z-index: 1;
         }
-        .header { text-align: center; margin: 0 auto 1rem auto; }
-        .logo { max-width: 85%; width: auto; height: auto; max-height: 90px; object-fit: contain; }
+        .header { text-align: center; margin: 0 auto 1.5rem auto; }
+        .logo { max-width: 280px; width: 100%; height: auto; }
         .stats {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 1rem;
+            gap: 1.5rem;
             margin-bottom: 2rem;
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(8px);
-            padding: 1rem;
+            padding: 1rem 2rem;
             border-radius: 2rem;
         }
-        .stat { text-align: center; flex: 1; min-width: 100px; }
-        .stat-number { font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 800; color: #f7c32f; }
-        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
+        .stat { text-align: center; flex: 1; min-width: 120px; }
+        .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; color: #f7c32f; }
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (min-width: 1024px) {
+            .charts-grid { grid-template-columns: 1fr 1fr; }
+        }
         .card {
             background: rgba(10,25,35,0.75);
             backdrop-filter: blur(10px);
             border-radius: 28px;
             padding: 1.2rem;
-            margin-bottom: 1.5rem;
             border: 1px solid rgba(30,171,155,0.3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            height: fit-content;
         }
         .card-title {
             font-size: 1.3rem;
@@ -141,10 +150,20 @@
         }
         .social-icon { width: 28px; height: 28px; transition: transform 0.2s; }
         .social-icon:hover { transform: scale(1.1); }
+        .error-message {
+            background: #e32c6c;
+            color: white;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: bold;
+            white-space: pre-wrap;
+        }
         @media (max-width: 768px) {
             .container { padding: 0.8rem; }
-            .logo { max-width: 70%; max-height: 70px; }
-            .stats { gap: 0.5rem; padding: 0.8rem; }
+            .logo { max-width: 200px; }
+            .stats { gap: 0.8rem; padding: 0.8rem; }
             .stat-number { font-size: 1.2rem; }
             .stat-label { font-size: 0.6rem; }
             .card-title { font-size: 1.1rem; }
@@ -153,7 +172,7 @@
             .medals-table th, .medals-table td { padding: 0.5rem 0.3rem; }
         }
         @media (max-width: 480px) {
-            .logo { max-width: 85%; }
+            .logo { max-width: 160px; }
             .stats { flex-direction: column; align-items: center; gap: 0.8rem; }
             .stat { width: 100%; }
         }
@@ -164,23 +183,30 @@
     <header class="header">
         <img src="assets/logo_podiumbeer.png" alt="PodiumBeer" class="logo">
     </header>
+
+    <div id="error-message" class="error-message" style="display: none;"></div>
     <div class="stats" id="stats-placeholder">
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Total Medallas</div></div>
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Medallas Oro</div></div>
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Certámenes</div></div>
     </div>
-    <div class="card">
-        <div class="card-title">📈 Evolución Estratégica</div>
-        <div class="chart-container"><canvas id="bloombergChart" width="800" height="400"></canvas></div>
+
+    <div class="charts-grid">
+        <div class="card">
+            <div class="card-title">📈 Evolución Estratégica</div>
+            <div class="chart-container"><canvas id="bloombergChart" width="800" height="400"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-title">🏆 Ranking de Cervecerías (Top 15)</div>
+            <div class="chart-container"><canvas id="rankingChart" width="800" height="500"></canvas></div>
+        </div>
     </div>
-    <div class="card">
-        <div class="card-title">🏆 Ranking de Cervecerías (Top 15)</div>
-        <div class="chart-container"><canvas id="rankingChart" width="800" height="500"></canvas></div>
-    </div>
+
     <div class="card">
         <div class="card-title">🔗 Trazabilidad de Prestigio</div>
         <div class="chart-container"><svg id="sankey-svg" width="100%" height="500" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"></svg></div>
     </div>
+
     <div class="card">
         <div class="card-title">📋 Auditoría Detallada</div>
         <div class="auditoria-header">
@@ -188,14 +214,16 @@
         </div>
         <div class="table-wrapper">
             <table class="medals-table">
-                <thead><tr><th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></tr></thead>
-                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
-            </table>
+                <thead> ...
+<th>Certamen</th><th>Fecha</th><th>Cervecería</th><th>Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
+                <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
+              </table>
         </div>
         <div style="text-align: center; margin-top: 1rem;">
             <a href="https://wa.me/56912345678?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
         </div>
     </div>
+
     <footer>
         <div class="social-icons">
             <a href="#"><img src="assets/icon_instagram.png" class="social-icon" alt="IG"></a>
@@ -205,41 +233,56 @@
         <p style="font-size:0.7rem; opacity:0.6;">PodiumBeer – Desarrollo de Catas Colaborativas</p>
     </footer>
 </div>
-<script>
-    // === CONFIGURACIÓN DE SUPABASE ===
-    // ⚠️ CAMBIA LA URL SI ES DIFERENTE
-    const SUPABASE_URL = "https://jqinutwfunthyzhklqeig.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxaW51dHdmdW10eWh6a2xxZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTg5MTAsImV4cCI6MjA5MDU5NDkxMH0.GJY8bnuYi556G4mZW1Tx-c7eFeTXSN8TM22bXtiUVMs";
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script>
     let allData = [];
 
-    async function obtenerMedallas() {
+    function showError(msg) {
+        const errDiv = document.getElementById('error-message');
+        errDiv.innerText = msg;
+        errDiv.style.display = 'block';
+        console.error(msg);
+    }
+
+    async function cargarCSV() {
         try {
-            const { data, error } = await supabase
-                .from('medallas')
-                .select('certamen, fecha, anio, cerveceria, cerveza_ganadora, estilo, medalla_base, pais');
-            if (error) throw error;
-            return data || [];
+            const response = await fetch('BBDD_Medallero_Chile.csv');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const texto = await response.text();
+            
+            // Parsear CSV con separador ;
+            const lineas = texto.split('\n');
+            const encabezados = lineas[0].split(';');
+            const datos = [];
+            for (let i = 1; i < lineas.length; i++) {
+                if (!lineas[i].trim()) continue;
+                const valores = lineas[i].split(';');
+                const fila = {};
+                encabezados.forEach((enc, idx) => {
+                    fila[enc.trim()] = valores[idx] ? valores[idx].trim() : '';
+                });
+                datos.push(fila);
+            }
+            console.log(`✅ CSV cargado: ${datos.length} registros`);
+            return datos;
         } catch (err) {
-            console.error('Error Supabase:', err);
+            showError(`❌ Error al cargar CSV: ${err.message}\n\nAsegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz del repositorio.`);
             return [];
         }
     }
 
     function updateStats(data) {
+        if (!data.length) return;
         const total = data.length;
         const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
         const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
-        const statsDiv = document.getElementById('stats-placeholder');
-        if (statsDiv) {
-            statsDiv.children[0].children[0].innerText = total;
-            statsDiv.children[1].children[0].innerText = oro;
-            statsDiv.children[2].children[0].innerText = certamenes;
-        }
+        const stats = document.getElementById('stats-placeholder').children;
+        stats[0].children[0].innerText = total;
+        stats[1].children[0].innerText = oro;
+        stats[2].children[0].innerText = certamenes;
     }
 
-    let bloombergChart;
+    let bloombergChart, rankingChart;
     function renderBloomberg(data) {
         const yearMap = new Map();
         data.forEach(item => {
@@ -259,7 +302,6 @@
 
         const ctx = document.getElementById('bloombergChart').getContext('2d');
         if (bloombergChart) bloombergChart.destroy();
-
         const gradient = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
         gradient.addColorStop(0, '#1eab9b');
         gradient.addColorStop(0.5, '#e32c6c');
@@ -267,7 +309,10 @@
 
         bloombergChart = new Chart(ctx, {
             type: 'line',
-            data: { labels, datasets: [{ label: 'Medallas por año', data: values, fill: true, backgroundColor: gradient, borderColor: '#f7c32f', borderWidth: 3, pointBackgroundColor: '#f7c32f', pointBorderColor: '#fff', pointRadius: 5, pointHoverRadius: 8, tension: 0.4 }] },
+            data: {
+                labels,
+                datasets: [{ label: 'Medallas por año', data: values, fill: true, backgroundColor: gradient, borderColor: '#f7c32f', borderWidth: 3, pointBackgroundColor: '#f7c32f', pointBorderColor: '#fff', pointRadius: 5, pointHoverRadius: 8, tension: 0.4 }]
+            },
             options: {
                 responsive: true, maintainAspectRatio: true,
                 plugins: { tooltip: { mode: 'index' }, legend: { labels: { color: '#fff' } } },
@@ -276,7 +321,6 @@
         });
     }
 
-    let rankingChart;
     function renderRanking(data) {
         const breweries = {};
         data.forEach(item => {
@@ -288,21 +332,24 @@
             else if (medalla && medalla.toLowerCase() === 'plata') breweries[nombre].plata++;
             else if (medalla && medalla.toLowerCase() === 'bronce') breweries[nombre].bronce++;
         });
-        const ranking = Object.entries(breweries).map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals })).sort((a,b)=>b.total-a.total).slice(0,15);
-        const labels = ranking.map(r=>r.nom);
-        const oro = ranking.map(r=>r.oro);
-        const plata = ranking.map(r=>r.plata);
-        const bronce = ranking.map(r=>r.bronce);
+        const ranking = Object.entries(breweries).map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals })).sort((a,b) => b.total - a.total).slice(0,15);
+        const labels = ranking.map(r => r.nom);
+        const oro = ranking.map(r => r.oro);
+        const plata = ranking.map(r => r.plata);
+        const bronce = ranking.map(r => r.bronce);
 
         const ctx = document.getElementById('rankingChart').getContext('2d');
         if (rankingChart) rankingChart.destroy();
         rankingChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels, datasets: [
-                { label: '🥇 Oro', data: oro, backgroundColor: '#e32c6c', stack: 'stack' },
-                { label: '🥈 Plata', data: plata, backgroundColor: '#1eab9b', stack: 'stack' },
-                { label: '🥉 Bronce', data: bronce, backgroundColor: '#f7c32f', stack: 'stack' }
-            ] },
+            data: {
+                labels,
+                datasets: [
+                    { label: '🥇 Oro', data: oro, backgroundColor: '#e32c6c', stack: 'stack' },
+                    { label: '🥈 Plata', data: plata, backgroundColor: '#1eab9b', stack: 'stack' },
+                    { label: '🥉 Bronce', data: bronce, backgroundColor: '#f7c32f', stack: 'stack' }
+                ]
+            },
             options: {
                 indexAxis: 'y', responsive: true, maintainAspectRatio: true,
                 plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } }, legend: { labels: { color: '#fff' } } },
@@ -313,10 +360,97 @@
 
     function renderSankey(data) {
         const flows = new Map();
-        data.forEach(item => {
+        data.slice(0, 500).forEach(item => {
             const cert = item.certamen || 'Otro';
             const cev = item.cerveceria || 'Desconocida';
             const est = item.estilo || 'Genérico';
             const med = item.medalla_base || 'Medalla';
             const key = `${cert}|${cev}|${est}|${med}`;
-            flows.set(key, (flows.get
+            flows.set(key, (flows.get(key) || 0) + 1);
+        });
+        if (flows.size === 0) return;
+
+        const nodesSet = new Set();
+        const links = [];
+        for (let [path, val] of flows.entries()) {
+            const parts = path.split('|');
+            parts.forEach(p => nodesSet.add(p));
+            links.push({ source: parts[0], target: parts[1], value: val });
+            links.push({ source: parts[1], target: parts[2], value: val });
+            links.push({ source: parts[2], target: parts[3], value: val });
+        }
+        const nodes = Array.from(nodesSet).map(name => ({ name }));
+        const nodeMap = new Map(nodes.map((n,i) => [n.name, i]));
+        const graphLinks = links.map(l => ({ source: nodeMap.get(l.source), target: nodeMap.get(l.target), value: l.value }));
+
+        const width = document.getElementById('sankey-svg').clientWidth || 1000;
+        const height = 500;
+        const svg = d3.select("#sankey-svg");
+        svg.selectAll("*").remove();
+
+        const sankeyGenerator = d3.sankey().nodeWidth(20).nodePadding(15).extent([[50, 30], [width-50, height-40]]);
+        const { nodes: sankeyNodes, links: sankeyLinks } = sankeyGenerator({ nodes: nodes.map(d => ({...d})), links: graphLinks });
+
+        svg.append("g").selectAll("rect").data(sankeyNodes).enter().append("rect")
+            .attr("x", d => d.x0).attr("y", d => d.y0).attr("height", d => d.y1 - d.y0).attr("width", d => d.x1 - d.x0)
+            .attr("fill", "#1eab9b").attr("stroke", "#f7c32f").append("title").text(d => d.name);
+
+        svg.append("g").selectAll("text").data(sankeyNodes).enter().append("text")
+            .attr("x", d => d.x0 - 6).attr("y", d => (d.y0 + d.y1) / 2).attr("dy", "0.35em").attr("text-anchor", "end")
+            .text(d => d.name.length > 20 ? d.name.slice(0,18)+"…" : d.name).attr("fill", "white").attr("font-size", "10px");
+
+        svg.append("g").selectAll("path").data(sankeyLinks).enter().append("path")
+            .attr("d", d3.sankeyLinkHorizontal()).attr("stroke-width", d => Math.max(1, d.width))
+            .attr("stroke", "#e32c6c").attr("fill", "none").attr("opacity", 0.6)
+            .append("title").text(d => `${d.source.name} → ${d.target.name}: ${d.value}`);
+    }
+
+    function renderTable(data, filter = "") {
+        const tbody = document.getElementById('tableBody');
+        const filtered = data.filter(row => {
+            if (!filter) return true;
+            const text = `${row.cerveceria||''} ${row.estilo||''} ${row.cerveza_ganadora||''}`.toLowerCase();
+            return text.includes(filter);
+        });
+        if (filtered.length === 0) {
+            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
+            return;
+        }
+        tbody.innerHTML = filtered.slice(0, 200).map(item => {
+            let medClass = '';
+            const med = (item.medalla_base || '').toLowerCase();
+            if (med === 'oro') medClass = 'medal-gold';
+            else if (med === 'plata') medClass = 'medal-silver';
+            else if (med === 'bronce') medClass = 'medal-bronze';
+            return `
+                <tr>
+                    <td>${item.certamen || '-'}</td>
+                    <td>${item.fecha || item.anio || '-'}</td>
+                    <td class="blur-column">${item.cerveceria || '-'}</td>
+                    <td class="blur-column">${item.cerveza_ganadora || '-'}</td>
+                    <td class="blur-column">${item.estilo || '-'}</td>
+                    <td class="${medClass}">${item.medalla_base || '-'}</td>
+                    <td>${item.pais || '-'}</td>
+                 </tr>
+            `;
+        }).join('');
+    }
+
+    async function init() {
+        const data = await cargarCSV();
+        if (!data.length) {
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudo cargar el CSV. Revisa que el archivo esté en la raíz.</td></tr>';
+            return;
+        }
+        allData = data;
+        updateStats(data);
+        renderBloomberg(data);
+        renderRanking(data);
+        renderSankey(data);
+        renderTable(data);
+        document.getElementById('searchInput').addEventListener('input', (e) => renderTable(allData, e.target.value.toLowerCase()));
+    }
+    init();
+</script>
+</body>
+</html>
