@@ -7,11 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -42,7 +38,7 @@
             z-index: 1;
         }
 
-        /* Header – logo sólido */
+        /* Header – logo sólido (sin transparencia) */
         .header {
             text-align: center;
             margin: 0 auto 1.5rem auto;
@@ -51,9 +47,11 @@
             max-width: 320px;
             width: 100%;
             height: auto;
+            /* Eliminar cualquier posible transparencia */
             opacity: 1;
             filter: none;
-            background: transparent;
+            background: none;
+            mix-blend-mode: normal;
         }
 
         /* Estadísticas */
@@ -69,24 +67,9 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        .stat {
-            text-align: center;
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .stat-number {
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
-            font-weight: 800;
-            color: #f7c32f;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #ccc;
-        }
+        .stat { text-align: center; flex: 1; min-width: 120px; }
+        .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; color: #f7c32f; }
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
 
         /* Gráficos principales – misma altura con CSS Grid */
         .charts-grid {
@@ -95,25 +78,20 @@
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
-
         @media (min-width: 1024px) {
-            .charts-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+            .charts-grid { grid-template-columns: 1fr 1fr; }
         }
-
         .card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
             border-radius: 28px;
             padding: 1.2rem;
             border: 1px solid rgba(30, 171, 155, 0.3);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
             height: 100%;
         }
-
         .card-title {
             font-size: 1.3rem;
             font-weight: 700;
@@ -122,18 +100,8 @@
             border-left: 5px solid #e32c6c;
             padding-left: 1rem;
         }
-
-        .chart-container {
-            width: 100%;
-            flex: 1;
-            min-height: 350px;
-            position: relative;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: auto;
-        }
+        .chart-container { width: 100%; flex: 1; min-height: 350px; position: relative; }
+        canvas { max-width: 100%; height: auto; }
 
         /* Pódium */
         .podio-grid {
@@ -142,20 +110,17 @@
             gap: 1.5rem;
             margin-top: 1rem;
         }
-
         .podio-col {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 20px;
             padding: 1rem;
             text-align: center;
         }
-
         .podio-col h3 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
             color: #f7c32f;
         }
-
         .podio-item {
             background: rgba(255, 255, 255, 0.1);
             margin: 0.5rem 0;
@@ -170,49 +135,46 @@
         .podio-item:hover {
             background: rgba(255, 255, 255, 0.2);
         }
-
         .podio-item .medal-count {
             font-size: 0.8rem;
             color: #1eab9b;
         }
 
-        /* Tooltip grande y legible */
+        /* Tooltip personalizado */
         .custom-tooltip {
             position: fixed;
             background: #1a2a35;
             border: 1px solid #f7c32f;
             border-radius: 20px;
-            padding: 1rem 1.2rem;
+            padding: 0.8rem 1rem;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
             backdrop-filter: blur(8px);
             z-index: 1000;
-            max-width: 300px;
+            max-width: 280px;
             width: auto;
-            font-size: 1rem;
+            font-size: 0.9rem;
             pointer-events: none;
             transition: opacity 0.2s;
             opacity: 0;
             text-align: left;
         }
         .custom-tooltip .tooltip-beer {
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.6rem;
             border-left: 3px solid #e32c6c;
-            padding-left: 0.8rem;
+            padding-left: 0.7rem;
         }
-        .custom-tooltip .tooltip-beer:last-child {
-            margin-bottom: 0;
-        }
+        .custom-tooltip .tooltip-beer:last-child { margin-bottom: 0; }
         .custom-tooltip .beer-name {
             font-weight: bold;
             color: #f7c32f;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         .custom-tooltip .beer-style {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #ccc;
         }
         .custom-tooltip .beer-medals {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #1eab9b;
         }
 
@@ -223,7 +185,6 @@
             gap: 1.5rem;
             margin: 1.5rem 0;
         }
-
         .micro-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -232,16 +193,8 @@
             display: flex;
             flex-direction: column;
         }
-
-        .micro-card .card-title {
-            font-size: 1rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .micro-chart {
-            height: 200px;
-            width: 100%;
-        }
+        .micro-card .card-title { font-size: 1rem; margin-bottom: 0.8rem; }
+        .micro-chart { height: 200px; width: 100%; }
 
         /* Auditoría */
         .auditoria-card {
@@ -252,7 +205,6 @@
             border: 1px solid rgba(30, 171, 155, 0.3);
             margin: 1.5rem 0;
         }
-
         .auditoria-title {
             font-size: 2rem;
             font-weight: 800;
@@ -262,12 +214,7 @@
             align-items: center;
             gap: 0.5rem;
         }
-
-        .search-bar {
-            width: 100%;
-            margin-bottom: 1.5rem;
-        }
-
+        .search-bar { width: 100%; margin-bottom: 1.5rem; }
         .search-bar input {
             width: 100%;
             padding: 0.8rem 1.2rem;
@@ -278,12 +225,10 @@
             font-size: 1rem;
             outline: none;
         }
-
         .search-bar input::placeholder {
             color: rgba(255, 255, 255, 0.5);
             font-style: italic;
         }
-
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -291,21 +236,17 @@
             overflow-y: auto;
             margin-bottom: 1rem;
         }
-
         .medals-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
             min-width: 700px;
         }
-
-        .medals-table th,
-        .medals-table td {
+        .medals-table th, .medals-table td {
             padding: 0.8rem 0.6rem;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         .medals-table th {
             background: rgba(227, 44, 108, 0.3);
             color: #f7c32f;
@@ -313,13 +254,11 @@
             position: sticky;
             top: 0;
         }
-
         .blur-column {
             filter: blur(8px);
             pointer-events: none;
             user-select: none;
         }
-
         .medal-gold { color: #f7c32f; font-weight: bold; }
         .medal-silver { color: #c0c0c0; font-weight: bold; }
         .medal-bronze { color: #cd7f32; font-weight: bold; }
@@ -335,40 +274,31 @@
             font-size: 1rem;
             letter-spacing: 1px;
             transition: 0.2s;
-            margin: 1rem auto;
+            margin: 1rem 0;
             text-align: center;
         }
-        .btn-premium:hover {
-            background: #f7c32f;
-            color: #06232e;
-        }
+        .btn-premium:hover { background: #f7c32f; color: #06232e; }
 
+        /* Redes sociales y pie */
         .social-icons {
             display: flex;
             justify-content: center;
-            gap: 3rem;
-            margin: 2rem 0 1rem;
+            gap: 2.5rem;
+            margin: 1rem 0;
         }
         .social-icon {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             transition: transform 0.2s;
         }
-        .social-icon:hover {
-            transform: scale(1.05);
-        }
-
-        .footer-container {
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
+        .social-icon:hover { transform: scale(1.05); }
         .footer-text {
             text-align: center;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 500;
             line-height: 1.4;
             opacity: 0.9;
+            margin-top: 0.5rem;
         }
 
         .error-message {
@@ -396,10 +326,10 @@
             .podio-col h3 { font-size: 1.2rem; }
             .podio-item { font-size: 0.8rem; }
             .auditoria-title { font-size: 1.5rem; }
-            .social-icon { width: 60px; height: 60px; }
-            .footer-text { font-size: 0.85rem; }
-            .custom-tooltip { max-width: 260px; font-size: 0.9rem; padding: 0.8rem 1rem; }
-            .custom-tooltip .beer-name { font-size: 1rem; }
+            .social-icon { width: 55px; height: 55px; }
+            .footer-text { font-size: 0.8rem; }
+            .custom-tooltip { max-width: 240px; font-size: 0.85rem; padding: 0.7rem 0.9rem; }
+            .custom-tooltip .beer-name { font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -420,16 +350,12 @@
     <div class="charts-grid">
         <div class="card">
             <div class="card-title">🌍 GLOBAL COMPETITION WINGS – 2025</div>
-            <div class="chart-container">
-                <canvas id="evolucionMensualChart" width="800" height="400"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="evolucionMensualChart" width="800" height="400"></canvas></div>
             <div style="font-size:0.7rem; text-align:center; margin-top:0.5rem; opacity:0.7;">*Actualización en progreso</div>
         </div>
         <div class="card">
             <div class="card-title">🏆 Ranking de Cervecerías Chilenas (Top 10)</div>
-            <div class="chart-container">
-                <canvas id="rankingChileChart" width="800" height="500"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="rankingChileChart" width="800" height="500"></canvas></div>
         </div>
     </div>
 
@@ -455,7 +381,7 @@
         </div>
     </div>
 
-    <!-- Auditoría Detallada -->
+    <!-- Auditoría Detallada – estructura correcta: tabla, luego botón, luego RRSS y pie -->
     <div class="auditoria-card">
         <div class="auditoria-title">
             <span>📋</span> Auditoría Detallada
@@ -466,21 +392,25 @@
         <div class="table-wrapper">
             <table class="medals-table">
                 <thead>
-                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
-                <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
-            \(
+                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th></tr>
+                </thead>
+                <tbody id="tableBody"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
+            </table>
         </div>
+
+        <!-- Botón DESBLOQUEAR ACCESO COMPLETO (debajo de la tabla) -->
         <div style="text-align: center;">
             <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
         </div>
-    </div>
 
-    <div class="social-icons">
-        <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="social-icon" alt="Instagram"></a>
-        <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
-        <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
-    </div>
-    <div class="footer-container">
+        <!-- Redes sociales (debajo del botón) -->
+        <div class="social-icons">
+            <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="social-icon" alt="Instagram"></a>
+            <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
+            <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
+        </div>
+
+        <!-- Pie de página (debajo de las RRSS) -->
         <div class="footer-text">
             Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
         </div>
@@ -561,11 +491,9 @@
             return anio === '2025';
         });
         if (!data2025.length) return;
-
         const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
         const paises = ['Brasil','Chile','Argentina'];
         const agrupado = { Brasil: Array(12).fill(0), Chile: Array(12).fill(0), Argentina: Array(12).fill(0) };
-
         data2025.forEach(item => {
             const fecha = item.fecha;
             if (!fecha) return;
@@ -575,31 +503,21 @@
             const idx = parseInt(mes) - 1;
             if (idx >= 0 && idx < 12) agrupado[pais][idx]++;
         });
-
         const ctx = document.getElementById('evolucionMensualChart').getContext('2d');
         if (evolucionChart) evolucionChart.destroy();
-
         const datasets = paises.map(p => ({
             label: p,
             data: agrupado[p],
             borderColor: p === 'Brasil' ? '#f7c32f' : (p === 'Chile' ? '#e32c6c' : '#1eab9b'),
             backgroundColor: p === 'Brasil' ? 'rgba(247,195,47,0.2)' : (p === 'Chile' ? 'rgba(227,44,108,0.2)' : 'rgba(30,171,155,0.2)'),
-            fill: true,
-            tension: 0.4,
-            pointRadius: 3,
-            pointHoverRadius: 6
+            fill: true, tension: 0.4, pointRadius: 3, pointHoverRadius: 6
         }));
-
         evolucionChart = new Chart(ctx, {
             type: 'line',
             data: { labels: meses, datasets },
             options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    tooltip: { mode: 'index', intersect: false },
-                    legend: { labels: { color: '#fff' } }
-                },
+                responsive: true, maintainAspectRatio: true,
+                plugins: { tooltip: { mode: 'index', intersect: false }, legend: { labels: { color: '#fff' } } },
                 scales: {
                     y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
                     x: { ticks: { color: '#fff' }, grid: { display: false } }
@@ -629,7 +547,6 @@
         const oro = ranking.map(r => r.oro);
         const plata = ranking.map(r => r.plata);
         const bronce = ranking.map(r => r.bronce);
-
         const ctx = document.getElementById('rankingChileChart').getContext('2d');
         if (rankingChileChart) rankingChileChart.destroy();
         rankingChileChart = new Chart(ctx, {
@@ -643,9 +560,7 @@
                 ]
             },
             options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: true,
+                indexAxis: 'y', responsive: true, maintainAspectRatio: true,
                 plugins: {
                     tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } },
                     legend: { labels: { color: '#fff' } }
@@ -658,11 +573,9 @@
         });
     }
 
-    // ======================== 3. PÓDIUM CON TOOLTIP (top 2 cervezas) ========================
+    // ======================== 3. PÓDIUM CON TOOLTIP ========================
     function getTopBeersForBrewery(breweryName, data) {
-        // Filtrar registros de esa cervecería
         const breweryData = data.filter(item => item.cerveceria === breweryName);
-        // Agrupar por cerveza (nombre)
         const beerMap = new Map();
         breweryData.forEach(item => {
             const beer = item.cerveza_ganadora;
@@ -672,21 +585,16 @@
             }
             beerMap.get(beer).count++;
         });
-        // Convertir a array y ordenar por total de medallas descendente
         const beersArray = Array.from(beerMap.entries()).map(([name, info]) => ({
-            name,
-            total: info.count,
-            style: info.style
+            name, total: info.count, style: info.style
         }));
         beersArray.sort((a,b) => b.total - a.total);
-        // Tomar las dos primeras
         return beersArray.slice(0,2);
     }
 
     function renderPodio(data) {
         const paises = ['Brasil', 'Chile', 'Argentina'];
         const podio = {};
-
         paises.forEach(p => {
             const paisesData = data.filter(item => item.pais === p);
             const breweries = {};
@@ -695,9 +603,7 @@
                 if (!nombre) return;
                 breweries[nombre] = (breweries[nombre] || 0) + 1;
             });
-            const top3 = Object.entries(breweries)
-                .sort((a,b) => b[1] - a[1])
-                .slice(0,3)
+            const top3 = Object.entries(breweries).sort((a,b) => b[1] - a[1]).slice(0,3)
                 .map(([name, count]) => ({ name, count }));
             podio[p] = top3;
         });
@@ -717,7 +623,6 @@
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'podio-item';
                     itemDiv.innerHTML = `${b.name}<br><span class="medal-count">${b.count} medallas</span>`;
-                    // Guardar los datos de las cervezas para el tooltip
                     const topBeers = getTopBeersForBrewery(b.name, data);
                     if (topBeers.length > 0) {
                         itemDiv.setAttribute('data-brewery', b.name);
@@ -729,14 +634,11 @@
             container.appendChild(col);
         });
 
-        // Inicializar tooltips
-        initPodioTooltips();
+        // Inicializar tooltips después de agregar los elementos al DOM
+        setTimeout(() => initPodioTooltips(), 50);
     }
 
-    // Tooltip personalizado
-    let tooltipTimeout;
     const tooltipEl = document.getElementById('podiumTooltip');
-
     function showTooltip(beers, x, y) {
         if (!beers || beers.length === 0) return;
         let html = '';
@@ -757,47 +659,37 @@
         tooltipEl.style.opacity = '0';
     }
 
+    let tooltipTimeout;
     function initPodioTooltips() {
         const items = document.querySelectorAll('.podio-item');
         items.forEach(item => {
-            const removeEvents = () => {
-                item.removeEventListener('mouseenter', onMouseEnter);
-                item.removeEventListener('mouseleave', onMouseLeave);
-                item.removeEventListener('touchstart', onTouchStart);
-                item.removeEventListener('touchend', onTouchEnd);
-            };
+            // Remover eventos anteriores para evitar duplicados
+            const newItem = item.cloneNode(true);
+            item.parentNode.replaceChild(newItem, item);
+            const topBeersAttr = newItem.getAttribute('data-top-beers');
+            if (!topBeersAttr) return;
+
             const onMouseEnter = (e) => {
-                const topBeers = item.getAttribute('data-top-beers');
-                if (topBeers) {
-                    const beers = JSON.parse(topBeers);
-                    showTooltip(beers, e.clientX, e.clientY);
-                }
+                const beers = JSON.parse(topBeersAttr);
+                showTooltip(beers, e.clientX, e.clientY);
             };
-            const onMouseLeave = () => {
-                hideTooltip();
-            };
+            const onMouseLeave = () => hideTooltip();
             const onTouchStart = (e) => {
                 e.preventDefault();
-                const topBeers = item.getAttribute('data-top-beers');
-                if (topBeers) {
-                    const rect = item.getBoundingClientRect();
-                    const beers = JSON.parse(topBeers);
-                    showTooltip(beers, rect.left, rect.bottom + 5);
-                    // Ocultar después de 3 segundos o al tocar fuera
-                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                    tooltipTimeout = setTimeout(() => hideTooltip(), 3000);
-                }
+                const rect = newItem.getBoundingClientRect();
+                const beers = JSON.parse(topBeersAttr);
+                showTooltip(beers, rect.left, rect.bottom + 5);
+                if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                tooltipTimeout = setTimeout(() => hideTooltip(), 3000);
             };
             const onTouchEnd = () => {
-                // No ocultamos inmediatamente para permitir leer
                 if (tooltipTimeout) clearTimeout(tooltipTimeout);
                 tooltipTimeout = setTimeout(() => hideTooltip(), 2000);
             };
-            removeEvents();
-            item.addEventListener('mouseenter', onMouseEnter);
-            item.addEventListener('mouseleave', onMouseLeave);
-            item.addEventListener('touchstart', onTouchStart);
-            item.addEventListener('touchend', onTouchEnd);
+            newItem.addEventListener('mouseenter', onMouseEnter);
+            newItem.addEventListener('mouseleave', onMouseLeave);
+            newItem.addEventListener('touchstart', onTouchStart);
+            newItem.addEventListener('touchend', onTouchEnd);
         });
     }
 
@@ -815,10 +707,7 @@
         if (topEstilosGlobal) topEstilosGlobal.destroy();
         topEstilosGlobal = new Chart(ctx1, {
             type: 'bar',
-            data: {
-                labels: topGlobal.map(e=>e[0]),
-                datasets: [{ label: 'Medallas', data: topGlobal.map(e=>e[1]), backgroundColor: '#e32c6c' }]
-            },
+            data: { labels: topGlobal.map(e=>e[0]), datasets: [{ label: 'Medallas', data: topGlobal.map(e=>e[1]), backgroundColor: '#e32c6c' }] },
             options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
         });
 
@@ -834,10 +723,7 @@
         if (topEstilosChile) topEstilosChile.destroy();
         topEstilosChile = new Chart(ctx2, {
             type: 'bar',
-            data: {
-                labels: topChile.map(e=>e[0]),
-                datasets: [{ label: 'Medallas', data: topChile.map(e=>e[1]), backgroundColor: '#1eab9b' }]
-            },
+            data: { labels: topChile.map(e=>e[0]), datasets: [{ label: 'Medallas', data: topChile.map(e=>e[1]), backgroundColor: '#1eab9b' }] },
             options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
         });
 
@@ -859,10 +745,7 @@
         if (topRegionesChile) topRegionesChile.destroy();
         topRegionesChile = new Chart(ctx3, {
             type: 'bar',
-            data: {
-                labels: topRegiones.map(r=>r[0]),
-                datasets: [{ label: 'Medallas', data: topRegiones.map(r=>r[1]), backgroundColor: '#f7c32f' }]
-            },
+            data: { labels: topRegiones.map(r=>r[0]), datasets: [{ label: 'Medallas', data: topRegiones.map(r=>r[1]), backgroundColor: '#f7c32f' }] },
             options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
         });
     }
@@ -883,7 +766,7 @@
             );
         }
         if (filtered.length === 0) {
-            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
+            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
@@ -901,7 +784,7 @@
                     <td>${item.estilo || '-'}</td>
                     <td class="${medClass}">${item.medalla_base || '-'}</td>
                     <td>${item.pais || '-'}</td>
-                 </tr>
+                </tr>
             `;
         }).join('');
     }
