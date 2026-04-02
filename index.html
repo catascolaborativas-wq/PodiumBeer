@@ -100,7 +100,7 @@
         .chart-container { width: 100%; flex: 1; min-height: 350px; position: relative; }
         canvas { max-width: 100%; height: auto; }
 
-        /* Pódium – con tooltip incluido en cada elemento */
+        /* Pódium – con tooltip interno */
         .podio-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -180,7 +180,7 @@
         .micro-card .card-title { font-size: 1rem; margin-bottom: 0.8rem; }
         .micro-chart { height: 200px; width: 100%; }
 
-        /* Auditoría – todo el bloque (tabla, botón, RRSS, pie) */
+        /* Auditoría – estructura correcta */
         .auditoria-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -238,6 +238,13 @@
             position: sticky;
             top: 0;
         }
+        /* Bloqueo estricto de columnas sensibles */
+        .col-cerveceria, .col-cerveza-ganadora {
+            filter: blur(10px);
+            pointer-events: none;
+            user-select: none;
+        }
+        /* Aplicación directa a las celdas con la clase .blur-column */
         .blur-column {
             filter: blur(8px);
             pointer-events: none;
@@ -248,7 +255,9 @@
         .medal-bronze { color: #cd7f32; font-weight: bold; }
 
         .btn-premium {
-            display: inline-block;
+            display: block;
+            width: fit-content;
+            margin: 1rem auto;
             background: #e32c6c;
             color: white;
             padding: 0.8rem 2rem;
@@ -258,7 +267,6 @@
             font-size: 1rem;
             letter-spacing: 1px;
             transition: 0.2s;
-            margin: 1rem 0;
             text-align: center;
         }
         .btn-premium:hover { background: #f7c32f; color: #06232e; }
@@ -271,8 +279,8 @@
             margin: 1rem 0;
         }
         .social-icon {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             transition: transform 0.2s;
         }
         .social-icon:hover { transform: scale(1.05); }
@@ -310,7 +318,7 @@
             .podio-col h3 { font-size: 1.2rem; }
             .podio-item { font-size: 0.8rem; }
             .auditoria-title { font-size: 1.5rem; }
-            .social-icon { width: 55px; height: 55px; }
+            .social-icon { width: 60px; height: 60px; }
             .footer-text { font-size: 0.8rem; }
             .tooltip-box { width: 200px; font-size: 11px; bottom: 110%; }
         }
@@ -376,14 +384,12 @@
             <table class="medals-table">
                 <thead>
                     <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th> </thead>
-                <tbody id="tableBody"><td colspan="7">Cargando datos...</td></tbody>
+                <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
             
         </div>
 
         <!-- Botón DESBLOQUEAR ACCESO COMPLETO -->
-        <div style="text-align: center;">
-            <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
-        </div>
+        <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
 
         <!-- Redes sociales -->
         <div class="social-icons">
@@ -392,7 +398,7 @@
             <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
         </div>
 
-        <!-- Texto de pie -->
+        <!-- Pie de página -->
         <div class="footer-text">
             Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
         </div>
@@ -400,7 +406,8 @@
 </div>
 
 <script>
-    // ======================== 1. FUNCIONES DE LIMPIEZA Y NORMALIZACIÓN ========================
+    // ======================== 1. FUNCIONES DE LIMPIEZA ========================
+    // Para comparaciones (tooltip): elimina tildes y pasa a minúsculas
     function limpiarTexto(texto) {
         if (!texto) return "";
         return texto.toString()
@@ -410,27 +417,26 @@
             .trim();
     }
 
+    // Para presentación: mantiene tildes, aplica abreviaturas y capitalización
+    function formatearTextoPresentacion(str) {
+        if (!str) return '';
+        // Abreviaturas (no elimina tildes)
+        str = str.replace(/\bBrewery\b/gi, "Brew.")
+                 .replace(/\bBrewing\b/gi, "Brew.")
+                 .replace(/\bCompany\b/gi, "Co.")
+                 .replace(/\bCompañía\b/gi, "Cia.")
+                 .replace(/Colaboración/gi, "(Colab.)");
+        // Primera letra mayúscula de cada palabra (mantiene tildes)
+        return str.replace(/\b\w/g, l => l.toUpperCase());
+    }
+
     function esBasura(valor) {
         if (!valor) return true;
         const limpio = valor.toString().toUpperCase().trim();
         return limpio === "PENDIENTE" || limpio === "COMPLETAR" || limpio === "-";
     }
 
-    function normalizarTextoPresentacion(str) {
-        if (!str) return '';
-        // Eliminar tildes para evitar problemas, pero mantener mayúsculas iniciales
-        str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        // Abreviaturas
-        str = str.replace(/\bBrewery\b/gi, "Brew.")
-                 .replace(/\bBrewing\b/gi, "Brew.")
-                 .replace(/\bCompany\b/gi, "Co.")
-                 .replace(/\bCompañía\b/gi, "Cia.")
-                 .replace(/Colaboración/gi, "(Colab.)");
-        // Primera letra mayúscula de cada palabra
-        return str.replace(/\b\w/g, l => l.toUpperCase());
-    }
-
-    // ======================== 2. CARGA DE CSV Y FILTRADO DE BASURA ========================
+    // ======================== 2. CARGA DE CSV ========================
     let allData = [];
 
     function showError(msg) {
@@ -454,8 +460,9 @@
                 const fila = {};
                 encabezados.forEach((enc, idx) => {
                     let val = valores[idx] ? valores[idx].trim() : '';
+                    // Aplicar formato de presentación a campos de texto (con tildes)
                     if (enc === 'cerveceria' || enc === 'cerveza_ganadora' || enc === 'estilo' || enc === 'certamen') {
-                        val = normalizarTextoPresentacion(val);
+                        val = formatearTextoPresentacion(val);
                     }
                     fila[enc] = val;
                 });
@@ -484,7 +491,7 @@
         statsDiv[2].children[0].innerText = certamenes;
     }
 
-    // ======================== 3. GRÁFICOS (igual que antes, sin cambios) ========================
+    // ======================== 3. GRÁFICOS ========================
     let evolucionChart;
     function renderEvolucionMensual(data) {
         const data2025 = data.filter(item => {
@@ -574,7 +581,7 @@
         });
     }
 
-    // ======================== 4. PÓDIUM CON TOOLTIP INTERNO (CSS puro) ========================
+    // ======================== 4. PÓDIUM CON TOOLTIP ========================
     function obtenerDetalleCervezas(nombreCerveceria, dataCompleta) {
         const busqueda = limpiarTexto(nombreCerveceria);
         const medallas = dataCompleta.filter(d => 
