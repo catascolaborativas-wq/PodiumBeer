@@ -42,16 +42,19 @@
             z-index: 1;
         }
 
-        /* Header */
+        /* Header – logo sólido */
         .header {
             text-align: center;
             margin: 0 auto 1.5rem auto;
         }
-
         .logo {
             max-width: 320px;
             width: 100%;
             height: auto;
+            /* Sin transparencia ni efectos */
+            opacity: 1;
+            filter: none;
+            background: transparent;
         }
 
         /* Estadísticas */
@@ -194,7 +197,7 @@
             width: 100%;
         }
 
-        /* Auditoría - Nuevos estilos */
+        /* Auditoría – mantiene el ancho de la tabla */
         .auditoria-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -240,7 +243,7 @@
             -webkit-overflow-scrolling: touch;
             max-height: 450px;
             overflow-y: auto;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .medals-table {
@@ -265,7 +268,7 @@
             top: 0;
         }
 
-        /* Blur permanente + bloqueo de interacción */
+        /* Blur permanente en columnas sensibles */
         .blur-column {
             filter: blur(8px);
             pointer-events: none;
@@ -287,20 +290,20 @@
             font-weight: bold;
         }
 
+        /* Botón centrado, no ancho completo */
         .btn-premium {
-            display: block;
-            width: 100%;
-            text-align: center;
+            display: inline-block;
             background: #e32c6c;
             color: white;
-            padding: 1rem;
+            padding: 0.8rem 2rem;
             border-radius: 50px;
             text-decoration: none;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1rem;
             letter-spacing: 1px;
             transition: 0.2s;
-            margin: 1rem 0 2rem 0;
+            margin: 1rem auto;
+            text-align: center;
         }
 
         .btn-premium:hover {
@@ -326,13 +329,20 @@
             transform: scale(1.05);
         }
 
-        .footer-text {
-            text-align: center;
-            font-size: 0.85rem;
-            opacity: 0.8;
+        /* Footer – mismo ancho que la tabla y texto grande */
+        .footer-container {
+            margin-top: 1.5rem;
             padding-top: 1rem;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
-            margin-top: 1rem;
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.4;
+            opacity: 0.9;
+            max-width: 100%;
         }
 
         .error-message {
@@ -392,6 +402,9 @@
                 width: 60px;
                 height: 60px;
             }
+            .footer-text {
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
@@ -447,7 +460,7 @@
         </div>
     </div>
 
-    <!-- Auditoría Detallada con nuevo diseño -->
+    <!-- Auditoría Detallada -->
     <div class="auditoria-card">
         <div class="auditoria-title">
             <span>📋</span> Auditoría Detallada
@@ -468,10 +481,12 @@
                         <th>País</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
+                <tbody id="tableBody"><td colspan="7">Cargando datos...</td></tbody>
             </table>
         </div>
-        <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
+        <div style="text-align: center;">
+            <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
+        </div>
     </div>
 
     <div class="social-icons">
@@ -479,8 +494,10 @@
         <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
         <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
     </div>
-    <div class="footer-text">
-        Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
+    <div class="footer-container">
+        <div class="footer-text">
+            Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
+        </div>
     </div>
 </div>
 
@@ -708,7 +725,7 @@
     // ======================== 6. MICRO GRÁFICOS ========================
     let topEstilosGlobal, topEstilosChile, topRegionesChile;
     function renderMicroGraficos(data) {
-        // Top 5 estilos global (sin pendientes)
+        // Top 5 estilos global
         const estilosGlobal = {};
         data.forEach(item => {
             const estilo = item.estilo;
