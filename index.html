@@ -54,7 +54,7 @@
             height: auto;
         }
 
-        /* Estadísticas con color sólido #06232e */
+        /* Estadísticas */
         .stats {
             display: flex;
             flex-wrap: wrap;
@@ -86,7 +86,7 @@
             color: #ccc;
         }
 
-        /* Grid para gráficos principales (misma altura) */
+        /* Gráficos principales */
         .charts-grid {
             display: flex;
             flex-wrap: wrap;
@@ -132,7 +132,7 @@
             height: auto;
         }
 
-        /* Pódium por país */
+        /* Pódium */
         .podio-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -194,42 +194,65 @@
             width: 100%;
         }
 
-        /* Tabla */
-        .auditoria-header {
-            margin-bottom: 1rem;
+        /* Auditoría - Nuevos estilos */
+        .auditoria-card {
+            background: rgba(10, 25, 35, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            padding: 1.2rem;
+            border: 1px solid rgba(30, 171, 155, 0.3);
+            margin: 1.5rem 0;
         }
 
-        .search-box {
+        .auditoria-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #f7c32f;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-bar {
             width: 100%;
-            padding: 0.8rem 1rem;
-            border-radius: 40px;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 50px;
             border: none;
             background: rgba(255, 255, 255, 0.15);
             color: white;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            outline: none;
         }
 
-        .search-box::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
         }
 
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
+            margin-bottom: 1.5rem;
         }
 
         .medals-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.8rem;
-            min-width: 600px;
+            font-size: 0.85rem;
+            min-width: 700px;
         }
 
         .medals-table th,
         .medals-table td {
-            padding: 0.7rem 0.5rem;
+            padding: 0.8rem 0.6rem;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -242,13 +265,11 @@
             top: 0;
         }
 
+        /* Blur permanente + bloqueo de interacción */
         .blur-column {
-            filter: blur(5px);
-            transition: filter 0.2s;
-        }
-
-        .medals-table tr:hover .blur-column {
-            filter: blur(0);
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
         }
 
         .medal-gold {
@@ -267,16 +288,19 @@
         }
 
         .btn-premium {
-            display: inline-block;
+            display: block;
+            width: 100%;
+            text-align: center;
             background: #e32c6c;
             color: white;
-            padding: 0.7rem 1.5rem;
-            border-radius: 40px;
+            padding: 1rem;
+            border-radius: 50px;
             text-decoration: none;
             font-weight: bold;
-            margin-top: 1rem;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
             transition: 0.2s;
-            font-size: 0.9rem;
+            margin: 1rem 0 2rem 0;
         }
 
         .btn-premium:hover {
@@ -284,34 +308,31 @@
             color: #06232e;
         }
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 1.5rem 0 0.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 1.5rem;
-        }
-
+        /* Redes sociales grandes */
         .social-icons {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
+            gap: 3rem;
+            margin: 2rem 0 1rem;
         }
 
         .social-icon {
-            width: 48px;
-            height: 48px;
+            width: 80px;
+            height: 80px;
             transition: transform 0.2s;
         }
 
         .social-icon:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
         .footer-text {
-            font-size: 0.75rem;
-            opacity: 0.7;
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 1rem;
         }
 
         .error-message {
@@ -329,56 +350,47 @@
             .container {
                 padding: 0.8rem;
             }
-
             .logo {
                 max-width: 200px;
             }
-
             .stats {
                 gap: 0.8rem;
                 padding: 0.8rem;
             }
-
             .stat-number {
                 font-size: 1.2rem;
             }
-
             .stat-label {
                 font-size: 0.6rem;
             }
-
             .card-title {
                 font-size: 1.1rem;
             }
-
             .chart-container {
                 min-height: 280px;
             }
-
             .micro-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
             }
-
             .micro-chart {
                 height: 220px;
             }
-
             .podio-grid {
                 gap: 1rem;
             }
-
             .podio-col h3 {
                 font-size: 1.2rem;
             }
-
             .podio-item {
                 font-size: 0.8rem;
             }
-
+            .auditoria-title {
+                font-size: 1.5rem;
+            }
             .social-icon {
-                width: 40px;
-                height: 40px;
+                width: 60px;
+                height: 60px;
             }
         }
     </style>
@@ -435,32 +447,41 @@
         </div>
     </div>
 
-    <!-- Tabla con búsqueda unificada -->
-    <div class="card">
-        <div class="card-title">📋 Auditoría Detallada</div>
-        <div class="auditoria-header">
-            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Buscar por certamen, estilo, medalla, país, cervecería o cerveza...">
+    <!-- Auditoría Detallada con nuevo diseño -->
+    <div class="auditoria-card">
+        <div class="auditoria-title">
+            <span>📋</span> Auditoría Detallada
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por certamen, estilo, medalla, país, cervecería o cerveza...">
         </div>
         <div class="table-wrapper">
             <table class="medals-table">
                 <thead>
-                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
-                <tbody id="tableBody">}<td colspan="7">Cargando datos...</tbody>
-            \(
+                    <tr>
+                        <th>Certamen</th>
+                        <th>Fecha</th>
+                        <th class="blur-column">Cervecería</th>
+                        <th class="blur-column">Cerveza Ganadora</th>
+                        <th>Estilo</th>
+                        <th>Medalla</th>
+                        <th>País</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
+            </table>
         </div>
-        <div style="text-align: center; margin-top: 1rem;">
-            <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
-        </div>
+        <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
     </div>
 
-    <footer>
-        <div class="social-icons">
-            <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="social-icon" alt="Instagram"></a>
-            <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
-            <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
-        </div>
-        <p class="footer-text">Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.</p>
-    </footer>
+    <div class="social-icons">
+        <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="social-icon" alt="Instagram"></a>
+        <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
+        <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
+    </div>
+    <div class="footer-text">
+        Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
+    </div>
 </div>
 
 <script>
@@ -774,7 +795,7 @@
             );
         }
         if (filtered.length === 0) {
-            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
+            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
@@ -792,7 +813,7 @@
                     <td>${item.estilo || '-'}</td>
                     <td class="${medClass}">${item.medalla_base || '-'}</td>
                     <td>${item.pais || '-'}</td>
-                 </tr>
+                </tr>
             `;
         }).join('');
     }
