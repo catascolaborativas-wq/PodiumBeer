@@ -51,7 +51,6 @@
             max-width: 320px;
             width: 100%;
             height: auto;
-            /* Sin transparencia ni efectos */
             opacity: 1;
             filter: none;
             background: transparent;
@@ -89,17 +88,18 @@
             color: #ccc;
         }
 
-        /* Gráficos principales */
+        /* Gráficos principales – misma altura con CSS Grid */
         .charts-grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 1fr;
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
 
-        .charts-grid > * {
-            flex: 1 1 calc(50% - 1.5rem);
-            min-width: 280px;
+        @media (min-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         .card {
@@ -109,9 +109,9 @@
             padding: 1.2rem;
             border: 1px solid rgba(30, 171, 155, 0.3);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            height: 100%;
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
 
         .card-title {
@@ -163,9 +163,55 @@
             border-radius: 12px;
             font-weight: bold;
             font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+        .podio-item:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .podio-item .medal-count {
+            font-size: 0.8rem;
+            color: #1eab9b;
+        }
+
+        /* Tooltip grande y legible */
+        .custom-tooltip {
+            position: fixed;
+            background: #1a2a35;
+            border: 1px solid #f7c32f;
+            border-radius: 20px;
+            padding: 1rem 1.2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            max-width: 300px;
+            width: auto;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            opacity: 0;
+            text-align: left;
+        }
+        .custom-tooltip .tooltip-beer {
+            margin-bottom: 0.8rem;
+            border-left: 3px solid #e32c6c;
+            padding-left: 0.8rem;
+        }
+        .custom-tooltip .tooltip-beer:last-child {
+            margin-bottom: 0;
+        }
+        .custom-tooltip .beer-name {
+            font-weight: bold;
+            color: #f7c32f;
+            font-size: 1.1rem;
+        }
+        .custom-tooltip .beer-style {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        .custom-tooltip .beer-medals {
             font-size: 0.8rem;
             color: #1eab9b;
         }
@@ -197,7 +243,7 @@
             width: 100%;
         }
 
-        /* Auditoría – mantiene el ancho de la tabla */
+        /* Auditoría */
         .auditoria-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -268,29 +314,16 @@
             top: 0;
         }
 
-        /* Blur permanente en columnas sensibles */
         .blur-column {
             filter: blur(8px);
             pointer-events: none;
             user-select: none;
         }
 
-        .medal-gold {
-            color: #f7c32f;
-            font-weight: bold;
-        }
+        .medal-gold { color: #f7c32f; font-weight: bold; }
+        .medal-silver { color: #c0c0c0; font-weight: bold; }
+        .medal-bronze { color: #cd7f32; font-weight: bold; }
 
-        .medal-silver {
-            color: #c0c0c0;
-            font-weight: bold;
-        }
-
-        .medal-bronze {
-            color: #cd7f32;
-            font-weight: bold;
-        }
-
-        /* Botón centrado, no ancho completo */
         .btn-premium {
             display: inline-block;
             background: #e32c6c;
@@ -305,44 +338,37 @@
             margin: 1rem auto;
             text-align: center;
         }
-
         .btn-premium:hover {
             background: #f7c32f;
             color: #06232e;
         }
 
-        /* Redes sociales grandes */
         .social-icons {
             display: flex;
             justify-content: center;
             gap: 3rem;
             margin: 2rem 0 1rem;
         }
-
         .social-icon {
             width: 80px;
             height: 80px;
             transition: transform 0.2s;
         }
-
         .social-icon:hover {
             transform: scale(1.05);
         }
 
-        /* Footer – mismo ancho que la tabla y texto grande */
         .footer-container {
             margin-top: 1.5rem;
             padding-top: 1rem;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
-
         .footer-text {
             text-align: center;
             font-size: 1rem;
             font-weight: 500;
             line-height: 1.4;
             opacity: 0.9;
-            max-width: 100%;
         }
 
         .error-message {
@@ -357,54 +383,23 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 0.8rem;
-            }
-            .logo {
-                max-width: 200px;
-            }
-            .stats {
-                gap: 0.8rem;
-                padding: 0.8rem;
-            }
-            .stat-number {
-                font-size: 1.2rem;
-            }
-            .stat-label {
-                font-size: 0.6rem;
-            }
-            .card-title {
-                font-size: 1.1rem;
-            }
-            .chart-container {
-                min-height: 280px;
-            }
-            .micro-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            .micro-chart {
-                height: 220px;
-            }
-            .podio-grid {
-                gap: 1rem;
-            }
-            .podio-col h3 {
-                font-size: 1.2rem;
-            }
-            .podio-item {
-                font-size: 0.8rem;
-            }
-            .auditoria-title {
-                font-size: 1.5rem;
-            }
-            .social-icon {
-                width: 60px;
-                height: 60px;
-            }
-            .footer-text {
-                font-size: 0.85rem;
-            }
+            .container { padding: 0.8rem; }
+            .logo { max-width: 200px; }
+            .stats { gap: 0.8rem; padding: 0.8rem; }
+            .stat-number { font-size: 1.2rem; }
+            .stat-label { font-size: 0.6rem; }
+            .card-title { font-size: 1.1rem; }
+            .chart-container { min-height: 280px; }
+            .micro-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .micro-chart { height: 220px; }
+            .podio-grid { gap: 1rem; }
+            .podio-col h3 { font-size: 1.2rem; }
+            .podio-item { font-size: 0.8rem; }
+            .auditoria-title { font-size: 1.5rem; }
+            .social-icon { width: 60px; height: 60px; }
+            .footer-text { font-size: 0.85rem; }
+            .custom-tooltip { max-width: 260px; font-size: 0.9rem; padding: 0.8rem 1rem; }
+            .custom-tooltip .beer-name { font-size: 1rem; }
         }
     </style>
 </head>
@@ -471,18 +466,9 @@
         <div class="table-wrapper">
             <table class="medals-table">
                 <thead>
-                    <tr>
-                        <th>Certamen</th>
-                        <th>Fecha</th>
-                        <th class="blur-column">Cervecería</th>
-                        <th class="blur-column">Cerveza Ganadora</th>
-                        <th>Estilo</th>
-                        <th>Medalla</th>
-                        <th>País</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"><td colspan="7">Cargando datos...</td></tbody>
-            </table>
+                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
+                <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
+            \(
         </div>
         <div style="text-align: center;">
             <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
@@ -501,6 +487,8 @@
     </div>
 </div>
 
+<div id="podiumTooltip" class="custom-tooltip"></div>
+
 <script>
     // ======================== 1. CARGA Y NORMALIZACIÓN ========================
     let allData = [];
@@ -512,18 +500,14 @@
         console.error(msg);
     }
 
-    // Normalizar texto (primer letra mayúscula, abreviaturas, sin tildes)
     function normalizarTexto(str) {
         if (!str) return '';
-        // Eliminar tildes
         str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        // Abreviaturas
         str = str.replace(/\bBrewery\b/gi, "Brew.")
                  .replace(/\bBrewing\b/gi, "Brew.")
                  .replace(/\bCompany\b/gi, "Co.")
                  .replace(/\bCompañía\b/gi, "Cia.")
                  .replace(/Colaboración/gi, "(Colab.)");
-        // Primera letra mayúscula de cada palabra
         return str.replace(/\b\w/g, l => l.toUpperCase());
     }
 
@@ -546,7 +530,6 @@
                     }
                     fila[enc] = val;
                 });
-                // Ignorar registros inválidos
                 if (fila.medalla_base === 'PENDIENTE' || fila.medalla_base === 'COMPLETAR' || !fila.medalla_base) continue;
                 if (!fila.cerveceria || fila.cerveceria.trim() === '') continue;
                 datos.push(fila);
@@ -559,7 +542,6 @@
         }
     }
 
-    // ======================== 2. ESTADÍSTICAS ========================
     function updateStats(data) {
         if (!data.length) return;
         const total = data.length;
@@ -571,17 +553,14 @@
         statsDiv[2].children[0].innerText = certamenes;
     }
 
-    // ======================== 3. EVOLUCIÓN MENSUAL 2025 ========================
+    // ======================== 2. GRÁFICOS ========================
     let evolucionChart;
     function renderEvolucionMensual(data) {
         const data2025 = data.filter(item => {
             const anio = item.anio || (item.fecha ? item.fecha.split('-')[0] : '');
             return anio === '2025';
         });
-        if (!data2025.length) {
-            console.warn('No hay datos para 2025');
-            return;
-        }
+        if (!data2025.length) return;
 
         const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
         const paises = ['Brasil','Chile','Argentina'];
@@ -629,7 +608,6 @@
         });
     }
 
-    // ======================== 4. RANKING TOP 10 CHILE ========================
     let rankingChileChart;
     function renderRankingChile(data) {
         const chileData = data.filter(item => item.pais === 'Chile');
@@ -680,7 +658,31 @@
         });
     }
 
-    // ======================== 5. PÓDIUM 3x3 ========================
+    // ======================== 3. PÓDIUM CON TOOLTIP (top 2 cervezas) ========================
+    function getTopBeersForBrewery(breweryName, data) {
+        // Filtrar registros de esa cervecería
+        const breweryData = data.filter(item => item.cerveceria === breweryName);
+        // Agrupar por cerveza (nombre)
+        const beerMap = new Map();
+        breweryData.forEach(item => {
+            const beer = item.cerveza_ganadora;
+            if (!beer) return;
+            if (!beerMap.has(beer)) {
+                beerMap.set(beer, { count: 0, style: item.estilo });
+            }
+            beerMap.get(beer).count++;
+        });
+        // Convertir a array y ordenar por total de medallas descendente
+        const beersArray = Array.from(beerMap.entries()).map(([name, info]) => ({
+            name,
+            total: info.count,
+            style: info.style
+        }));
+        beersArray.sort((a,b) => b.total - a.total);
+        // Tomar las dos primeras
+        return beersArray.slice(0,2);
+    }
+
     function renderPodio(data) {
         const paises = ['Brasil', 'Chile', 'Argentina'];
         const podio = {};
@@ -712,20 +714,96 @@
                 col.innerHTML += '<div>Sin datos</div>';
             } else {
                 items.forEach(b => {
-                    col.innerHTML += `<div class="podio-item">
-                        ${b.name}<br>
-                        <span class="medal-count">${b.count} medallas</span>
-                    </div>`;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'podio-item';
+                    itemDiv.innerHTML = `${b.name}<br><span class="medal-count">${b.count} medallas</span>`;
+                    // Guardar los datos de las cervezas para el tooltip
+                    const topBeers = getTopBeersForBrewery(b.name, data);
+                    if (topBeers.length > 0) {
+                        itemDiv.setAttribute('data-brewery', b.name);
+                        itemDiv.setAttribute('data-top-beers', JSON.stringify(topBeers));
+                    }
+                    col.appendChild(itemDiv);
                 });
             }
             container.appendChild(col);
         });
+
+        // Inicializar tooltips
+        initPodioTooltips();
     }
 
-    // ======================== 6. MICRO GRÁFICOS ========================
+    // Tooltip personalizado
+    let tooltipTimeout;
+    const tooltipEl = document.getElementById('podiumTooltip');
+
+    function showTooltip(beers, x, y) {
+        if (!beers || beers.length === 0) return;
+        let html = '';
+        beers.forEach(beer => {
+            html += `<div class="tooltip-beer">
+                        <div class="beer-name">${beer.name}</div>
+                        <div class="beer-style">${beer.style || 'Estilo no especificado'}</div>
+                        <div class="beer-medals">🏅 ${beer.total} medallas</div>
+                     </div>`;
+        });
+        tooltipEl.innerHTML = html;
+        tooltipEl.style.left = `${x + 15}px`;
+        tooltipEl.style.top = `${y + 15}px`;
+        tooltipEl.style.opacity = '1';
+    }
+
+    function hideTooltip() {
+        tooltipEl.style.opacity = '0';
+    }
+
+    function initPodioTooltips() {
+        const items = document.querySelectorAll('.podio-item');
+        items.forEach(item => {
+            const removeEvents = () => {
+                item.removeEventListener('mouseenter', onMouseEnter);
+                item.removeEventListener('mouseleave', onMouseLeave);
+                item.removeEventListener('touchstart', onTouchStart);
+                item.removeEventListener('touchend', onTouchEnd);
+            };
+            const onMouseEnter = (e) => {
+                const topBeers = item.getAttribute('data-top-beers');
+                if (topBeers) {
+                    const beers = JSON.parse(topBeers);
+                    showTooltip(beers, e.clientX, e.clientY);
+                }
+            };
+            const onMouseLeave = () => {
+                hideTooltip();
+            };
+            const onTouchStart = (e) => {
+                e.preventDefault();
+                const topBeers = item.getAttribute('data-top-beers');
+                if (topBeers) {
+                    const rect = item.getBoundingClientRect();
+                    const beers = JSON.parse(topBeers);
+                    showTooltip(beers, rect.left, rect.bottom + 5);
+                    // Ocultar después de 3 segundos o al tocar fuera
+                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    tooltipTimeout = setTimeout(() => hideTooltip(), 3000);
+                }
+            };
+            const onTouchEnd = () => {
+                // No ocultamos inmediatamente para permitir leer
+                if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                tooltipTimeout = setTimeout(() => hideTooltip(), 2000);
+            };
+            removeEvents();
+            item.addEventListener('mouseenter', onMouseEnter);
+            item.addEventListener('mouseleave', onMouseLeave);
+            item.addEventListener('touchstart', onTouchStart);
+            item.addEventListener('touchend', onTouchEnd);
+        });
+    }
+
+    // ======================== 4. MICRO GRÁFICOS ========================
     let topEstilosGlobal, topEstilosChile, topRegionesChile;
     function renderMicroGraficos(data) {
-        // Top 5 estilos global
         const estilosGlobal = {};
         data.forEach(item => {
             const estilo = item.estilo;
@@ -741,15 +819,9 @@
                 labels: topGlobal.map(e=>e[0]),
                 datasets: [{ label: 'Medallas', data: topGlobal.map(e=>e[1]), backgroundColor: '#e32c6c' }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: { legend: { display: false }, tooltip: { bodyColor: '#fff' } },
-                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } }
-            }
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
         });
 
-        // Top 5 estilos Chile
         const chileData = data.filter(item => item.pais === 'Chile');
         const estilosChile = {};
         chileData.forEach(item => {
@@ -769,7 +841,6 @@
             options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
         });
 
-        // Top 5 regiones Chile (mapeo simple de ciudades)
         const regionesMap = {
             'Santiago': 'Metropolitana', 'Valparaíso': 'Valparaíso', 'Concepción': 'Biobío',
             'Talca': 'Maule', 'La Serena': 'Coquimbo', 'Antofagasta': 'Antofagasta',
@@ -796,7 +867,7 @@
         });
     }
 
-    // ======================== 7. TABLA CON BÚSQUEDA UNIFICADA ========================
+    // ======================== 5. TABLA CON BÚSQUEDA ========================
     function renderTable(data, searchTerm = "") {
         const tbody = document.getElementById('tableBody');
         let filtered = data;
@@ -812,7 +883,7 @@
             );
         }
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
+            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
@@ -830,12 +901,12 @@
                     <td>${item.estilo || '-'}</td>
                     <td class="${medClass}">${item.medalla_base || '-'}</td>
                     <td>${item.pais || '-'}</td>
-                </tr>
+                 </tr>
             `;
         }).join('');
     }
 
-    // ======================== 8. INICIALIZACIÓN ========================
+    // ======================== 6. INICIALIZACIÓN ========================
     async function init() {
         const data = await cargarCSV();
         if (!data.length) {
