@@ -180,14 +180,21 @@
         .micro-card .card-title { font-size: 1rem; margin-bottom: 0.8rem; }
         .micro-chart { height: 200px; width: 100%; }
 
-        /* Auditoría – estructura correcta */
+        /* ===================== NUEVA ESTRUCTURA PARA AUDITORÍA ===================== */
+        .auditoria-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin: 1.5rem 0;
+        }
         .auditoria-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
             border-radius: 28px;
             padding: 1.2rem;
             border: 1px solid rgba(30, 171, 155, 0.3);
-            margin: 1.5rem 0;
+            width: 100%;
         }
         .auditoria-title {
             font-size: 2rem;
@@ -218,7 +225,6 @@
             -webkit-overflow-scrolling: touch;
             max-height: 450px;
             overflow-y: auto;
-            margin-bottom: 1rem;
         }
         .medals-table {
             width: 100%;
@@ -238,15 +244,8 @@
             position: sticky;
             top: 0;
         }
-        /* Bloqueo estricto de columnas sensibles */
-        .col-cerveceria, .col-cerveza-ganadora {
-            filter: blur(10px);
-            pointer-events: none;
-            user-select: none;
-        }
-        /* Aplicación directa a las celdas con la clase .blur-column */
         .blur-column {
-            filter: blur(8px);
+            filter: blur(10px);
             pointer-events: none;
             user-select: none;
         }
@@ -254,10 +253,9 @@
         .medal-silver { color: #c0c0c0; font-weight: bold; }
         .medal-bronze { color: #cd7f32; font-weight: bold; }
 
-        .btn-premium {
-            display: block;
-            width: fit-content;
-            margin: 1rem auto;
+        /* Botón (ahora fuera de la tarjeta) */
+        .btn-desbloquear {
+            display: inline-block;
             background: #e32c6c;
             color: white;
             padding: 0.8rem 2rem;
@@ -267,29 +265,37 @@
             font-size: 1rem;
             letter-spacing: 1px;
             transition: 0.2s;
+            margin: 1.5rem auto;
             text-align: center;
+            border: none;
+            cursor: pointer;
         }
-        .btn-premium:hover { background: #f7c32f; color: #06232e; }
+        .btn-desbloquear:hover { background: #f7c32f; color: #06232e; }
 
-        /* Redes sociales y pie (dentro del mismo bloque) */
-        .social-icons {
+        /* Iconos RRSS grandes */
+        .social-footer-icons {
             display: flex;
             justify-content: center;
-            gap: 2.5rem;
+            gap: 3rem;
             margin: 1rem 0;
         }
-        .social-icon {
+        .big-icon {
             width: 80px;
             height: 80px;
             transition: transform 0.2s;
         }
-        .social-icon:hover { transform: scale(1.05); }
-        .footer-text {
+        .big-icon:hover { transform: scale(1.05); }
+
+        /* Pie de página – mismo ancho que la tabla */
+        .copyright-text {
             text-align: center;
             font-size: 0.9rem;
             font-weight: 500;
             line-height: 1.4;
             opacity: 0.9;
+            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 1rem;
             margin-top: 0.5rem;
         }
 
@@ -318,8 +324,8 @@
             .podio-col h3 { font-size: 1.2rem; }
             .podio-item { font-size: 0.8rem; }
             .auditoria-title { font-size: 1.5rem; }
-            .social-icon { width: 60px; height: 60px; }
-            .footer-text { font-size: 0.8rem; }
+            .big-icon { width: 60px; height: 60px; }
+            .copyright-text { font-size: 0.8rem; }
             .tooltip-box { width: 200px; font-size: 11px; bottom: 110%; }
         }
     </style>
@@ -372,34 +378,37 @@
         </div>
     </div>
 
-    <!-- Auditoría Detallada con estructura correcta: tabla → botón → RRSS → pie -->
-    <div class="auditoria-card">
-        <div class="auditoria-title">
-            <span>📋</span> Auditoría Detallada
-        </div>
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="🔍 Buscar por certamen, estilo, medalla, país, cervecería o cerveza...">
-        </div>
-        <div class="table-wrapper">
-            <table class="medals-table">
-                <thead>
-                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th> </thead>
-                <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
-            
-        </div>
-
-        <!-- Botón DESBLOQUEAR ACCESO COMPLETO -->
-        <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
-
-        <!-- Redes sociales -->
-        <div class="social-icons">
-            <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="social-icon" alt="Instagram"></a>
-            <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
-            <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
+    <!-- AUDITORÍA: estructura de capas independientes -->
+    <div class="auditoria-wrapper">
+        <!-- Contenedor de la tabla (tarjeta) -->
+        <div class="auditoria-card">
+            <div class="auditoria-title">
+                <span>📋</span> Auditoría Detallada
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por certamen, estilo, medalla, país, cervecería o cerveza...">
+            </div>
+            <div class="table-wrapper">
+                <table class="medals-table">
+                    <thead>
+                        <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th> </thead>
+                    <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Pie de página -->
-        <div class="footer-text">
+        <!-- Botón (fuera de la tarjeta) -->
+        <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-desbloquear" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
+
+        <!-- Redes sociales (fuera) -->
+        <div class="social-footer-icons">
+            <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="big-icon" alt="Instagram"></a>
+            <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="big-icon" alt="WhatsApp"></a>
+            <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="big-icon" alt="Web"></a>
+        </div>
+
+        <!-- Pie de página (fuera) -->
+        <div class="copyright-text">
             Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
         </div>
     </div>
