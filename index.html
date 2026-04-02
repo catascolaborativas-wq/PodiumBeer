@@ -8,14 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Inter', sans-serif;
             background: #06232e;
             color: #fff;
             position: relative;
         }
-
         body::before {
             content: "";
             position: fixed;
@@ -29,7 +27,6 @@
             background-attachment: fixed;
             z-index: -2;
         }
-
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -37,8 +34,6 @@
             position: relative;
             z-index: 1;
         }
-
-        /* Header – logo sólido (sin transparencia) */
         .header {
             text-align: center;
             margin: 0 auto 1.5rem auto;
@@ -47,14 +42,11 @@
             max-width: 320px;
             width: 100%;
             height: auto;
-            /* Eliminar cualquier posible transparencia */
             opacity: 1;
             filter: none;
             background: none;
             mix-blend-mode: normal;
         }
-
-        /* Estadísticas */
         .stats {
             display: flex;
             flex-wrap: wrap;
@@ -66,21 +58,16 @@
             border-radius: 2rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-
         .stat { text-align: center; flex: 1; min-width: 120px; }
         .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; color: #f7c32f; }
         .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
-
-        /* Gráficos principales – misma altura con CSS Grid */
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
-        @media (min-width: 1024px) {
-            .charts-grid { grid-template-columns: 1fr 1fr; }
-        }
+        @media (min-width: 1024px) { .charts-grid { grid-template-columns: 1fr 1fr; } }
         .card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -102,8 +89,6 @@
         }
         .chart-container { width: 100%; flex: 1; min-height: 350px; position: relative; }
         canvas { max-width: 100%; height: auto; }
-
-        /* Pódium */
         .podio-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -132,15 +117,8 @@
             transition: background 0.2s;
             position: relative;
         }
-        .podio-item:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        .podio-item .medal-count {
-            font-size: 0.8rem;
-            color: #1eab9b;
-        }
-
-        /* Tooltip personalizado */
+        .podio-item:hover { background: rgba(255, 255, 255, 0.2); }
+        .podio-item .medal-count { font-size: 0.8rem; color: #1eab9b; }
         .custom-tooltip {
             position: fixed;
             background: #1a2a35;
@@ -177,8 +155,6 @@
             font-size: 0.75rem;
             color: #1eab9b;
         }
-
-        /* Micro gráficos */
         .micro-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -195,8 +171,6 @@
         }
         .micro-card .card-title { font-size: 1rem; margin-bottom: 0.8rem; }
         .micro-chart { height: 200px; width: 100%; }
-
-        /* Auditoría */
         .auditoria-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -225,10 +199,7 @@
             font-size: 1rem;
             outline: none;
         }
-        .search-bar input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-            font-style: italic;
-        }
+        .search-bar input::placeholder { color: rgba(255, 255, 255, 0.5); font-style: italic; }
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -262,7 +233,6 @@
         .medal-gold { color: #f7c32f; font-weight: bold; }
         .medal-silver { color: #c0c0c0; font-weight: bold; }
         .medal-bronze { color: #cd7f32; font-weight: bold; }
-
         .btn-premium {
             display: inline-block;
             background: #e32c6c;
@@ -278,8 +248,6 @@
             text-align: center;
         }
         .btn-premium:hover { background: #f7c32f; color: #06232e; }
-
-        /* Redes sociales y pie */
         .social-icons {
             display: flex;
             justify-content: center;
@@ -300,7 +268,6 @@
             opacity: 0.9;
             margin-top: 0.5rem;
         }
-
         .error-message {
             background: #e32c6c;
             color: white;
@@ -310,8 +277,6 @@
             text-align: center;
             font-weight: bold;
         }
-
-        /* Responsive */
         @media (max-width: 768px) {
             .container { padding: 0.8rem; }
             .logo { max-width: 200px; }
@@ -359,13 +324,11 @@
         </div>
     </div>
 
-    <!-- Pódium por país -->
     <div class="card">
-        <div class="card-title" style="font-size: 1.5rem;">🥇 PÓDIUM POR PAÍS</div>
+        <div class="card-title" style="font-size: 1.5rem;">🥇 PODIUM POR PAÍS</div>
         <div id="podio-container" class="podio-grid"></div>
     </div>
 
-    <!-- Micro gráficos -->
     <div class="micro-grid">
         <div class="micro-card">
             <div class="card-title">🏅 Top 5 Estilos (Global)</div>
@@ -381,7 +344,6 @@
         </div>
     </div>
 
-    <!-- Auditoría Detallada – estructura correcta: tabla, luego botón, luego RRSS y pie -->
     <div class="auditoria-card">
         <div class="auditoria-title">
             <span>📋</span> Auditoría Detallada
@@ -392,25 +354,18 @@
         <div class="table-wrapper">
             <table class="medals-table">
                 <thead>
-                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th></tr>
-                </thead>
-                <tbody id="tableBody"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
-            </table>
+                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
+                <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
+            \(
         </div>
-
-        <!-- Botón DESBLOQUEAR ACCESO COMPLETO (debajo de la tabla) -->
         <div style="text-align: center;">
             <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
         </div>
-
-        <!-- Redes sociales (debajo del botón) -->
         <div class="social-icons">
             <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="social-icon" alt="Instagram"></a>
             <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="social-icon" alt="WhatsApp"></a>
             <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
         </div>
-
-        <!-- Pie de página (debajo de las RRSS) -->
         <div class="footer-text">
             Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
         </div>
@@ -432,12 +387,15 @@
 
     function normalizarTexto(str) {
         if (!str) return '';
+        // Quitar tildes
         str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        // Abreviaturas
         str = str.replace(/\bBrewery\b/gi, "Brew.")
                  .replace(/\bBrewing\b/gi, "Brew.")
                  .replace(/\bCompany\b/gi, "Co.")
                  .replace(/\bCompañía\b/gi, "Cia.")
                  .replace(/Colaboración/gi, "(Colab.)");
+        // Primera letra mayúscula de cada palabra
         return str.replace(/\b\w/g, l => l.toUpperCase());
     }
 
@@ -460,8 +418,15 @@
                     }
                     fila[enc] = val;
                 });
-                if (fila.medalla_base === 'PENDIENTE' || fila.medalla_base === 'COMPLETAR' || !fila.medalla_base) continue;
+                // Filtrar registros inválidos
+                const medalla = (fila.medalla_base || '').toUpperCase();
+                if (medalla === 'PENDIENTE' || medalla === 'COMPLETAR' || medalla === '') continue;
                 if (!fila.cerveceria || fila.cerveceria.trim() === '') continue;
+                // También filtrar si la cerveza está vacía o es "PENDIENTE" o "COMPLETAR"
+                const cerveza = (fila.cerveza_ganadora || '').toUpperCase();
+                if (cerveza === 'PENDIENTE' || cerveza === 'COMPLETAR' || cerveza === '') continue;
+                const estilo = (fila.estilo || '').toUpperCase();
+                if (estilo === 'PENDIENTE' || estilo === 'COMPLETAR' || estilo === '') continue;
                 datos.push(fila);
             }
             console.log(`✅ CSV cargado: ${datos.length} registros válidos`);
@@ -633,8 +598,6 @@
             }
             container.appendChild(col);
         });
-
-        // Inicializar tooltips después de agregar los elementos al DOM
         setTimeout(() => initPodioTooltips(), 50);
     }
 
@@ -663,7 +626,6 @@
     function initPodioTooltips() {
         const items = document.querySelectorAll('.podio-item');
         items.forEach(item => {
-            // Remover eventos anteriores para evitar duplicados
             const newItem = item.cloneNode(true);
             item.parentNode.replaceChild(newItem, item);
             const topBeersAttr = newItem.getAttribute('data-top-beers');
@@ -699,7 +661,7 @@
         const estilosGlobal = {};
         data.forEach(item => {
             const estilo = item.estilo;
-            if (!estilo || estilo === 'PENDIENTE' || estilo === 'COMPLETAR') return;
+            if (!estilo) return;
             estilosGlobal[estilo] = (estilosGlobal[estilo] || 0) + 1;
         });
         const topGlobal = Object.entries(estilosGlobal).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -715,7 +677,7 @@
         const estilosChile = {};
         chileData.forEach(item => {
             const estilo = item.estilo;
-            if (!estilo || estilo === 'PENDIENTE' || estilo === 'COMPLETAR') return;
+            if (!estilo) return;
             estilosChile[estilo] = (estilosChile[estilo] || 0) + 1;
         });
         const topChile = Object.entries(estilosChile).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -736,7 +698,7 @@
         const regiones = {};
         chileData.forEach(item => {
             let ciudad = item.ciudad;
-            if (!ciudad || ciudad === 'PENDIENTE' || ciudad === 'COMPLETAR') return;
+            if (!ciudad) return;
             let region = regionesMap[ciudad] || ciudad;
             regiones[region] = (regiones[region] || 0) + 1;
         });
@@ -766,7 +728,7 @@
             );
         }
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
+            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
@@ -776,7 +738,7 @@
             else if (med === 'plata') medClass = 'medal-silver';
             else if (med === 'bronce') medClass = 'medal-bronze';
             return `
-                <tr>
+                 <tr>
                     <td>${item.certamen || '-'}</td>
                     <td>${item.fecha || item.anio || '-'}</td>
                     <td class="blur-column">${item.cerveceria || '-'}</td>
@@ -784,7 +746,7 @@
                     <td>${item.estilo || '-'}</td>
                     <td class="${medClass}">${item.medalla_base || '-'}</td>
                     <td>${item.pais || '-'}</td>
-                </tr>
+                 </tr>
             `;
         }).join('');
     }
@@ -793,7 +755,7 @@
     async function init() {
         const data = await cargarCSV();
         if (!data.length) {
-            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos.</td></tr>';
+            document.getElementById('tableBody').innerHTML = '}<td colspan="7">⚠️ No se pudieron cargar datos.</td>';
             return;
         }
         allData = data;
