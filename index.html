@@ -6,15 +6,20 @@
     <title>PodiumBeer – Auditoría de Desempeño Cervecero</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #06232e;
             color: #fff;
             position: relative;
         }
+
         body::before {
             content: "";
             position: fixed;
@@ -22,12 +27,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(6,35,46,0.56), rgba(6,35,46,0.56)), url('assets/bg_cerveceria.jpg');
+            background: linear-gradient(rgba(6, 35, 46, 0.56), rgba(6, 35, 46, 0.56)), url('assets/bg_cerveceria.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             z-index: -2;
         }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -35,44 +41,76 @@
             position: relative;
             z-index: 1;
         }
-        .header { text-align: center; margin: 0 auto 1.5rem auto; }
-        .logo { max-width: 320px; width: 100%; height: auto; }
 
-        /* Stats */
+        /* Header */
+        .header {
+            text-align: center;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        .logo {
+            max-width: 320px;
+            width: 100%;
+            height: auto;
+        }
+
+        /* Estadísticas con color sólido #06232e */
         .stats {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 1.5rem;
             margin-bottom: 2rem;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
+            background: #06232e;
             padding: 1rem 2rem;
             border-radius: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .stat { text-align: center; flex: 1; min-width: 120px; }
-        .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; color: #f7c32f; }
-        .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
 
-        /* Cards y grid */
+        .stat {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 800;
+            color: #f7c32f;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ccc;
+        }
+
+        /* Grid para gráficos principales (misma altura) */
         .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-wrap: wrap;
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
-        @media (min-width: 1024px) {
-            .charts-grid { grid-template-columns: 1fr 1fr; }
+
+        .charts-grid > * {
+            flex: 1 1 calc(50% - 1.5rem);
+            min-width: 280px;
         }
+
         .card {
-            background: rgba(10,25,35,0.75);
+            background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
             border-radius: 28px;
             padding: 1.2rem;
-            border: 1px solid rgba(30,171,155,0.3);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            height: fit-content;
+            border: 1px solid rgba(30, 171, 155, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
+
         .card-title {
             font-size: 1.3rem;
             font-weight: 700;
@@ -81,34 +119,49 @@
             border-left: 5px solid #e32c6c;
             padding-left: 1rem;
         }
-        .chart-container { width: 100%; min-height: 350px; position: relative; }
-        canvas, svg { max-width: 100%; height: auto; }
 
-        /* Matriz de podio 3x3 */
+        .chart-container {
+            width: 100%;
+            flex: 1;
+            min-height: 350px;
+            position: relative;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Pódium por país */
         .podio-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin-top: 1rem;
         }
+
         .podio-col {
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 20px;
             padding: 1rem;
             text-align: center;
         }
+
         .podio-col h3 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
             color: #f7c32f;
         }
+
         .podio-item {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             margin: 0.5rem 0;
             padding: 0.5rem;
             border-radius: 12px;
             font-weight: bold;
+            font-size: 0.9rem;
         }
+
         .podio-item .medal-count {
             font-size: 0.8rem;
             color: #1eab9b;
@@ -117,81 +170,101 @@
         /* Micro gráficos */
         .micro-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin: 1.5rem 0;
         }
-        @media (min-width: 768px) {
-            .micro-grid { grid-template-columns: repeat(3, 1fr); }
-        }
+
         .micro-card {
-            background: rgba(10,25,35,0.75);
+            background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 1rem;
+            display: flex;
+            flex-direction: column;
         }
+
         .micro-card .card-title {
             font-size: 1rem;
             margin-bottom: 0.8rem;
         }
-        .micro-chart { height: 200px; }
+
+        .micro-chart {
+            height: 200px;
+            width: 100%;
+        }
 
         /* Tabla */
         .auditoria-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 1rem;
-            gap: 0.8rem;
         }
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-        }
-        .filter-select, .search-box {
-            padding: 0.5rem 1rem;
+
+        .search-box {
+            width: 100%;
+            padding: 0.8rem 1rem;
             border-radius: 40px;
             border: none;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             max-height: 400px;
             overflow-y: auto;
         }
+
         .medals-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.8rem;
             min-width: 600px;
         }
-        .medals-table th, .medals-table td {
+
+        .medals-table th,
+        .medals-table td {
             padding: 0.7rem 0.5rem;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .medals-table th {
-            background: rgba(227,44,108,0.3);
+            background: rgba(227, 44, 108, 0.3);
             color: #f7c32f;
             font-weight: 600;
             position: sticky;
             top: 0;
         }
+
         .blur-column {
             filter: blur(5px);
             transition: filter 0.2s;
         }
+
         .medals-table tr:hover .blur-column {
             filter: blur(0);
         }
-        .medal-gold { color: #f7c32f; font-weight: bold; }
-        .medal-silver { color: #c0c0c0; font-weight: bold; }
-        .medal-bronze { color: #cd7f32; font-weight: bold; }
+
+        .medal-gold {
+            color: #f7c32f;
+            font-weight: bold;
+        }
+
+        .medal-silver {
+            color: #c0c0c0;
+            font-weight: bold;
+        }
+
+        .medal-bronze {
+            color: #cd7f32;
+            font-weight: bold;
+        }
 
         .btn-premium {
             display: inline-block;
@@ -205,30 +278,42 @@
             transition: 0.2s;
             font-size: 0.9rem;
         }
-        .btn-premium:hover { background: #f7c32f; color: #06232e; }
 
+        .btn-premium:hover {
+            background: #f7c32f;
+            color: #06232e;
+        }
+
+        /* Footer */
         footer {
             text-align: center;
             padding: 1.5rem 0 0.5rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin-top: 1.5rem;
         }
+
         .social-icons {
             display: flex;
             justify-content: center;
-            gap: 1.8rem;
+            gap: 2rem;
             margin-bottom: 1rem;
         }
+
         .social-icon {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             transition: transform 0.2s;
         }
-        .social-icon:hover { transform: scale(1.1); }
+
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+
         .footer-text {
             font-size: 0.75rem;
             opacity: 0.7;
         }
+
         .error-message {
             background: #e32c6c;
             color: white;
@@ -238,16 +323,63 @@
             text-align: center;
             font-weight: bold;
         }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .container { padding: 0.8rem; }
-            .logo { max-width: 200px; }
-            .stats { gap: 0.8rem; padding: 0.8rem; }
-            .stat-number { font-size: 1.2rem; }
-            .stat-label { font-size: 0.6rem; }
-            .card-title { font-size: 1.1rem; }
-            .chart-container { min-height: 280px; }
-            .micro-chart { height: 180px; }
-            .social-icon { width: 32px; height: 32px; }
+            .container {
+                padding: 0.8rem;
+            }
+
+            .logo {
+                max-width: 200px;
+            }
+
+            .stats {
+                gap: 0.8rem;
+                padding: 0.8rem;
+            }
+
+            .stat-number {
+                font-size: 1.2rem;
+            }
+
+            .stat-label {
+                font-size: 0.6rem;
+            }
+
+            .card-title {
+                font-size: 1.1rem;
+            }
+
+            .chart-container {
+                min-height: 280px;
+            }
+
+            .micro-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .micro-chart {
+                height: 220px;
+            }
+
+            .podio-grid {
+                gap: 1rem;
+            }
+
+            .podio-col h3 {
+                font-size: 1.2rem;
+            }
+
+            .podio-item {
+                font-size: 0.8rem;
+            }
+
+            .social-icon {
+                width: 40px;
+                height: 40px;
+            }
         }
     </style>
 </head>
@@ -258,6 +390,7 @@
     </header>
 
     <div id="error-message" class="error-message" style="display: none;"></div>
+
     <div class="stats" id="stats-placeholder">
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Total Medallas</div></div>
         <div class="stat"><div class="stat-number">--</div><div class="stat-label">Medallas Oro</div></div>
@@ -265,7 +398,6 @@
     </div>
 
     <div class="charts-grid">
-        <!-- Gráfico de evolución mensual 2025 -->
         <div class="card">
             <div class="card-title">🌍 GLOBAL COMPETITION WINGS – 2025</div>
             <div class="chart-container">
@@ -273,7 +405,6 @@
             </div>
             <div style="font-size:0.7rem; text-align:center; margin-top:0.5rem; opacity:0.7;">*Actualización en progreso</div>
         </div>
-        <!-- Ranking Top 10 Chile -->
         <div class="card">
             <div class="card-title">🏆 Ranking de Cervecerías Chilenas (Top 10)</div>
             <div class="chart-container">
@@ -282,12 +413,10 @@
         </div>
     </div>
 
-    <!-- Matriz de Pódium (reemplaza Sankey) -->
+    <!-- Pódium por país -->
     <div class="card">
-        <div class="card-title">🥇 Pódium por País</div>
-        <div id="podio-container" class="podio-grid">
-            <!-- Se llenará con JS -->
-        </div>
+        <div class="card-title" style="font-size: 1.5rem;">🥇 PÓDIUM POR PAÍS</div>
+        <div id="podio-container" class="podio-grid"></div>
     </div>
 
     <!-- Micro gráficos -->
@@ -306,25 +435,18 @@
         </div>
     </div>
 
-    <!-- Tabla de auditoría con filtros -->
+    <!-- Tabla con búsqueda unificada -->
     <div class="card">
         <div class="card-title">📋 Auditoría Detallada</div>
         <div class="auditoria-header">
-            <div class="filters">
-                <select id="filterCertamen" class="filter-select"><option value="">Todos los certámenes</option></select>
-                <select id="filterEstilo" class="filter-select"><option value="">Todos los estilos</option></select>
-                <select id="filterMedalla" class="filter-select"><option value="">Todas las medallas</option></select>
-                <select id="filterPais" class="filter-select"><option value="">Todos los países</option></select>
-            </div>
-            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Buscar en cervecería, estilo...">
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Buscar por certamen, estilo, medalla, país, cervecería o cerveza...">
         </div>
         <div class="table-wrapper">
             <table class="medals-table">
                 <thead>
-                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></tr>
-                </thead>
-                <tbody id="tableBody"><tr><td colspan="7" class="loading">Cargando datos...</td></tr></tbody>
-            </table>
+                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza</th><th>Estilo</th><th>Medalla</th><th>País</th></thead>
+                <tbody id="tableBody">}<td colspan="7">Cargando datos...</tbody>
+            \(
         </div>
         <div style="text-align: center; margin-top: 1rem;">
             <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-premium" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
@@ -342,7 +464,7 @@
 </div>
 
 <script>
-    // ======================== 1. CARGA Y NORMALIZACIÓN DE DATOS ========================
+    // ======================== 1. CARGA Y NORMALIZACIÓN ========================
     let allData = [];
 
     function showError(msg) {
@@ -352,17 +474,17 @@
         console.error(msg);
     }
 
-    // Normalizar texto (primera letra mayúscula, abreviaturas, sin tildes)
+    // Normalizar texto (primer letra mayúscula, abreviaturas, sin tildes)
     function normalizarTexto(str) {
         if (!str) return '';
         // Eliminar tildes
         str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         // Abreviaturas
         str = str.replace(/\bBrewery\b/gi, "Brew.")
-               .replace(/\bBrewing\b/gi, "Brew.")
-               .replace(/\bCompany\b/gi, "Co.")
-               .replace(/\bCompañía\b/gi, "Cia.")
-               .replace(/Colaboración/gi, "(Colab.)");
+                 .replace(/\bBrewing\b/gi, "Brew.")
+                 .replace(/\bCompany\b/gi, "Co.")
+                 .replace(/\bCompañía\b/gi, "Cia.")
+                 .replace(/Colaboración/gi, "(Colab.)");
         // Primera letra mayúscula de cada palabra
         return str.replace(/\b\w/g, l => l.toUpperCase());
     }
@@ -386,9 +508,12 @@
                     }
                     fila[enc] = val;
                 });
+                // Ignorar registros inválidos
+                if (fila.medalla_base === 'PENDIENTE' || fila.medalla_base === 'COMPLETAR' || !fila.medalla_base) continue;
+                if (!fila.cerveceria || fila.cerveceria.trim() === '') continue;
                 datos.push(fila);
             }
-            console.log(`✅ CSV cargado: ${datos.length} registros`);
+            console.log(`✅ CSV cargado: ${datos.length} registros válidos`);
             return datos;
         } catch (err) {
             showError(`❌ Error al cargar CSV: ${err.message}\n\nAsegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz.`);
@@ -396,7 +521,7 @@
         }
     }
 
-    // ======================== 2. ESTADÍSTICAS GLOBALES ========================
+    // ======================== 2. ESTADÍSTICAS ========================
     function updateStats(data) {
         if (!data.length) return;
         const total = data.length;
@@ -408,10 +533,9 @@
         statsDiv[2].children[0].innerText = certamenes;
     }
 
-    // ======================== 3. GRÁFICO EVOLUCIÓN MENSUAL 2025 POR PAÍS ========================
+    // ======================== 3. EVOLUCIÓN MENSUAL 2025 ========================
     let evolucionChart;
     function renderEvolucionMensual(data) {
-        // Filtrar año 2025
         const data2025 = data.filter(item => {
             const anio = item.anio || (item.fecha ? item.fecha.split('-')[0] : '');
             return anio === '2025';
@@ -421,25 +545,18 @@
             return;
         }
 
-        // Agrupar por mes y país
-        const meses = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+        const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
         const paises = ['Brasil','Chile','Argentina'];
-        const agrupado = {};
-
-        paises.forEach(p => {
-            agrupado[p] = new Array(12).fill(0);
-        });
+        const agrupado = { Brasil: Array(12).fill(0), Chile: Array(12).fill(0), Argentina: Array(12).fill(0) };
 
         data2025.forEach(item => {
-            let fecha = item.fecha;
+            const fecha = item.fecha;
             if (!fecha) return;
             const mes = fecha.split('-')[1];
             const pais = item.pais;
             if (!pais || !paises.includes(pais)) return;
             const idx = parseInt(mes) - 1;
-            if (idx >= 0 && idx < 12) {
-                agrupado[pais][idx]++;
-            }
+            if (idx >= 0 && idx < 12) agrupado[pais][idx]++;
         });
 
         const ctx = document.getElementById('evolucionMensualChart').getContext('2d');
@@ -458,10 +575,7 @@
 
         evolucionChart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-                datasets: datasets
-            },
+            data: { labels: meses, datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
@@ -477,7 +591,7 @@
         });
     }
 
-    // ======================== 4. RANKING TOP 10 CERVEZAS CHILENAS ========================
+    // ======================== 4. RANKING TOP 10 CHILE ========================
     let rankingChileChart;
     function renderRankingChile(data) {
         const chileData = data.filter(item => item.pais === 'Chile');
@@ -528,7 +642,7 @@
         });
     }
 
-    // ======================== 5. MATRIZ DE PÓDIUM (3x3) ========================
+    // ======================== 5. PÓDIUM 3x3 ========================
     function renderPodio(data) {
         const paises = ['Brasil', 'Chile', 'Argentina'];
         const podio = {};
@@ -539,8 +653,7 @@
             paisesData.forEach(item => {
                 const nombre = item.cerveceria;
                 if (!nombre) return;
-                if (!breweries[nombre]) breweries[nombre] = 0;
-                breweries[nombre]++;
+                breweries[nombre] = (breweries[nombre] || 0) + 1;
             });
             const top3 = Object.entries(breweries)
                 .sort((a,b) => b[1] - a[1])
@@ -554,16 +667,15 @@
         paises.forEach(p => {
             const col = document.createElement('div');
             col.className = 'podio-col';
-            col.innerHTML = `<h3>${p}</h3>`;
-            const medallasTotales = data.filter(item => item.pais === p).length;
-            col.innerHTML += `<div style="margin-bottom:0.5rem;">🏆 ${medallasTotales} medallas</div>`;
+            const totalMedallas = data.filter(item => item.pais === p).length;
+            col.innerHTML = `<h3>${p}</h3><div style="margin-bottom:0.5rem;">🏆 ${totalMedallas} medallas</div>`;
             const items = podio[p];
             if (items.length === 0) {
                 col.innerHTML += '<div>Sin datos</div>';
             } else {
-                items.forEach((b, idx) => {
+                items.forEach(b => {
                     col.innerHTML += `<div class="podio-item">
-                        ${idx+1}. ${b.name}<br>
+                        ${b.name}<br>
                         <span class="medal-count">${b.count} medallas</span>
                     </div>`;
                 });
@@ -575,22 +687,28 @@
     // ======================== 6. MICRO GRÁFICOS ========================
     let topEstilosGlobal, topEstilosChile, topRegionesChile;
     function renderMicroGraficos(data) {
-        // Top 5 estilos global
+        // Top 5 estilos global (sin pendientes)
         const estilosGlobal = {};
         data.forEach(item => {
             const estilo = item.estilo;
-            if (!estilo) return;
+            if (!estilo || estilo === 'PENDIENTE' || estilo === 'COMPLETAR') return;
             estilosGlobal[estilo] = (estilosGlobal[estilo] || 0) + 1;
         });
         const topGlobal = Object.entries(estilosGlobal).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const labelsGlobal = topGlobal.map(e=>e[0]);
-        const valuesGlobal = topGlobal.map(e=>e[1]);
         const ctx1 = document.getElementById('topEstilosGlobalChart').getContext('2d');
         if (topEstilosGlobal) topEstilosGlobal.destroy();
         topEstilosGlobal = new Chart(ctx1, {
             type: 'bar',
-            data: { labels: labelsGlobal, datasets: [{ label: 'Medallas', data: valuesGlobal, backgroundColor: '#e32c6c' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+            data: {
+                labels: topGlobal.map(e=>e[0]),
+                datasets: [{ label: 'Medallas', data: topGlobal.map(e=>e[1]), backgroundColor: '#e32c6c' }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false }, tooltip: { bodyColor: '#fff' } },
+                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } }
+            }
         });
 
         // Top 5 estilos Chile
@@ -598,75 +716,67 @@
         const estilosChile = {};
         chileData.forEach(item => {
             const estilo = item.estilo;
-            if (!estilo) return;
+            if (!estilo || estilo === 'PENDIENTE' || estilo === 'COMPLETAR') return;
             estilosChile[estilo] = (estilosChile[estilo] || 0) + 1;
         });
         const topChile = Object.entries(estilosChile).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const labelsChile = topChile.map(e=>e[0]);
-        const valuesChile = topChile.map(e=>e[1]);
         const ctx2 = document.getElementById('topEstilosChileChart').getContext('2d');
         if (topEstilosChile) topEstilosChile.destroy();
         topEstilosChile = new Chart(ctx2, {
             type: 'bar',
-            data: { labels: labelsChile, datasets: [{ label: 'Medallas', data: valuesChile, backgroundColor: '#1eab9b' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+            data: {
+                labels: topChile.map(e=>e[0]),
+                datasets: [{ label: 'Medallas', data: topChile.map(e=>e[1]), backgroundColor: '#1eab9b' }]
+            },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
         });
 
-        // Top 5 regiones de Chile (usando ciudad como proxy, mapeo simple)
+        // Top 5 regiones Chile (mapeo simple de ciudades)
         const regionesMap = {
-            'Santiago': 'Metropolitana',
-            'Valparaíso': 'Valparaíso',
-            'Concepción': 'Biobío',
-            'Talca': 'Maule',
-            'La Serena': 'Coquimbo',
-            'Antofagasta': 'Antofagasta',
-            'Temuco': 'Araucanía',
-            'Rancagua': 'O\'Higgins',
-            'Puerto Montt': 'Los Lagos',
-            'Valdivia': 'Los Ríos'
+            'Santiago': 'Metropolitana', 'Valparaíso': 'Valparaíso', 'Concepción': 'Biobío',
+            'Talca': 'Maule', 'La Serena': 'Coquimbo', 'Antofagasta': 'Antofagasta',
+            'Temuco': 'Araucanía', 'Rancagua': 'O\'Higgins', 'Puerto Montt': 'Los Lagos',
+            'Valdivia': 'Los Ríos', 'Viña del Mar': 'Valparaíso', 'Chillán': 'Ñuble'
         };
         const regiones = {};
         chileData.forEach(item => {
             let ciudad = item.ciudad;
-            if (!ciudad) return;
+            if (!ciudad || ciudad === 'PENDIENTE' || ciudad === 'COMPLETAR') return;
             let region = regionesMap[ciudad] || ciudad;
             regiones[region] = (regiones[region] || 0) + 1;
         });
         const topRegiones = Object.entries(regiones).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const labelsRegiones = topRegiones.map(r=>r[0]);
-        const valuesRegiones = topRegiones.map(r=>r[1]);
         const ctx3 = document.getElementById('topRegionesChileChart').getContext('2d');
         if (topRegionesChile) topRegionesChile.destroy();
         topRegionesChile = new Chart(ctx3, {
             type: 'bar',
-            data: { labels: labelsRegiones, datasets: [{ label: 'Medallas', data: valuesRegiones, backgroundColor: '#f7c32f' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+            data: {
+                labels: topRegiones.map(r=>r[0]),
+                datasets: [{ label: 'Medallas', data: topRegiones.map(r=>r[1]), backgroundColor: '#f7c32f' }]
+            },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
         });
     }
 
-    // ======================== 7. TABLA CON FILTROS ========================
-    function renderTable(data, filters = {}) {
-        const { certamen, estilo, medalla, pais, search } = filters;
+    // ======================== 7. TABLA CON BÚSQUEDA UNIFICADA ========================
+    function renderTable(data, searchTerm = "") {
+        const tbody = document.getElementById('tableBody');
         let filtered = data;
-        if (certamen && certamen !== '') filtered = filtered.filter(row => row.certamen === certamen);
-        if (estilo && estilo !== '') filtered = filtered.filter(row => row.estilo === estilo);
-        if (medalla && medalla !== '') filtered = filtered.filter(row => row.medalla_base === medalla);
-        if (pais && pais !== '') filtered = filtered.filter(row => row.pais === pais);
-        if (search) {
-            const lower = search.toLowerCase();
-            filtered = filtered.filter(row => 
-                (row.cerveceria || '').toLowerCase().includes(lower) ||
+        if (searchTerm) {
+            const lower = searchTerm.toLowerCase();
+            filtered = data.filter(row =>
+                (row.certamen || '').toLowerCase().includes(lower) ||
                 (row.estilo || '').toLowerCase().includes(lower) ||
+                (row.medalla_base || '').toLowerCase().includes(lower) ||
+                (row.pais || '').toLowerCase().includes(lower) ||
+                (row.cerveceria || '').toLowerCase().includes(lower) ||
                 (row.cerveza_ganadora || '').toLowerCase().includes(lower)
             );
         }
-
-        const tbody = document.getElementById('tableBody');
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
+            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
             return;
         }
-
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
             let medClass = '';
             const med = (item.medalla_base || '').toLowerCase();
@@ -682,42 +792,9 @@
                     <td>${item.estilo || '-'}</td>
                     <td class="${medClass}">${item.medalla_base || '-'}</td>
                     <td>${item.pais || '-'}</td>
-                </tr>
+                 </tr>
             `;
         }).join('');
-    }
-
-    function poblarFiltros(data) {
-        const certamenes = [...new Set(data.map(r => r.certamen).filter(Boolean))].sort();
-        const estilos = [...new Set(data.map(r => r.estilo).filter(Boolean))].sort();
-        const medallas = ['Oro', 'Plata', 'Bronce'];
-        const paises = [...new Set(data.map(r => r.pais).filter(Boolean))].sort();
-
-        const selectCert = document.getElementById('filterCertamen');
-        selectCert.innerHTML = '<option value="">Todos los certámenes</option>' + certamenes.map(c => `<option value="${c}">${c}</option>`).join('');
-        const selectEstilo = document.getElementById('filterEstilo');
-        selectEstilo.innerHTML = '<option value="">Todos los estilos</option>' + estilos.map(e => `<option value="${e}">${e}</option>`).join('');
-        const selectMedalla = document.getElementById('filterMedalla');
-        selectMedalla.innerHTML = '<option value="">Todas las medallas</option>' + medallas.map(m => `<option value="${m}">${m}</option>`).join('');
-        const selectPais = document.getElementById('filterPais');
-        selectPais.innerHTML = '<option value="">Todos los países</option>' + paises.map(p => `<option value="${p}">${p}</option>`).join('');
-
-        const applyFilters = () => {
-            const filters = {
-                certamen: selectCert.value,
-                estilo: selectEstilo.value,
-                medalla: selectMedalla.value,
-                pais: selectPais.value,
-                search: document.getElementById('searchInput').value
-            };
-            renderTable(allData, filters);
-        };
-
-        selectCert.addEventListener('change', applyFilters);
-        selectEstilo.addEventListener('change', applyFilters);
-        selectMedalla.addEventListener('change', applyFilters);
-        selectPais.addEventListener('change', applyFilters);
-        document.getElementById('searchInput').addEventListener('input', applyFilters);
     }
 
     // ======================== 8. INICIALIZACIÓN ========================
@@ -734,7 +811,9 @@
         renderPodio(data);
         renderMicroGraficos(data);
         renderTable(data);
-        poblarFiltros(data);
+
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => renderTable(allData, e.target.value));
     }
     init();
 </script>
