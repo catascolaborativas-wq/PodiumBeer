@@ -68,7 +68,7 @@
         .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; color: #f7c32f; }
         .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
 
-        /* Gráficos principales – misma altura con CSS Grid */
+        /* Gráficos principales – misma altura */
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -100,7 +100,7 @@
         .chart-container { width: 100%; flex: 1; min-height: 350px; position: relative; }
         canvas { max-width: 100%; height: auto; }
 
-        /* Pódium */
+        /* Pódium – con tooltip incluido en cada elemento */
         .podio-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -119,15 +119,15 @@
             color: #f7c32f;
         }
         .podio-item {
+            position: relative;
             background: rgba(255, 255, 255, 0.1);
             margin: 0.5rem 0;
             padding: 0.5rem;
             border-radius: 12px;
             font-weight: bold;
             font-size: 0.9rem;
-            cursor: pointer;
+            cursor: help;
             transition: background 0.2s;
-            position: relative;
         }
         .podio-item:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -136,43 +136,30 @@
             font-size: 0.8rem;
             color: #1eab9b;
         }
-
-        /* Tooltip personalizado */
-        .custom-tooltip {
-            position: fixed;
-            background: #1a2a35;
+        /* Tooltip interno (estilo "dark mode") */
+        .tooltip-box {
+            visibility: hidden;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(6, 35, 46, 0.95);
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
             border: 1px solid #f7c32f;
-            border-radius: 20px;
-            padding: 0.8rem 1rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            max-width: 280px;
-            width: auto;
-            font-size: 0.9rem;
-            pointer-events: none;
-            transition: opacity 0.2s;
+            width: 220px;
+            font-size: 12px;
+            z-index: 999;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
+            transition: opacity 0.3s;
             opacity: 0;
             text-align: left;
+            line-height: 1.4;
         }
-        .custom-tooltip .tooltip-beer {
-            margin-bottom: 0.6rem;
-            border-left: 3px solid #e32c6c;
-            padding-left: 0.7rem;
-        }
-        .custom-tooltip .tooltip-beer:last-child { margin-bottom: 0; }
-        .custom-tooltip .beer-name {
-            font-weight: bold;
-            color: #f7c32f;
-            font-size: 1rem;
-        }
-        .custom-tooltip .beer-style {
-            font-size: 0.8rem;
-            color: #ccc;
-        }
-        .custom-tooltip .beer-medals {
-            font-size: 0.75rem;
-            color: #1eab9b;
+        .podio-item:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
         }
 
         /* Micro gráficos */
@@ -193,7 +180,7 @@
         .micro-card .card-title { font-size: 1rem; margin-bottom: 0.8rem; }
         .micro-chart { height: 200px; width: 100%; }
 
-        /* Auditoría */
+        /* Auditoría – todo el bloque (tabla, botón, RRSS, pie) */
         .auditoria-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -276,7 +263,7 @@
         }
         .btn-premium:hover { background: #f7c32f; color: #06232e; }
 
-        /* Redes sociales y pie */
+        /* Redes sociales y pie (dentro del mismo bloque) */
         .social-icons {
             display: flex;
             justify-content: center;
@@ -325,8 +312,7 @@
             .auditoria-title { font-size: 1.5rem; }
             .social-icon { width: 55px; height: 55px; }
             .footer-text { font-size: 0.8rem; }
-            .custom-tooltip { max-width: 240px; font-size: 0.85rem; padding: 0.7rem 0.9rem; }
-            .custom-tooltip .beer-name { font-size: 0.95rem; }
+            .tooltip-box { width: 200px; font-size: 11px; bottom: 110%; }
         }
     </style>
 </head>
@@ -356,7 +342,7 @@
         </div>
     </div>
 
-    <!-- Podium por país (sin tilde) -->
+    <!-- Podium por país (sin tilde) con tooltip interno -->
     <div class="card">
         <div class="card-title" style="font-size: 1.5rem;">🥇 PODIUM POR PAÍS</div>
         <div id="podio-container" class="podio-grid"></div>
@@ -378,7 +364,7 @@
         </div>
     </div>
 
-    <!-- Auditoría Detallada -->
+    <!-- Auditoría Detallada con estructura correcta: tabla → botón → RRSS → pie -->
     <div class="auditoria-card">
         <div class="auditoria-title">
             <span>📋</span> Auditoría Detallada
@@ -389,8 +375,7 @@
         <div class="table-wrapper">
             <table class="medals-table">
                 <thead>
-                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th></tr>
-                </thead>
+                    <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th> </thead>
                 <tbody id="tableBody"><td colspan="7">Cargando datos...</td></tbody>
             
         </div>
@@ -407,30 +392,33 @@
             <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="social-icon" alt="Web"></a>
         </div>
 
-        <!-- Pie de página -->
+        <!-- Texto de pie -->
         <div class="footer-text">
             Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
         </div>
     </div>
 </div>
 
-<div id="podiumTooltip" class="custom-tooltip"></div>
-
 <script>
-    // ======================== 1. CARGA Y NORMALIZACIÓN ========================
-    let allData = [];
-
-    function showError(msg) {
-        const errDiv = document.getElementById('error-message');
-        errDiv.innerText = msg;
-        errDiv.style.display = 'block';
-        console.error(msg);
+    // ======================== 1. FUNCIONES DE LIMPIEZA Y NORMALIZACIÓN ========================
+    function limpiarTexto(texto) {
+        if (!texto) return "";
+        return texto.toString()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
     }
 
-    // Normalización: eliminar tildes, abreviaturas, primera letra mayúscula
-    function normalizarTexto(str) {
+    function esBasura(valor) {
+        if (!valor) return true;
+        const limpio = valor.toString().toUpperCase().trim();
+        return limpio === "PENDIENTE" || limpio === "COMPLETAR" || limpio === "-";
+    }
+
+    function normalizarTextoPresentacion(str) {
         if (!str) return '';
-        // Eliminar tildes
+        // Eliminar tildes para evitar problemas, pero mantener mayúsculas iniciales
         str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         // Abreviaturas
         str = str.replace(/\bBrewery\b/gi, "Brew.")
@@ -440,6 +428,16 @@
                  .replace(/Colaboración/gi, "(Colab.)");
         // Primera letra mayúscula de cada palabra
         return str.replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    // ======================== 2. CARGA DE CSV Y FILTRADO DE BASURA ========================
+    let allData = [];
+
+    function showError(msg) {
+        const errDiv = document.getElementById('error-message');
+        errDiv.innerText = msg;
+        errDiv.style.display = 'block';
+        console.error(msg);
     }
 
     async function cargarCSV() {
@@ -456,20 +454,18 @@
                 const fila = {};
                 encabezados.forEach((enc, idx) => {
                     let val = valores[idx] ? valores[idx].trim() : '';
-                    // Aplicar normalización a campos de texto
                     if (enc === 'cerveceria' || enc === 'cerveza_ganadora' || enc === 'estilo' || enc === 'certamen') {
-                        val = normalizarTexto(val);
+                        val = normalizarTextoPresentacion(val);
                     }
                     fila[enc] = val;
                 });
-                // Excluir registros con medalla_base inválida o vacía
-                const medalla = fila.medalla_base;
-                if (!medalla || medalla === 'PENDIENTE' || medalla === 'COMPLETAR') continue;
-                // Excluir cervecerías vacías o con "PENDIENTE"/"COMPLETAR"
-                if (!fila.cerveceria || fila.cerveceria === 'PENDIENTE' || fila.cerveceria === 'COMPLETAR') continue;
+                // Excluir registros con medalla_base basura o vacía
+                if (esBasura(fila.medalla_base)) continue;
+                // Excluir cervecería basura
+                if (esBasura(fila.cerveceria)) continue;
                 datos.push(fila);
             }
-            console.log(`✅ CSV cargado: ${datos.length} registros válidos (medallas totales)`);
+            console.log(`✅ CSV cargado: ${datos.length} registros válidos`);
             return datos;
         } catch (err) {
             showError(`❌ Error al cargar CSV: ${err.message}\n\nAsegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz.`);
@@ -479,7 +475,7 @@
 
     function updateStats(data) {
         if (!data.length) return;
-        const total = data.length;                 // Cantidad de registros válidos (cada uno es una medalla)
+        const total = data.length;
         const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
         const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
         const statsDiv = document.getElementById('stats-placeholder').children;
@@ -488,7 +484,7 @@
         statsDiv[2].children[0].innerText = certamenes;
     }
 
-    // ======================== 2. GRÁFICOS ========================
+    // ======================== 3. GRÁFICOS (igual que antes, sin cambios) ========================
     let evolucionChart;
     function renderEvolucionMensual(data) {
         const data2025 = data.filter(item => {
@@ -578,28 +574,37 @@
         });
     }
 
-    // ======================== 3. PODIUM CON TOOLTIP ========================
-    function getTopBeersForBrewery(breweryName, data) {
-        const breweryData = data.filter(item => item.cerveceria === breweryName);
-        const beerMap = new Map();
-        breweryData.forEach(item => {
-            const beer = item.cerveza_ganadora;
-            if (!beer) return;
-            if (!beerMap.has(beer)) {
-                beerMap.set(beer, { count: 0, style: item.estilo });
-            }
-            beerMap.get(beer).count++;
+    // ======================== 4. PÓDIUM CON TOOLTIP INTERNO (CSS puro) ========================
+    function obtenerDetalleCervezas(nombreCerveceria, dataCompleta) {
+        const busqueda = limpiarTexto(nombreCerveceria);
+        const medallas = dataCompleta.filter(d => 
+            limpiarTexto(d.cerveceria) === busqueda &&
+            !esBasura(d.cerveza_ganadora) &&
+            !esBasura(d.estilo)
+        );
+        if (medallas.length === 0) return "Sin medallas destacadas";
+
+        const conteo = {};
+        medallas.forEach(m => {
+            const nombreCerveza = m.cerveza_ganadora || "Sin nombre";
+            const estilo = m.estilo || "Estilo no definido";
+            const llave = `${nombreCerveza} (${estilo})`;
+            conteo[llave] = (conteo[llave] || 0) + 1;
         });
-        const beersArray = Array.from(beerMap.entries()).map(([name, info]) => ({
-            name, total: info.count, style: info.style
-        }));
-        beersArray.sort((a,b) => b.total - a.total);
-        return beersArray.slice(0,2);
+
+        const mejores2 = Object.entries(conteo)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 2);
+
+        return mejores2.map(([nombre, total]) => 
+            `• ${nombre}: ${total} medallas`
+        ).join('<br>');
     }
 
     function renderPodio(data) {
         const paises = ['Brasil', 'Chile', 'Argentina'];
         const podio = {};
+
         paises.forEach(p => {
             const paisesData = data.filter(item => item.pais === p);
             const breweries = {};
@@ -608,7 +613,9 @@
                 if (!nombre) return;
                 breweries[nombre] = (breweries[nombre] || 0) + 1;
             });
-            const top3 = Object.entries(breweries).sort((a,b) => b[1] - a[1]).slice(0,3)
+            const top3 = Object.entries(breweries)
+                .sort((a,b) => b[1] - a[1])
+                .slice(0,3)
                 .map(([name, count]) => ({ name, count }));
             podio[p] = top3;
         });
@@ -627,85 +634,26 @@
                 items.forEach(b => {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'podio-item';
-                    itemDiv.innerHTML = `${b.name}<br><span class="medal-count">${b.count} medallas</span>`;
-                    const topBeers = getTopBeersForBrewery(b.name, data);
-                    if (topBeers.length > 0) {
-                        itemDiv.setAttribute('data-brewery', b.name);
-                        itemDiv.setAttribute('data-top-beers', JSON.stringify(topBeers));
-                    }
+                    const tooltipHtml = obtenerDetalleCervezas(b.name, data);
+                    itemDiv.innerHTML = `
+                        ${b.name}<br><span class="medal-count">${b.count} medallas</span>
+                        <div class="tooltip-box">${tooltipHtml}</div>
+                    `;
                     col.appendChild(itemDiv);
                 });
             }
             container.appendChild(col);
         });
-
-        // Inicializar tooltips después de que los elementos estén en el DOM
-        setTimeout(() => initPodioTooltips(), 50);
     }
 
-    const tooltipEl = document.getElementById('podiumTooltip');
-    function showTooltip(beers, x, y) {
-        if (!beers || beers.length === 0) return;
-        let html = '';
-        beers.forEach(beer => {
-            html += `<div class="tooltip-beer">
-                        <div class="beer-name">${beer.name}</div>
-                        <div class="beer-style">${beer.style || 'Estilo no especificado'}</div>
-                        <div class="beer-medals">🏅 ${beer.total} medallas</div>
-                     </div>`;
-        });
-        tooltipEl.innerHTML = html;
-        tooltipEl.style.left = `${x + 15}px`;
-        tooltipEl.style.top = `${y + 15}px`;
-        tooltipEl.style.opacity = '1';
-    }
-
-    function hideTooltip() {
-        tooltipEl.style.opacity = '0';
-    }
-
-    let tooltipTimeout;
-    function initPodioTooltips() {
-        const items = document.querySelectorAll('.podio-item');
-        items.forEach(item => {
-            // Remover eventos anteriores para evitar duplicados
-            const newItem = item.cloneNode(true);
-            item.parentNode.replaceChild(newItem, item);
-            const topBeersAttr = newItem.getAttribute('data-top-beers');
-            if (!topBeersAttr) return;
-
-            const onMouseEnter = (e) => {
-                const beers = JSON.parse(topBeersAttr);
-                showTooltip(beers, e.clientX, e.clientY);
-            };
-            const onMouseLeave = () => hideTooltip();
-            const onTouchStart = (e) => {
-                e.preventDefault();
-                const rect = newItem.getBoundingClientRect();
-                const beers = JSON.parse(topBeersAttr);
-                showTooltip(beers, rect.left, rect.bottom + 5);
-                if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                tooltipTimeout = setTimeout(() => hideTooltip(), 3000);
-            };
-            const onTouchEnd = () => {
-                if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                tooltipTimeout = setTimeout(() => hideTooltip(), 2000);
-            };
-            newItem.addEventListener('mouseenter', onMouseEnter);
-            newItem.addEventListener('mouseleave', onMouseLeave);
-            newItem.addEventListener('touchstart', onTouchStart);
-            newItem.addEventListener('touchend', onTouchEnd);
-        });
-    }
-
-    // ======================== 4. MICRO GRÁFICOS ========================
+    // ======================== 5. MICRO GRÁFICOS ========================
     let topEstilosGlobal, topEstilosChile, topRegionesChile;
     function renderMicroGraficos(data) {
         // Global
         const estilosGlobal = {};
         data.forEach(item => {
             const estilo = item.estilo;
-            if (!estilo || estilo === 'PENDIENTE' || estilo === 'COMPLETAR') return;
+            if (esBasura(estilo)) return;
             estilosGlobal[estilo] = (estilosGlobal[estilo] || 0) + 1;
         });
         const topGlobal = Object.entries(estilosGlobal).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -722,7 +670,7 @@
         const estilosChile = {};
         chileData.forEach(item => {
             const estilo = item.estilo;
-            if (!estilo || estilo === 'PENDIENTE' || estilo === 'COMPLETAR') return;
+            if (esBasura(estilo)) return;
             estilosChile[estilo] = (estilosChile[estilo] || 0) + 1;
         });
         const topChile = Object.entries(estilosChile).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -744,7 +692,7 @@
         const regiones = {};
         chileData.forEach(item => {
             let ciudad = item.ciudad;
-            if (!ciudad || ciudad === 'PENDIENTE' || ciudad === 'COMPLETAR') return;
+            if (esBasura(ciudad)) return;
             let region = regionesMap[ciudad] || ciudad;
             regiones[region] = (regiones[region] || 0) + 1;
         });
@@ -758,7 +706,7 @@
         });
     }
 
-    // ======================== 5. TABLA CON BÚSQUEDA ========================
+    // ======================== 6. TABLA CON BÚSQUEDA ========================
     function renderTable(data, searchTerm = "") {
         const tbody = document.getElementById('tableBody');
         let filtered = data;
@@ -792,12 +740,12 @@
                     <td>${item.estilo || '-'}</td>
                     <td class="${medClass}">${item.medalla_base || '-'}</td>
                     <td>${item.pais || '-'}</td>
-                 </tr>
+                </tr>
             `;
         }).join('');
     }
 
-    // ======================== 6. INICIALIZACIÓN ========================
+    // ======================== 7. INICIALIZACIÓN ========================
     async function init() {
         const data = await cargarCSV();
         if (!data.length) {
