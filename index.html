@@ -1,1 +1,785 @@
-<!DOCTYPE html> <html lang="es"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"> <title>Simulador de Alianza | Podium Beer</title> <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet"> <style> * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; } body { font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif; background: #000; min-height: 100vh; display: flex; align-items: center; justify-content: center; } /* === FONDO === */ .hero-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; } .hero-bg img { width: 100%; height: 100%; object-fit: cover; } .overlay-color { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #06232E; opacity: 0.57; z-index: -1; } .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 80px rgba(0,0,0,0.5); pointer-events: none; z-index: 0; } /* === CONTENEDOR PRINCIPAL (móvil: 90% ancho, sin límite) === */ .app-container { width: 90%; /* 90% del ancho del viewport */ max-width: none; /* sin límite en móvil para que ocupe el 90% real */ margin: 1.5rem auto; padding: 0 0.5rem; /* pequeño margen lateral de seguridad */ position: relative; z-index: 2; display: flex; flex-direction: column; gap: 1.8rem; } /* === HEADER (título en una sola línea) === */ .header { text-align: center; } .h1-sim { font-size: clamp(28px, 8vw, 44px); font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; } .h1-sim::-webkit-scrollbar { display: none; } .h2-sim { font-size: clamp(20px, 6vw, 32px); font-weight: 500; color: #CFDEE0; margin-top: 0.5rem; } /* Bajada del header */ .bajada-header { font-size: 15px; font-weight: 500; color: #FFFFFF; background: rgba(0, 0, 0, 0.6); padding: 0.75rem 1rem; border-radius: 28px; margin-top: 1rem; line-height: 1.4; text-align: center; backdrop-filter: blur(4px); } /* === CONTENEDORES CON EFECTO GLASS + ECO (imagen espejo.png) === */ .glass-card, .metrics-card, .plan-selector-card { position: relative; background: rgba(6, 35, 46, 0.35); backdrop-filter: blur(20px); border-radius: 2rem; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease; padding: 1.5rem; } /* Efecto eco con imagen espejo.png */ .glass-card::before, .metrics-card::before, .plan-selector-card::before { content: ''; position: absolute; left: 11px; top: -10px; width: 100%; height: 100%; border-radius: inherit; background-image: url('assets/espejo.png'); background-size: cover; background-position: center; opacity: 0.18; z-index: -1; pointer-events: none; } /* Títulos de sección */ .section-title { font-size: 14px; font-weight: 800; letter-spacing: 2px; color: #f7c32f; text-transform: uppercase; margin-bottom: 0.5rem; text-align: left; } .section-subtitle { font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 0.5rem; text-align: left; } .section-desc { font-size: 13px; color: #CFDEE0; line-height: 1.4; margin-bottom: 1.5rem; text-align: left; } /* === SLIDER === */ .slider-container { width: 100%; padding: 0 0.5rem; } .slider-track-wrapper { position: relative; margin: 1.5rem 0.5rem 2rem 0.5rem; } .slider-rail { width: 100%; height: 6px; background: #1E3A4A; border-radius: 50px; position: relative; cursor: pointer; } .slider-fill { position: absolute; height: 100%; border-radius: 50px; background: linear-gradient(90deg, #06232E 0%, #FFFFFF 100%); width: 0%; pointer-events: none; transition: width 0.1s ease-out; } .slider-thumb { position: absolute; width: 24px; height: 24px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translate(-50%, -50%); cursor: grab; box-shadow: 0 0 0 0px rgba(255,255,255,0.3); transition: box-shadow 0.1s ease, left 0.15s ease; z-index: 3; } .slider-thumb:active { cursor: grabbing; box-shadow: 0 0 0 6px rgba(255,255,255,0.25); } .slider-labels { display: flex; justify-content: space-between; margin-top: 0.75rem; gap: 0.5rem; flex-wrap: wrap; } .slider-labels span { flex: 1; text-align: center; font-size: 10px; font-weight: 600; color: #CFDEE0; line-height: 1.3; } @media (max-width: 991px) { .slider-labels span br { display: block; } } @media (min-width: 992px) { .slider-labels span br { display: none; } } /* === SELECTOR DE PLANES === */ .tier-buttons-container { display: flex; justify-content: space-between; gap: 1rem; margin: 1rem 0 0.5rem; flex-wrap: wrap; } .tier-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; } .tier-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(0, 0, 0, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.3); border-radius: 60px; padding: 0.6rem 0.25rem; cursor: pointer; transition: all 250ms ease; } .tier-btn.active { background: linear-gradient(90deg, #E40F63, #C32263); border-color: rgba(255,255,255,0.5); box-shadow: 0 0 12px #811347, 0 4px 12px rgba(0,0,0,0.3); transform: scale(1.02) translateY(-2px); } .tier-icon img { width: 24px; height: auto; display: block; } .tier-label { font-size: 12px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #FFFFFF; } .tier-bajada { font-size: 9px; font-weight: 500; color: #CFDEE0; text-align: center; line-height: 1.3; margin-top: 0.2rem; } /* === BLOQUE DE RESULTADOS === */ .metric-row { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.8rem; } .metric-row:last-child { margin-bottom: 0; } .metric-icon-col { flex: 0 0 70px; text-align: center; } .metric-icon-col img { width: 52px; height: auto; display: inline-block; } .metric-text-col { flex: 2; text-align: center; } .metric-name { font-size: 16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px; } .metric-bajada { font-size: 10px; color: #CFDEE0; line-height: 1.3; } .metric-value-col { flex: 1; text-align: right; } .metric-value { font-size: 22px; font-weight: 800; color: #FFFFFF; white-space: nowrap; } /* === FRASE FINAL === */ .frase-final { text-align: center; font-size: 14px; font-weight: 600; color: #FFFFFF; background: rgba(0, 0, 0, 0.5); padding: 0.75rem 1rem; border-radius: 60px; margin: 0.5rem 0; letter-spacing: -0.2px; backdrop-filter: blur(4px); } /* === BOTÓN CTA === */ .cta-wrapper { display: flex; justify-content: center; margin-top: 0.5rem; } .cta-button { background: linear-gradient(90deg, #E40F63, #C32263); border: none; border-radius: 60px; padding: 12px 24px; cursor: pointer; box-shadow: 0 4px 16px rgba(228, 15, 99, 0.5); transition: transform 0.1s ease, filter 0.1s ease; width: auto; min-width: 240px; } .cta-button:active { transform: scale(0.97); filter: brightness(0.92); } .cta-text { font-size: 15px; font-weight: 700; color: #FFFFFF; white-space: nowrap; } /* === LAYOUT DESKTOP (≥992px) === */ @media (min-width: 992px) { .app-container { width: 85%; max-width: 1300px; /* solo en desktop ponemos un límite */ display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; } .header { grid-column: span 2; } .glass-card { grid-column: 1 / 2; } .plan-selector-card { grid-column: 1 / 2; } .metrics-card { grid-column: 2 / 3; grid-row: 2 / 4; height: 100%; display: flex; flex-direction: column; justify-content: center; } .frase-final { grid-column: span 2; width: 80%; margin-left: auto; margin-right: auto; } .cta-wrapper { grid-column: span 2; } .metric-row { gap: 1.5rem; } .metric-icon-col img { width: 64px; } .metric-name { font-size: 18px; } .metric-value { font-size: 28px; } } /* Ajustes móvil adicionales */ @media (max-width: 991px) { .app-container { gap: 1.8rem; } .glass-card, .metrics-card, .plan-selector-card { padding: 1.2rem 1rem; } .metric-value { font-size: 18px; } .metric-icon-col { flex-basis: 60px; } .metric-icon-col img { width: 44px; } .metric-name { font-size: 14px; } .metric-bajada { font-size: 9px; } .h1-sim { white-space: normal; font-size: 28px; } .bajada-header { font-size: 14px; } } @media (max-width: 380px) { .app-container { width: 95%; /* en pantallas muy pequeñas, 95% para no perder contenido */ } .glass-card, .metrics-card, .plan-selector-card { padding: 1rem 0.8rem; } } </style> </head> <body> <div class="hero-bg"> <img src="assets/bg_cerveceria.jpg" alt="Cervecería fondo"> </div> <div class="overlay-color"></div> <div class="vignette"></div> <div class="app-container"> <!-- HEADER --> <div class="header animate-item"> <div class="h1-sim">Simulador de Alianza</div> <div class="h2-sim">¿Cuál es tu producción anual?</div> <div class="bajada-header"> Proyecta cómo convertir tus medallas en resultados comerciales concretos. Ajusta tu nivel de producción y visualiza el impacto real en ventas, posicionamiento y rentabilidad. </div> </div> <!-- SLIDER --> <div class="glass-card animate-item"> <div class="section-title">SLIDER</div> <div class="section-subtitle">Escala de Producción</div> <div class="section-desc">Tu volumen define tu estrategia. Este modelo adapta la inversión y el potencial de crecimiento según tu realidad productiva.</div> <div class="slider-container"> <div class="slider-track-wrapper" id="sliderWrapper"> <div class="slider-rail" id="sliderRail"> <div class="slider-fill" id="sliderFill"></div> </div> <div class="slider-thumb" id="sliderThumb"></div> </div> <div class="slider-labels"> <span>&lt;500<br>hl</span> <span>501 - 1000<br>hl</span> <span>1001 - 5000<br>hl</span> <span>5001 - 10000<br>hl</span> <span>≥20000<br>hl</span> </div> </div> </div> <!-- SELECTOR DE PLANES --> <div class="plan-selector-card animate-item"> <div class="section-title">SELECTOR DE PLANES</div> <div class="section-subtitle">Nivel de Alianza Estratégica</div> <div class="section-desc">Elige cómo quieres competir en el mercado: desde visibilidad inicial hasta posicionamiento como referente técnico.</div> <div class="tier-buttons-container" id="tierButtonsContainer"> <div class="tier-item"> <div class="tier-btn" data-tier="explorer" id="tierExplorer"> <div class="tier-icon"><img src="assets/explorer.png" alt="Explorer"></div> <div class="tier-label">Explorer</div> </div> <div class="tier-bajada">1° Nivel de Visibilidad basada en datos reales</div> </div> <div class="tier-item"> <div class="tier-btn" data-tier="podium" id="tierPodium"> <div class="tier-icon"><img src="assets/podium.png" alt="Podium"></div> <div class="tier-label">Podium</div> </div> <div class="tier-bajada">Optimización estratégica para competir con ventaja.</div> </div> <div class="tier-item"> <div class="tier-btn active" data-tier="champion" id="tierChampion"> <div class="tier-icon"><img src="assets/champion.png" alt="Champion"></div> <div class="tier-label">Champion</div> </div> <div class="tier-bajada">Dominio de mercado con respaldo técnico y autoridad</div> </div> </div> </div> <!-- BLOQUE DE RESULTADOS --> <div class="metrics-card animate-item"> <div class="section-title">BLOQUE DE RESULTADOS</div> <div class="section-subtitle">Impacto en tu negocio</div> <div class="section-desc">Los indicadores clave para convertir data técnica en decisiones rentables. Así se ve, en números, lo que tus medallas realmente pueden hacer por tu negocio.</div> <div class="metric-row"> <div class="metric-icon-col"> <img src="assets/icono_inversion.png" alt="Inversión Inteligente"> </div> <div class="metric-text-col"> <div class="metric-name">Inversión Inteligente</div> <div class="metric-bajada">Una inversión diseñada para generar retorno,<br>no gasto: alineada a tu escala y potencial comercial</div> </div> <div class="metric-value-col"> <div class="metric-value" id="inversionValue">$1,200 USD</div> </div> </div> <div class="metric-row"> <div class="metric-icon-col"> <img src="assets/icono_valor.png" alt="Valor Recuperado"> </div> <div class="metric-text-col"> <div class="metric-name">Valor Recuperado</div> <div class="metric-bajada">Lo que hoy pierdes en decisiones sin data,<br>lo recuperas con estrategia basada en información validada</div> </div> <div class="metric-value-col"> <div class="metric-value" id="optimizacionValue">$14,500 USD</div> </div> </div> <div class="metric-row"> <div class="metric-icon-col"> <img src="assets/icono_impacto.png" alt="Impacto en Rentabilidad"> </div> <div class="metric-text-col"> <div class="metric-name">Impacto en Rentabilidad</div> <div class="metric-bajada">El retorno proyectado al transformar tus medallas<br>en una herramienta activa de ventas.</div> </div> <div class="metric-value-col"> <div class="metric-value" id="roiValue">65%</div> </div> </div> </div> <!-- FRASE FINAL --> <div class="frase-final animate-item"> Crecemos contigo: este modelo se adapta a tu realidad productiva y a tus objetivos comerciales. </div> <!-- CTA --> <div class="cta-wrapper animate-item"> <button class="cta-button" id="ctaBtn"> <span class="cta-text">Agenda tu Diagnóstico Estratégico</span> </button> </div> </div> <script> // (Mismo JavaScript funcional de siempre) const metricsTable = [ { inversion: "$150 USD", optimizacion: "$1,800 USD", roi: "30%", suggestedTier: "explorer" }, { inversion: "$300 USD", optimizacion: "$3,600 USD", roi: "45%", suggestedTier: "explorer" }, { inversion: "$600 USD", optimizacion: "$7,200 USD", roi: "55%", suggestedTier: "podium" }, { inversion: "$1,200 USD", optimizacion: "$14,500 USD", roi: "65%", suggestedTier: "champion" }, { inversion: "$2,500 USD", optimizacion: "$30,000 USD", roi: "70%", suggestedTier: "champion" } ]; const sliderRail = document.getElementById('sliderRail'); const sliderThumb = document.getElementById('sliderThumb'); const sliderFill = document.getElementById('sliderFill'); const tierExplorer = document.getElementById('tierExplorer'); const tierPodium = document.getElementById('tierPodium'); const tierChampion = document.getElementById('tierChampion'); const inversionEl = document.getElementById('inversionValue'); const optimizacionEl = document.getElementById('optimizacionValue'); const roiEl = document.getElementById('roiValue'); let currentRangeIndex = 3; let currentTier = "champion"; let allowAutoTier = true; let isDragging = false; let wrapperWidth = 0; const stepPositions = [0, 0.25, 0.5, 0.75, 1]; function updateSliderVisual(index) { const percent = stepPositions[index] * 100; sliderFill.style.width = `${percent}%`; const thumbLeft = (percent / 100) * wrapperWidth; sliderThumb.style.left = `${thumbLeft}px`; } function animateValue(element, startVal, endVal, isCurrency = true, suffix = "") { const duration = 600; const startTime = performance.now(); const startNum = parseFloat(String(startVal).replace(/[^0-9.-]+/g, "")); let endNum = parseFloat(String(endVal).replace(/[^0-9.-]+/g, "")); if (isNaN(startNum) || isNaN(endNum)) { element.innerText = endVal; return; } function update(currentTime) { const elapsed = currentTime - startTime; let progress = Math.min(1, elapsed / duration); const easeOut = 1 - Math.pow(1 - progress, 2); let currentNum = startNum + (endNum - startNum) * easeOut; let formatted; if (isCurrency) { formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(currentNum); formatted = formatted.replace('$', '$ ') + (suffix ? " " + suffix : ""); } else { formatted = Math.round(currentNum) + (suffix ? suffix : ""); } element.innerText = formatted; if (progress < 1) requestAnimationFrame(update); else element.innerText = endVal; } requestAnimationFrame(update); } function getCurrentMetrics() { return metricsTable[currentRangeIndex]; } function updateMetrics() { const newVals = getCurrentMetrics(); const oldInversion = inversionEl.innerText; const oldOptim = optimizacionEl.innerText; const oldRoi = roiEl.innerText; animateValue(inversionEl, oldInversion, newVals.inversion, true, "USD"); animateValue(optimizacionEl, oldOptim, newVals.optimizacion, true, "USD"); animateValue(roiEl, oldRoi, newVals.roi, false, "%"); } function updateTierButtonsActive() { const btns = { explorer: tierExplorer, podium: tierPodium, champion: tierChampion }; Object.keys(btns).forEach(tier => { if (tier === currentTier) btns[tier].classList.add('active'); else btns[tier].classList.remove('active'); }); } function autoSelectTierFromRange() { if (allowAutoTier) { const suggested = metricsTable[currentRangeIndex].suggestedTier; if (suggested && suggested !== currentTier) { currentTier = suggested; updateTierButtonsActive(); } } } function setRangeByIndex(index, fromUser = true) { if (index === currentRangeIndex && fromUser) return; currentRangeIndex = index; updateSliderVisual(currentRangeIndex); if (fromUser) { allowAutoTier = true; autoSelectTierFromRange(); } updateMetrics(); } function getNearestStep(clientX) { const rect = sliderRail.getBoundingClientRect(); let ratio = (clientX - rect.left) / rect.width; ratio = Math.min(Math.max(ratio, 0), 1); let distances = stepPositions.map(step => Math.abs(step - ratio)); return distances.indexOf(Math.min(...distances)); } function onDragStart(e) { isDragging = true; e.preventDefault(); window.addEventListener('mousemove', onDragMove); window.addEventListener('mouseup', onDragEnd); window.addEventListener('touchmove', onDragMove); window.addEventListener('touchend', onDragEnd); sliderThumb.style.cursor = 'grabbing'; } function onDragMove(e) { if (!isDragging) return; let clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0); const rect = sliderRail.getBoundingClientRect(); let ratio = (clientX - rect.left) / rect.width; ratio = Math.min(Math.max(ratio, 0), 1); sliderFill.style.width = `${ratio * 100}%`; let thumbX = ratio * wrapperWidth; sliderThumb.style.left = `${thumbX}px`; } function onDragEnd(e) { if (!isDragging) return; isDragging = false; let clientX = e.clientX ?? (e.changedTouches ? e.changedTouches[0].clientX : 0); if (clientX === undefined) { const rect = sliderRail.getBoundingClientRect(); clientX = rect.left + rect.width / 2; } const newIndex = getNearestStep(clientX); setRangeByIndex(newIndex, true); updateSliderVisual(currentRangeIndex); sliderThumb.style.cursor = 'grab'; window.removeEventListener('mousemove', onDragMove); window.removeEventListener('mouseup', onDragEnd); window.removeEventListener('touchmove', onDragMove); window.removeEventListener('touchend', onDragEnd); } function initSlider() { const updateSize = () => { wrapperWidth = sliderRail.clientWidth; updateSliderVisual(currentRangeIndex); }; updateSize(); window.addEventListener('resize', updateSize); sliderThumb.addEventListener('mousedown', onDragStart); sliderThumb.addEventListener('touchstart', onDragStart); sliderRail.addEventListener('click', (e) => { if (isDragging) return; const idx = getNearestStep(e.clientX); setRangeByIndex(idx, true); }); } function bindTierEvents() { tierExplorer.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'explorer') { currentTier = 'explorer'; updateTierButtonsActive(); } }); tierPodium.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'podium') { currentTier = 'podium'; updateTierButtonsActive(); } }); tierChampion.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'champion') { currentTier = 'champion'; updateTierButtonsActive(); } }); } const ctaBtn = document.getElementById('ctaBtn'); ctaBtn.addEventListener('click', () => { if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50); alert("📞 Diagnóstico estratégico – Un asesor te contactará para potenciar tu negocio."); }); function init() { initSlider(); bindTierEvents(); currentRangeIndex = 3; currentTier = "champion"; allowAutoTier = true; updateSliderVisual(3); updateTierButtonsActive(); updateMetrics(); } init(); </script> </body> </html> B: <!DOCTYPE html> <html lang="es"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"> <title>Simulador de Alianza | Podium Beer</title> <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet"> <style> * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; } body { font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif; background: #000; min-height: 100vh; display: flex; align-items: center; justify-content: center; } /* === FONDO === */ .hero-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; } .hero-bg img { width: 100%; height: 100%; object-fit: cover; } .overlay-color { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #06232E; opacity: 0.57; z-index: -1; } .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 80px rgba(0,0,0,0.5); pointer-events: none; z-index: 0; } /* === CONTENEDOR PRINCIPAL (móvil: 90% ancho, sin límite) === */ .app-container { width: 90%; /* 90% del ancho del viewport */ max-width: none; /* sin límite en móvil para que ocupe el 90% real */ margin: 1.5rem auto; padding: 0 0.5rem; /* pequeño margen lateral de seguridad */ position: relative; z-index: 2; display: flex; flex-direction: column; gap: 1.8rem; } /* === HEADER (título en una sola línea) === */ .header { text-align: center; } .h1-sim { font-size: clamp(28px, 8vw, 44px); font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; } .h1-sim::-webkit-scrollbar { display: none; } .h2-sim { font-size: clamp(20px, 6vw, 32px); font-weight: 500; color: #CFDEE0; margin-top: 0.5rem; } /* Bajada del header */ .bajada-header { font-size: 15px; font-weight: 500; color: #FFFFFF; background: rgba(0, 0, 0, 0.6); padding: 0.75rem 1rem; border-radius: 28px; margin-top: 1rem; line-height: 1.4; text-align: center; backdrop-filter: blur(4px); } /* === CONTENEDORES CON EFECTO GLASS + ECO (imagen espejo.png) === */ .glass-card, .metrics-card, .plan-selector-card { position: relative; background: rgba(6, 35, 46, 0.35); backdrop-filter: blur(20px); border-radius: 2rem; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease; padding: 1.5rem; } /* Efecto eco con imagen espejo.png */ .glass-card::before, .metrics-card::before, .plan-selector-card::before { content: ''; position: absolute; left: 11px; top: -10px; width: 100%; height: 100%; border-radius: inherit; background-image: url('assets/espejo.png'); background-size: cover; background-position: center; opacity: 0.18; z-index: -1; pointer-events: none; } /* Títulos de sección */ .section-title { font-size: 14px; font-weight: 800; letter-spacing: 2px; color: #f7c32f; text-transform: uppercase; margin-bottom: 0.5rem; text-align: left; } .section-subtitle { font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 0.5rem; text-align: left; } .section-desc { font-size: 13px; color: #CFDEE0; line-height: 1.4; margin-bottom: 1.5rem; text-align: left; } /* === SLIDER === */ .slider-container { width: 100%; padding: 0 0.5rem; } .slider-track-wrapper { position: relative; margin: 1.5rem 0.5rem 2rem 0.5rem; } .slider-rail { width: 100%; height: 6px; background: #1E3A4A; border-radius: 50px; position: relative; cursor: pointer; } .slider-fill { position: absolute; height: 100%; border-radius: 50px; background: linear-gradient(90deg, #06232E 0%, #FFFFFF 100%); width: 0%; pointer-events: none; transition: width 0.1s ease-out; } .slider-thumb { position: absolute; width: 24px; height: 24px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translate(-50%, -50%); cursor: grab; box-shadow: 0 0 0 0px rgba(255,255,255,0.3); transition: box-shadow 0.1s ease, left 0.15s ease; z-index: 3; } .slider-thumb:active { cursor: grabbing; box-shadow: 0 0 0 6px rgba(255,255,255,0.25); } .slider-labels { display: flex; justify-content: space-between; margin-top: 0.75rem; gap: 0.5rem; flex-wrap: wrap; } .slider-labels span { flex: 1; text-align: center; font-size: 10px; font-weight: 600; color: #CFDEE0; line-height: 1.3; } @media (max-width: 991px) { .slider-labels span br { display: block; } } @media (min-width: 992px) { .slider-labels span br { display: none; } } /* === SELECTOR DE PLANES === */ .tier-buttons-container { display: flex; justify-content: space-between; gap: 1rem; margin: 1rem 0 0.5rem; flex-wrap: wrap; } .tier-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; } .tier-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(0, 0, 0, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.3); border-radius: 60px; padding: 0.6rem 0.25rem; cursor: pointer; transition: all 250ms ease; } .tier-btn.active { background: linear-gradient(90deg, #E40F63, #C32263); border-color: rgba(255,255,255,0.5); box-shadow: 0 0 12px #811347, 0 4px 12px rgba(0,0,0,0.3); transform: scale(1.02) translateY(-2px); } .tier-icon img { width: 24px; height: auto; display: block; } .tier-label { font-size: 12px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #FFFFFF; } .tier-bajada { font-size: 9px; font-weight: 500; color: #CFDEE0; text-align: center; line-height: 1.3; margin-top: 0.2rem; } /* === BLOQUE DE RESULTADOS === */ .metric-row { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.8rem; } .metric-row:last-child { margin-bottom: 0; } .metric-icon-col { flex: 0 0 70px; text-align: center; } .metric-icon-col img { width: 52px; height: auto; display: inline-block; } .metric-text-col { flex: 2; text-align: center; } .metric-name { font-size: 16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px; } .metric-bajada { font-size: 10px; color: #CFDEE0; line-height: 1.3; } .metric-value-col { flex: 1; text-align: right; } .metric-value { font-size: 22px; font-weight: 800; color: #FFFFFF; white-space: nowrap; } /* === FRASE FINAL === */ .frase-final { text-align: center; font-size: 14px; font-weight: 600; color: #FFFFFF; background: rgba(0, 0, 0, 0.5); padding: 0.75rem 1rem; border-radius: 60px; margin: 0.5rem 0; letter-spacing: -0.2px; backdrop-filter: blur(4px); } /* === BOTÓN CTA === */ .cta-wrapper { display: flex; justify-content: center; margin-top: 0.5rem; } .cta-button { background: linear-gradient(90deg, #E40F63, #C32263); border: none; border-radius: 60px; padding: 12px 24px; cursor: pointer; box-shadow: 0 4px 16px rgba(228, 15, 99, 0.5); transition: transform 0.1s ease, filter 0.1s ease; width: auto; min-width: 240px; } .cta-button:active { transform: scale(0.97); filter: brightness(0.92); } .cta-text { font-size: 15px; font-weight: 700; color: #FFFFFF; white-space: nowrap; } /* === LAYOUT DESKTOP (≥992px) === */ @media (min-width: 992px) { .app-container { width: 85%; max-width: 1300px; /* solo en desktop ponemos un límite */ display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; } .header { grid-column: span 2; } .glass-card { grid-column: 1 / 2; } .plan-selector-card { grid-column: 1 / 2; } .metrics-card { grid-column: 2 / 3; grid-row: 2 / 4; height: 100%; display: flex; flex-direction: column; justify-content: center; } .frase-final { grid-column: span 2; width: 80%; margin-left: auto; margin-right: auto; } .cta-wrapper { grid-column: span 2; } .metric-row { gap: 1.5rem; } .metric-icon-col img { width: 64px; } .metric-name { font-size: 18px; } .metric-value { font-size: 28px; } } /* Ajustes móvil adicionales */ @media (max-width: 991px) { .app-container { gap: 1.8rem; } .glass-card, .metrics-card, .plan-selector-card { padding: 1.2rem 1rem; } .metric-value { font-size: 18px; } .metric-icon-col { flex-basis: 60px; } .metric-icon-col img { width: 44px; } .metric-name { font-size: 14px; } .metric-bajada { font-size: 9px; } .h1-sim { white-space: normal; font-size: 28px; } .bajada-header { font-size: 14px; } } @media (max-width: 380px) { .app-container { width: 95%; /* en pantallas muy pequeñas, 95% para no perder contenido */ } .glass-card, .metrics-card, .plan-selector-card { padding: 1rem 0.8rem; } } </style> </head> <body> <div class="hero-bg"> <img src="assets/bg_cerveceria.jpg" alt="Cervecería fondo"> </div> <div class="overlay-color"></div> <div class="vignette"></div> <div class="app-container"> <!-- HEADER --> <div class="header animate-item"> <div class="h1-sim">Simulador de Alianza</div> <div class="h2-sim">¿Cuál es tu producción anual?</div> <div class="bajada-header"> Proyecta cómo convertir tus medallas en resultados comerciales concretos. Ajusta tu nivel de producción y visualiza el impacto real en ventas, posicionamiento y rentabilidad. </div> </div> <!-- SLIDER --> <div class="glass-card animate-item"> <div class="section-title">SLIDER</div> <div class="section-subtitle">Escala de Producción</div> <div class="section-desc">Tu volumen define tu estrategia. Este modelo adapta la inversión y el potencial de crecimiento según tu realidad productiva.</div> <div class="slider-container"> <div class="slider-track-wrapper" id="sliderWrapper"> <div class="slider-rail" id="sliderRail"> <div class="slider-fill" id="sliderFill"></div> </div> <div class="slider-thumb" id="sliderThumb"></div> </div> <div class="slider-labels"> <span>&lt;500<br>hl</span> <span>501 - 1000<br>hl</span> <span>1001 - 5000<br>hl</span> <span>5001 - 10000<br>hl</span> <span>≥20000<br>hl</span> </div> </div> </div> <!-- SELECTOR DE PLANES --> <div class="plan-selector-card animate-item"> <div class="section-title">SELECTOR DE PLANES</div> <div class="section-subtitle">Nivel de Alianza Estratégica</div> <div class="section-desc">Elige cómo quieres competir en el mercado: desde visibilidad inicial hasta posicionamiento como referente técnico.</div> <div class="tier-buttons-container" id="tierButtonsContainer"> <div class="tier-item"> <div class="tier-btn" data-tier="explorer" id="tierExplorer"> <div class="tier-icon"><img src="assets/explorer.png" alt="Explorer"></div> <div class="tier-label">Explorer</div> </div> <div class="tier-bajada">1° Nivel de Visibilidad basada en datos reales</div> </div> <div class="tier-item"> <div class="tier-btn" data-tier="podium" id="tierPodium"> <div class="tier-icon"><img src="assets/podium.png" alt="Podium"></div> <div class="tier-label">Podium</div> </div> <div class="tier-bajada">Optimización estratégica para competir con ventaja.</div> </div> <div class="tier-item"> <div class="tier-btn active" data-tier="champion" id="tierChampion"> <div class="tier-icon"><img src="assets/champion.png" alt="Champion"></div> <div class="tier-label">Champion</div> </div> <div class="tier-bajada">Dominio de mercado con respaldo técnico y autoridad</div> </div> </div> </div> <!-- BLOQUE DE RESULTADOS --> <div class="metrics-card animate-item"> <div class="section-title">BLOQUE DE RESULTADOS</div> <div class="section-subtitle">Impacto en tu negocio</div> <div class="section-desc">Los indicadores clave para convertir data técnica en decisiones rentables. Así se ve, en números, lo que tus medallas realmente pueden hacer por tu negocio.</div> <div class="metric-row"> <div class="metric-icon-col"> <img src="assets/icono_inversion.png" alt="Inversión Inteligente"> </div> <div class="metric-text-col"> <div class="metric-name">Inversión Inteligente</div> <div class="metric-bajada">Una inversión diseñada para generar retorno,<br>no gasto: alineada a tu escala y potencial comercial</div> </div> <div class="metric-value-col"> <div class="metric-value" id="inversionValue">$1,200 USD</div> </div> </div> <div class="metric-row"> <div class="metric-icon-col"> <img src="assets/icono_valor.png" alt="Valor Recuperado"> </div> <div class="metric-text-col"> <div class="metric-name">Valor Recuperado</div> <div class="metric-bajada">Lo que hoy pierdes en decisiones sin data,<br>lo recuperas con estrategia basada en información validada</div> </div> <div class="metric-value-col"> <div class="metric-value" id="optimizacionValue">$14,500 USD</div> </div> </div> <div class="metric-row"> <div class="metric-icon-col"> <img src="assets/icono_impacto.png" alt="Impacto en Rentabilidad"> </div> <div class="metric-text-col"> <div class="metric-name">Impacto en Rentabilidad</div> <div class="metric-bajada">El retorno proyectado al transformar tus medallas<br>en una herramienta activa de ventas.</div> </div> <div class="metric-value-col"> <div class="metric-value" id="roiValue">65%</div> </div> </div> </div> <!-- FRASE FINAL --> <div class="frase-final animate-item"> Crecemos contigo: este modelo se adapta a tu realidad productiva y a tus objetivos comerciales. </div> <!-- CTA --> <div class="cta-wrapper animate-item"> <button class="cta-button" id="ctaBtn"> <span class="cta-text">Agenda tu Diagnóstico Estratégico</span> </button> </div> </div> <script> // (Mismo JavaScript funcional de siempre) const metricsTable = [ { inversion: "$150 USD", optimizacion: "$1,800 USD", roi: "30%", suggestedTier: "explorer" }, { inversion: "$300 USD", optimizacion: "$3,600 USD", roi: "45%", suggestedTier: "explorer" }, { inversion: "$600 USD", optimizacion: "$7,200 USD", roi: "55%", suggestedTier: "podium" }, { inversion: "$1,200 USD", optimizacion: "$14,500 USD", roi: "65%", suggestedTier: "champion" }, { inversion: "$2,500 USD", optimizacion: "$30,000 USD", roi: "70%", suggestedTier: "champion" } ]; const sliderRail = document.getElementById('sliderRail'); const sliderThumb = document.getElementById('sliderThumb'); const sliderFill = document.getElementById('sliderFill'); const tierExplorer = document.getElementById('tierExplorer'); const tierPodium = document.getElementById('tierPodium'); const tierChampion = document.getElementById('tierChampion'); const inversionEl = document.getElementById('inversionValue'); const optimizacionEl = document.getElementById('optimizacionValue'); const roiEl = document.getElementById('roiValue'); let currentRangeIndex = 3; let currentTier = "champion"; let allowAutoTier = true; let isDragging = false; let wrapperWidth = 0; const stepPositions = [0, 0.25, 0.5, 0.75, 1]; function updateSliderVisual(index) { const percent = stepPositions[index] * 100; sliderFill.style.width = `${percent}%`; const thumbLeft = (percent / 100) * wrapperWidth; sliderThumb.style.left = `${thumbLeft}px`; } function animateValue(element, startVal, endVal, isCurrency = true, suffix = "") { const duration = 600; const startTime = performance.now(); const startNum = parseFloat(String(startVal).replace(/[^0-9.-]+/g, "")); let endNum = parseFloat(String(endVal).replace(/[^0-9.-]+/g, "")); if (isNaN(startNum) || isNaN(endNum)) { element.innerText = endVal; return; } function update(currentTime) { const elapsed = currentTime - startTime; let progress = Math.min(1, elapsed / duration); const easeOut = 1 - Math.pow(1 - progress, 2); let currentNum = startNum + (endNum - startNum) * easeOut; let formatted; if (isCurrency) { formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(currentNum); formatted = formatted.replace('$', '$ ') + (suffix ? " " + suffix : ""); } else { formatted = Math.round(currentNum) + (suffix ? suffix : ""); } element.innerText = formatted; if (progress < 1) requestAnimationFrame(update); else element.innerText = endVal; } requestAnimationFrame(update); } function getCurrentMetrics() { return metricsTable[currentRangeIndex]; } function updateMetrics() { const newVals = getCurrentMetrics(); const oldInversion = inversionEl.innerText; const oldOptim = optimizacionEl.innerText; const oldRoi = roiEl.innerText; animateValue(inversionEl, oldInversion, newVals.inversion, true, "USD"); animateValue(optimizacionEl, oldOptim, newVals.optimizacion, true, "USD"); animateValue(roiEl, oldRoi, newVals.roi, false, "%"); } function updateTierButtonsActive() { const btns = { explorer: tierExplorer, podium: tierPodium, champion: tierChampion }; Object.keys(btns).forEach(tier => { if (tier === currentTier) btns[tier].classList.add('active'); else btns[tier].classList.remove('active'); }); } function autoSelectTierFromRange() { if (allowAutoTier) { const suggested = metricsTable[currentRangeIndex].suggestedTier; if (suggested && suggested !== currentTier) { currentTier = suggested; updateTierButtonsActive(); } } } function setRangeByIndex(index, fromUser = true) { if (index === currentRangeIndex && fromUser) return; currentRangeIndex = index; updateSliderVisual(currentRangeIndex); if (fromUser) { allowAutoTier = true; autoSelectTierFromRange(); } updateMetrics(); } function getNearestStep(clientX) { const rect = sliderRail.getBoundingClientRect(); let ratio = (clientX - rect.left) / rect.width; ratio = Math.min(Math.max(ratio, 0), 1); let distances = stepPositions.map(step => Math.abs(step - ratio)); return distances.indexOf(Math.min(...distances)); } function onDragStart(e) { isDragging = true; e.preventDefault(); window.addEventListener('mousemove', onDragMove); window.addEventListener('mouseup', onDragEnd); window.addEventListener('touchmove', onDragMove); window.addEventListener('touchend', onDragEnd); sliderThumb.style.cursor = 'grabbing'; } function onDragMove(e) { if (!isDragging) return; let clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0); const rect = sliderRail.getBoundingClientRect(); let ratio = (clientX - rect.left) / rect.width; ratio = Math.min(Math.max(ratio, 0), 1); sliderFill.style.width = `${ratio * 100}%`; let thumbX = ratio * wrapperWidth; sliderThumb.style.left = `${thumbX}px`; } function onDragEnd(e) { if (!isDragging) return; isDragging = false; let clientX = e.clientX ?? (e.changedTouches ? e.changedTouches[0].clientX : 0); if (clientX === undefined) { const rect = sliderRail.getBoundingClientRect(); clientX = rect.left + rect.width / 2; } const newIndex = getNearestStep(clientX); setRangeByIndex(newIndex, true); updateSliderVisual(currentRangeIndex); sliderThumb.style.cursor = 'grab'; window.removeEventListener('mousemove', onDragMove); window.removeEventListener('mouseup', onDragEnd); window.removeEventListener('touchmove', onDragMove); window.removeEventListener('touchend', onDragEnd); } function initSlider() { const updateSize = () => { wrapperWidth = sliderRail.clientWidth; updateSliderVisual(currentRangeIndex); }; updateSize(); window.addEventListener('resize', updateSize); sliderThumb.addEventListener('mousedown', onDragStart); sliderThumb.addEventListener('touchstart', onDragStart); sliderRail.addEventListener('click', (e) => { if (isDragging) return; const idx = getNearestStep(e.clientX); setRangeByIndex(idx, true); }); } function bindTierEvents() { tierExplorer.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'explorer') { currentTier = 'explorer'; updateTierButtonsActive(); } }); tierPodium.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'podium') { currentTier = 'podium'; updateTierButtonsActive(); } }); tierChampion.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'champion') { currentTier = 'champion'; updateTierButtonsActive(); } }); } const ctaBtn = document.getElementById('ctaBtn'); ctaBtn.addEventListener('click', () => { if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50); alert("📞 Diagnóstico estratégico – Un asesor te contactará para potenciar tu negocio."); }); function init() { initSlider(); bindTierEvents(); currentRangeIndex = 3; currentTier = "champion"; allowAutoTier = true; updateSliderVisual(3); updateTierButtonsActive(); updateMetrics(); } init(); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>PodiumBeer – Auditoría de Desempeño Cervecero</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #06232e;
+            color: #fff;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(6, 35, 46, 0.56), rgba(6, 35, 46, 0.56)), url('assets/bg_cerveceria.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: -2;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header – logo sólido */
+        .header {
+            text-align: center;
+            margin: 0 auto 1.5rem auto;
+        }
+        .logo {
+            max-width: 320px;
+            width: 100%;
+            height: auto;
+            opacity: 1;
+            filter: none;
+            background: none;
+        }
+
+        /* Estadísticas */
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background: #06232e;
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .stat { text-align: center; flex: 1; min-width: 120px; }
+        .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; color: #f7c32f; }
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
+
+        /* Gráficos principales – misma altura */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (min-width: 1024px) {
+            .charts-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .card {
+            background: rgba(10, 25, 35, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            padding: 1.2rem;
+            border: 1px solid rgba(30, 171, 155, 0.3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #f7c32f;
+            border-left: 5px solid #e32c6c;
+            padding-left: 1rem;
+        }
+        .chart-container { width: 100%; flex: 1; min-height: 350px; position: relative; }
+        canvas { max-width: 100%; height: auto; }
+
+        /* Pódium – con tooltip interno */
+        .podio-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .podio-col {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .podio-col h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #f7c32f;
+        }
+        .podio-item {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: help;
+            transition: background 0.2s;
+        }
+        .podio-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .podio-item .medal-count {
+            font-size: 0.8rem;
+            color: #1eab9b;
+        }
+        /* Tooltip interno (estilo "dark mode") */
+        .tooltip-box {
+            visibility: hidden;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(6, 35, 46, 0.95);
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #f7c32f;
+            width: 220px;
+            font-size: 12px;
+            z-index: 999;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
+            transition: opacity 0.3s;
+            opacity: 0;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .podio-item:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Micro gráficos */
+        .micro-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .micro-card {
+            background: rgba(10, 25, 35, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .micro-card .card-title { font-size: 1rem; margin-bottom: 0.8rem; }
+        .micro-chart { height: 200px; width: 100%; }
+
+        /* ===================== NUEVA ESTRUCTURA PARA AUDITORÍA ===================== */
+        .auditoria-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin: 1.5rem 0;
+        }
+        .auditoria-card {
+            background: rgba(10, 25, 35, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            padding: 1.2rem;
+            border: 1px solid rgba(30, 171, 155, 0.3);
+            width: 100%;
+        }
+        .auditoria-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #f7c32f;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .search-bar { width: 100%; margin-bottom: 1.5rem; }
+        .search-bar input {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 50px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+        .medals-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 700px;
+        }
+        .medals-table th, .medals-table td {
+            padding: 0.8rem 0.6rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .medals-table th {
+            background: rgba(227, 44, 108, 0.3);
+            color: #f7c32f;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .blur-column {
+            filter: blur(10px);
+            pointer-events: none;
+            user-select: none;
+        }
+        .medal-gold { color: #f7c32f; font-weight: bold; }
+        .medal-silver { color: #c0c0c0; font-weight: bold; }
+        .medal-bronze { color: #cd7f32; font-weight: bold; }
+
+        /* Botón (ahora fuera de la tarjeta) */
+        .btn-desbloquear {
+            display: inline-block;
+            background: #e32c6c;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            transition: 0.2s;
+            margin: 1.5rem auto;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-desbloquear:hover { background: #f7c32f; color: #06232e; }
+
+        /* Iconos RRSS grandes */
+        .social-footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 1rem 0;
+        }
+        .big-icon {
+            width: 80px;
+            height: 80px;
+            transition: transform 0.2s;
+        }
+        .big-icon:hover { transform: scale(1.05); }
+
+        /* Pie de página – mismo ancho que la tabla */
+        .copyright-text {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            line-height: 1.4;
+            opacity: 0.9;
+            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .error-message {
+            background: #e32c6c;
+            color: white;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 0.8rem; }
+            .logo { max-width: 200px; }
+            .stats { gap: 0.8rem; padding: 0.8rem; }
+            .stat-number { font-size: 1.2rem; }
+            .stat-label { font-size: 0.6rem; }
+            .card-title { font-size: 1.1rem; }
+            .chart-container { min-height: 280px; }
+            .micro-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .micro-chart { height: 220px; }
+            .podio-grid { gap: 1rem; }
+            .podio-col h3 { font-size: 1.2rem; }
+            .podio-item { font-size: 0.8rem; }
+            .auditoria-title { font-size: 1.5rem; }
+            .big-icon { width: 60px; height: 60px; }
+            .copyright-text { font-size: 0.8rem; }
+            .tooltip-box { width: 200px; font-size: 11px; bottom: 110%; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <img src="assets/logo_podiumbeer.png" alt="PodiumBeer" class="logo">
+    </header>
+
+    <div id="error-message" class="error-message" style="display: none;"></div>
+
+    <div class="stats" id="stats-placeholder">
+        <div class="stat"><div class="stat-number">--</div><div class="stat-label">Total Medallas</div></div>
+        <div class="stat"><div class="stat-number">--</div><div class="stat-label">Medallas Oro</div></div>
+        <div class="stat"><div class="stat-number">--</div><div class="stat-label">Certámenes</div></div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="card">
+            <div class="card-title">🌍 GLOBAL COMPETITION WINGS – 2025</div>
+            <div class="chart-container"><canvas id="evolucionMensualChart" width="800" height="400"></canvas></div>
+            <div style="font-size:0.7rem; text-align:center; margin-top:0.5rem; opacity:0.7;">*Actualización en progreso</div>
+        </div>
+        <div class="card">
+            <div class="card-title">🏆 Ranking de Cervecerías Chilenas (Top 10)</div>
+            <div class="chart-container"><canvas id="rankingChileChart" width="800" height="500"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Podium por país (sin tilde) con tooltip interno -->
+    <div class="card">
+        <div class="card-title" style="font-size: 1.5rem;">🥇 PODIUM POR PAÍS</div>
+        <div id="podio-container" class="podio-grid"></div>
+    </div>
+
+    <!-- Micro gráficos -->
+    <div class="micro-grid">
+        <div class="micro-card">
+            <div class="card-title">🏅 Top 5 Estilos (Global)</div>
+            <div class="micro-chart"><canvas id="topEstilosGlobalChart"></canvas></div>
+        </div>
+        <div class="micro-card">
+            <div class="card-title">🏅 Top 5 Estilos (Chile)</div>
+            <div class="micro-chart"><canvas id="topEstilosChileChart"></canvas></div>
+        </div>
+        <div class="micro-card">
+            <div class="card-title">🗺️ Top 5 Regiones (Chile)</div>
+            <div class="micro-chart"><canvas id="topRegionesChileChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- AUDITORÍA: estructura de capas independientes -->
+    <div class="auditoria-wrapper">
+        <!-- Contenedor de la tabla (tarjeta) -->
+        <div class="auditoria-card">
+            <div class="auditoria-title">
+                <span>📋</span> Auditoría Detallada
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por certamen, estilo, medalla, país, cervecería o cerveza...">
+            </div>
+            <div class="table-wrapper">
+                <table class="medals-table">
+                    <thead>
+                        <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th> </thead>
+                    <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Botón (fuera de la tarjeta) -->
+        <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-desbloquear" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
+
+        <!-- Redes sociales (fuera) -->
+        <div class="social-footer-icons">
+            <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="big-icon" alt="Instagram"></a>
+            <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="big-icon" alt="WhatsApp"></a>
+            <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="big-icon" alt="Web"></a>
+        </div>
+
+        <!-- Pie de página (fuera) -->
+        <div class="copyright-text">
+            Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================== 1. FUNCIONES DE LIMPIEZA ========================
+    // Para comparaciones (tooltip): elimina tildes y pasa a minúsculas
+    function limpiarTexto(texto) {
+        if (!texto) return "";
+        return texto.toString()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+    }
+
+    // Para presentación: mantiene tildes, aplica abreviaturas y capitalización
+    function formatearTextoPresentacion(str) {
+        if (!str) return '';
+        // Abreviaturas (no elimina tildes)
+        str = str.replace(/\bBrewery\b/gi, "Brew.")
+                 .replace(/\bBrewing\b/gi, "Brew.")
+                 .replace(/\bCompany\b/gi, "Co.")
+                 .replace(/\bCompañía\b/gi, "Cia.")
+                 .replace(/Colaboración/gi, "(Colab.)");
+        // Primera letra mayúscula de cada palabra (mantiene tildes)
+        return str.replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function esBasura(valor) {
+        if (!valor) return true;
+        const limpio = valor.toString().toUpperCase().trim();
+        return limpio === "PENDIENTE" || limpio === "COMPLETAR" || limpio === "-";
+    }
+
+    // ======================== 2. CARGA DE CSV ========================
+    let allData = [];
+
+    function showError(msg) {
+        const errDiv = document.getElementById('error-message');
+        errDiv.innerText = msg;
+        errDiv.style.display = 'block';
+        console.error(msg);
+    }
+
+    async function cargarCSV() {
+        try {
+            const response = await fetch('BBDD_Medallero_Chile.csv');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const texto = await response.text();
+            const lineas = texto.split('\n');
+            const encabezados = lineas[0].split(';').map(h => h.trim());
+            const datos = [];
+            for (let i = 1; i < lineas.length; i++) {
+                if (!lineas[i].trim()) continue;
+                const valores = lineas[i].split(';');
+                const fila = {};
+                encabezados.forEach((enc, idx) => {
+                    let val = valores[idx] ? valores[idx].trim() : '';
+                    // Aplicar formato de presentación a campos de texto (con tildes)
+                    if (enc === 'cerveceria' || enc === 'cerveza_ganadora' || enc === 'estilo' || enc === 'certamen') {
+                        val = formatearTextoPresentacion(val);
+                    }
+                    fila[enc] = val;
+                });
+                // Excluir registros con medalla_base basura o vacía
+                if (esBasura(fila.medalla_base)) continue;
+                // Excluir cervecería basura
+                if (esBasura(fila.cerveceria)) continue;
+                datos.push(fila);
+            }
+            console.log(`✅ CSV cargado: ${datos.length} registros válidos`);
+            return datos;
+        } catch (err) {
+            showError(`❌ Error al cargar CSV: ${err.message}\n\nAsegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz.`);
+            return [];
+        }
+    }
+
+    function updateStats(data) {
+        if (!data.length) return;
+        const total = data.length;
+        const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
+        const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
+        const statsDiv = document.getElementById('stats-placeholder').children;
+        statsDiv[0].children[0].innerText = total;
+        statsDiv[1].children[0].innerText = oro;
+        statsDiv[2].children[0].innerText = certamenes;
+    }
+
+    // ======================== 3. GRÁFICOS ========================
+    let evolucionChart;
+    function renderEvolucionMensual(data) {
+        const data2025 = data.filter(item => {
+            const anio = item.anio || (item.fecha ? item.fecha.split('-')[0] : '');
+            return anio === '2025';
+        });
+        if (!data2025.length) return;
+        const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const paises = ['Brasil','Chile','Argentina'];
+        const agrupado = { Brasil: Array(12).fill(0), Chile: Array(12).fill(0), Argentina: Array(12).fill(0) };
+        data2025.forEach(item => {
+            const fecha = item.fecha;
+            if (!fecha) return;
+            const mes = fecha.split('-')[1];
+            const pais = item.pais;
+            if (!pais || !paises.includes(pais)) return;
+            const idx = parseInt(mes) - 1;
+            if (idx >= 0 && idx < 12) agrupado[pais][idx]++;
+        });
+        const ctx = document.getElementById('evolucionMensualChart').getContext('2d');
+        if (evolucionChart) evolucionChart.destroy();
+        const datasets = paises.map(p => ({
+            label: p,
+            data: agrupado[p],
+            borderColor: p === 'Brasil' ? '#f7c32f' : (p === 'Chile' ? '#e32c6c' : '#1eab9b'),
+            backgroundColor: p === 'Brasil' ? 'rgba(247,195,47,0.2)' : (p === 'Chile' ? 'rgba(227,44,108,0.2)' : 'rgba(30,171,155,0.2)'),
+            fill: true, tension: 0.4, pointRadius: 3, pointHoverRadius: 6
+        }));
+        evolucionChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: meses, datasets },
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                plugins: { tooltip: { mode: 'index', intersect: false }, legend: { labels: { color: '#fff' } } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    x: { ticks: { color: '#fff' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    let rankingChileChart;
+    function renderRankingChile(data) {
+        const chileData = data.filter(item => item.pais === 'Chile');
+        const breweries = {};
+        chileData.forEach(item => {
+            const nombre = item.cerveceria;
+            const medalla = item.medalla_base;
+            if (!nombre) return;
+            if (!breweries[nombre]) breweries[nombre] = { oro:0, plata:0, bronce:0 };
+            if (medalla && medalla.toLowerCase() === 'oro') breweries[nombre].oro++;
+            else if (medalla && medalla.toLowerCase() === 'plata') breweries[nombre].plata++;
+            else if (medalla && medalla.toLowerCase() === 'bronce') breweries[nombre].bronce++;
+        });
+        const ranking = Object.entries(breweries)
+            .map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals }))
+            .sort((a,b) => b.total - a.total)
+            .slice(0,10);
+        const labels = ranking.map(r => r.nom);
+        const oro = ranking.map(r => r.oro);
+        const plata = ranking.map(r => r.plata);
+        const bronce = ranking.map(r => r.bronce);
+        const ctx = document.getElementById('rankingChileChart').getContext('2d');
+        if (rankingChileChart) rankingChileChart.destroy();
+        rankingChileChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label: '🥇 Oro', data: oro, backgroundColor: '#e32c6c', stack: 'stack' },
+                    { label: '🥈 Plata', data: plata, backgroundColor: '#1eab9b', stack: 'stack' },
+                    { label: '🥉 Bronce', data: bronce, backgroundColor: '#f7c32f', stack: 'stack' }
+                ]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+                plugins: {
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } },
+                    legend: { labels: { color: '#fff' } }
+                },
+                scales: {
+                    x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    y: { stacked: true, ticks: { color: '#fff' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // ======================== 4. PÓDIUM CON TOOLTIP ========================
+    function obtenerDetalleCervezas(nombreCerveceria, dataCompleta) {
+        const busqueda = limpiarTexto(nombreCerveceria);
+        const medallas = dataCompleta.filter(d => 
+            limpiarTexto(d.cerveceria) === busqueda &&
+            !esBasura(d.cerveza_ganadora) &&
+            !esBasura(d.estilo)
+        );
+        if (medallas.length === 0) return "Sin medallas destacadas";
+
+        const conteo = {};
+        medallas.forEach(m => {
+            const nombreCerveza = m.cerveza_ganadora || "Sin nombre";
+            const estilo = m.estilo || "Estilo no definido";
+            const llave = `${nombreCerveza} (${estilo})`;
+            conteo[llave] = (conteo[llave] || 0) + 1;
+        });
+
+        const mejores2 = Object.entries(conteo)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 2);
+
+        return mejores2.map(([nombre, total]) => 
+            `• ${nombre}: ${total} medallas`
+        ).join('<br>');
+    }
+
+    function renderPodio(data) {
+        const paises = ['Brasil', 'Chile', 'Argentina'];
+        const podio = {};
+
+        paises.forEach(p => {
+            const paisesData = data.filter(item => item.pais === p);
+            const breweries = {};
+            paisesData.forEach(item => {
+                const nombre = item.cerveceria;
+                if (!nombre) return;
+                breweries[nombre] = (breweries[nombre] || 0) + 1;
+            });
+            const top3 = Object.entries(breweries)
+                .sort((a,b) => b[1] - a[1])
+                .slice(0,3)
+                .map(([name, count]) => ({ name, count }));
+            podio[p] = top3;
+        });
+
+        const container = document.getElementById('podio-container');
+        container.innerHTML = '';
+        paises.forEach(p => {
+            const col = document.createElement('div');
+            col.className = 'podio-col';
+            const totalMedallas = data.filter(item => item.pais === p).length;
+            col.innerHTML = `<h3>${p}</h3><div style="margin-bottom:0.5rem;">🏆 ${totalMedallas} medallas</div>`;
+            const items = podio[p];
+            if (items.length === 0) {
+                col.innerHTML += '<div>Sin datos</div>';
+            } else {
+                items.forEach(b => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'podio-item';
+                    const tooltipHtml = obtenerDetalleCervezas(b.name, data);
+                    itemDiv.innerHTML = `
+                        ${b.name}<br><span class="medal-count">${b.count} medallas</span>
+                        <div class="tooltip-box">${tooltipHtml}</div>
+                    `;
+                    col.appendChild(itemDiv);
+                });
+            }
+            container.appendChild(col);
+        });
+    }
+
+    // ======================== 5. MICRO GRÁFICOS ========================
+    let topEstilosGlobal, topEstilosChile, topRegionesChile;
+    function renderMicroGraficos(data) {
+        // Global
+        const estilosGlobal = {};
+        data.forEach(item => {
+            const estilo = item.estilo;
+            if (esBasura(estilo)) return;
+            estilosGlobal[estilo] = (estilosGlobal[estilo] || 0) + 1;
+        });
+        const topGlobal = Object.entries(estilosGlobal).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const ctx1 = document.getElementById('topEstilosGlobalChart').getContext('2d');
+        if (topEstilosGlobal) topEstilosGlobal.destroy();
+        topEstilosGlobal = new Chart(ctx1, {
+            type: 'bar',
+            data: { labels: topGlobal.map(e=>e[0]), datasets: [{ label: 'Medallas', data: topGlobal.map(e=>e[1]), backgroundColor: '#e32c6c' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+        });
+
+        // Chile
+        const chileData = data.filter(item => item.pais === 'Chile');
+        const estilosChile = {};
+        chileData.forEach(item => {
+            const estilo = item.estilo;
+            if (esBasura(estilo)) return;
+            estilosChile[estilo] = (estilosChile[estilo] || 0) + 1;
+        });
+        const topChile = Object.entries(estilosChile).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const ctx2 = document.getElementById('topEstilosChileChart').getContext('2d');
+        if (topEstilosChile) topEstilosChile.destroy();
+        topEstilosChile = new Chart(ctx2, {
+            type: 'bar',
+            data: { labels: topChile.map(e=>e[0]), datasets: [{ label: 'Medallas', data: topChile.map(e=>e[1]), backgroundColor: '#1eab9b' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+        });
+
+        // Regiones Chile
+        const regionesMap = {
+            'Santiago': 'Metropolitana', 'Valparaíso': 'Valparaíso', 'Concepción': 'Biobío',
+            'Talca': 'Maule', 'La Serena': 'Coquimbo', 'Antofagasta': 'Antofagasta',
+            'Temuco': 'Araucanía', 'Rancagua': 'O\'Higgins', 'Puerto Montt': 'Los Lagos',
+            'Valdivia': 'Los Ríos', 'Viña del Mar': 'Valparaíso', 'Chillán': 'Ñuble'
+        };
+        const regiones = {};
+        chileData.forEach(item => {
+            let ciudad = item.ciudad;
+            if (esBasura(ciudad)) return;
+            let region = regionesMap[ciudad] || ciudad;
+            regiones[region] = (regiones[region] || 0) + 1;
+        });
+        const topRegiones = Object.entries(regiones).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const ctx3 = document.getElementById('topRegionesChileChart').getContext('2d');
+        if (topRegionesChile) topRegionesChile.destroy();
+        topRegionesChile = new Chart(ctx3, {
+            type: 'bar',
+            data: { labels: topRegiones.map(r=>r[0]), datasets: [{ label: 'Medallas', data: topRegiones.map(r=>r[1]), backgroundColor: '#f7c32f' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+        });
+    }
+
+    // ======================== 6. TABLA CON BÚSQUEDA ========================
+    function renderTable(data, searchTerm = "") {
+        const tbody = document.getElementById('tableBody');
+        let filtered = data;
+        if (searchTerm) {
+            const lower = searchTerm.toLowerCase();
+            filtered = data.filter(row =>
+                (row.certamen || '').toLowerCase().includes(lower) ||
+                (row.estilo || '').toLowerCase().includes(lower) ||
+                (row.medalla_base || '').toLowerCase().includes(lower) ||
+                (row.pais || '').toLowerCase().includes(lower) ||
+                (row.cerveceria || '').toLowerCase().includes(lower) ||
+                (row.cerveza_ganadora || '').toLowerCase().includes(lower)
+            );
+        }
+        if (filtered.length === 0) {
+            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td></td>';
+            return;
+        }
+        tbody.innerHTML = filtered.slice(0, 200).map(item => {
+            let medClass = '';
+            const med = (item.medalla_base || '').toLowerCase();
+            if (med === 'oro') medClass = 'medal-gold';
+            else if (med === 'plata') medClass = 'medal-silver';
+            else if (med === 'bronce') medClass = 'medal-bronze';
+            return `
+                <tr>
+                    <td>${item.certamen || '-'}</td>
+                    <td>${item.fecha || item.anio || '-'}</td>
+                    <td class="blur-column">${item.cerveceria || '-'}</td>
+                    <td class="blur-column">${item.cerveza_ganadora || '-'}</td>
+                    <td>${item.estilo || '-'}</td>
+                    <td class="${medClass}">${item.medalla_base || '-'}</td>
+                    <td>${item.pais || '-'}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // ======================== 7. INICIALIZACIÓN ========================
+    async function init() {
+        const data = await cargarCSV();
+        if (!data.length) {
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos.</td></tr>';
+            return;
+        }
+        allData = data;
+        updateStats(data);
+        renderEvolucionMensual(data);
+        renderRankingChile(data);
+        renderPodio(data);
+        renderMicroGraficos(data);
+        renderTable(data);
+
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => renderTable(allData, e.target.value));
+    }
+    init();
+</script>
+</body>
+</html>
