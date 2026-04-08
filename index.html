@@ -6,63 +6,19 @@
   <title>Simulador de Alianza | Podium Beer</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', sans-serif; background: #000; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .hero-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; }
+    .hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+    .overlay-color { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #06232E; opacity: 0.57; z-index: -1; }
+    .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 80px rgba(0,0,0,0.5); pointer-events: none; z-index: 0; }
 
-    body {
-      font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
-      background: #000;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* === FONDO === */
-    .hero-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -2;
-    }
-    .hero-bg img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .overlay-color {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #06232E;
-      opacity: 0.57;
-      z-index: -1;
-    }
-    .vignette {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      box-shadow: inset 0 0 80px rgba(0,0,0,0.5);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* === CONTENEDOR PRINCIPAL (móvil: 90% ancho, sin límite) === */
+    /* === CONTENEDOR PRINCIPAL: 90% ANCHO REAL === */
     .app-container {
-      width: 90%;           /* 90% del ancho del viewport */
-      max-width: none;      /* sin límite en móvil para que ocupe el 90% real */
+      width: 90%;
+      max-width: none;
       margin: 1.5rem auto;
-      padding: 0 0.5rem;    /* pequeño margen lateral de seguridad */
+      padding: 0;
       position: relative;
       z-index: 2;
       display: flex;
@@ -70,43 +26,14 @@
       gap: 1.8rem;
     }
 
-    /* === HEADER (título en una sola línea) === */
-    .header {
-      text-align: center;
-    }
-    .h1-sim {
-      font-size: clamp(28px, 8vw, 44px);
-      font-weight: 800;
-      color: #FFFFFF;
-      letter-spacing: -0.5px;
-      white-space: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .h1-sim::-webkit-scrollbar {
-      display: none;
-    }
-    .h2-sim {
-      font-size: clamp(20px, 6vw, 32px);
-      font-weight: 500;
-      color: #CFDEE0;
-      margin-top: 0.5rem;
-    }
-    /* Bajada del header */
-    .bajada-header {
-      font-size: 15px;
-      font-weight: 500;
-      color: #FFFFFF;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 0.75rem 1rem;
-      border-radius: 28px;
-      margin-top: 1rem;
-      line-height: 1.4;
-      text-align: center;
-      backdrop-filter: blur(4px);
-    }
+    /* === HEADER === */
+    .header { text-align: center; }
+    .h1-sim { font-size: clamp(28px, 8vw, 44px); font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .h1-sim::-webkit-scrollbar { display: none; }
+    .h2-sim { font-size: clamp(20px, 6vw, 32px); font-weight: 500; color: #CFDEE0; margin-top: 0.5rem; }
+    .bajada-header { font-size: 15px; font-weight: 500; color: #FFFFFF; background: rgba(0, 0, 0, 0.6); padding: 0.75rem 1rem; border-radius: 28px; margin-top: 1rem; line-height: 1.4; text-align: center; backdrop-filter: blur(4px); }
 
-    /* === CONTENEDORES CON EFECTO GLASS + ECO (imagen espejo.png) === */
+    /* === CONTENEDORES CON EFECTO GLASS + ECO VISIBLE === */
     .glass-card, .metrics-card, .plan-selector-card {
       position: relative;
       background: rgba(6, 35, 46, 0.35);
@@ -115,9 +42,8 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       transition: transform 0.2s ease;
-      padding: 1.5rem;
+      padding: 1.5rem 1.8rem;  /* desplaza el texto hacia la derecha */
     }
-    /* Efecto eco con imagen espejo.png */
     .glass-card::before, .metrics-card::before, .plan-selector-card::before {
       content: '';
       position: absolute;
@@ -129,463 +55,142 @@
       background-image: url('assets/espejo.png');
       background-size: cover;
       background-position: center;
-      opacity: 0.18;
+      opacity: 0.45;
+      mix-blend-mode: overlay;
       z-index: -1;
       pointer-events: none;
     }
 
-    /* Títulos de sección */
-    .section-title {
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      color: #f7c32f;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-      text-align: left;
-    }
-    .section-subtitle {
-      font-size: 20px;
-      font-weight: 700;
-      color: #FFFFFF;
-      margin-bottom: 0.5rem;
-      text-align: left;
-    }
-    .section-desc {
-      font-size: 13px;
-      color: #CFDEE0;
-      line-height: 1.4;
-      margin-bottom: 1.5rem;
-      text-align: left;
-    }
+    .section-title { font-size: 14px; font-weight: 800; letter-spacing: 2px; color: #f7c32f; text-transform: uppercase; margin-bottom: 0.5rem; text-align: left; }
+    .section-subtitle { font-size: 20px; font-weight: 700; color: #FFFFFF; margin-bottom: 0.5rem; text-align: left; }
+    .section-desc { font-size: 13px; color: #CFDEE0; line-height: 1.4; margin-bottom: 1.5rem; text-align: left; }
 
     /* === SLIDER === */
-    .slider-container {
-      width: 100%;
-      padding: 0 0.5rem;
-    }
-    .slider-track-wrapper {
-      position: relative;
-      margin: 1.5rem 0.5rem 2rem 0.5rem;
-    }
-    .slider-rail {
-      width: 100%;
-      height: 6px;
-      background: #1E3A4A;
-      border-radius: 50px;
-      position: relative;
-      cursor: pointer;
-    }
-    .slider-fill {
-      position: absolute;
-      height: 100%;
-      border-radius: 50px;
-      background: linear-gradient(90deg, #06232E 0%, #FFFFFF 100%);
-      width: 0%;
-      pointer-events: none;
-      transition: width 0.1s ease-out;
-    }
-    .slider-thumb {
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      background: #FFFFFF;
-      border-radius: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      cursor: grab;
-      box-shadow: 0 0 0 0px rgba(255,255,255,0.3);
-      transition: box-shadow 0.1s ease, left 0.15s ease;
-      z-index: 3;
-    }
-    .slider-thumb:active {
-      cursor: grabbing;
-      box-shadow: 0 0 0 6px rgba(255,255,255,0.25);
-    }
-    .slider-labels {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 0.75rem;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-    .slider-labels span {
-      flex: 1;
-      text-align: center;
-      font-size: 10px;
-      font-weight: 600;
-      color: #CFDEE0;
-      line-height: 1.3;
-    }
-    @media (max-width: 991px) {
-      .slider-labels span br { display: block; }
-    }
-    @media (min-width: 992px) {
-      .slider-labels span br { display: none; }
-    }
+    .slider-container { width: 100%; padding: 0 0.5rem; }
+    .slider-track-wrapper { position: relative; margin: 1.5rem 0.5rem 2rem 0.5rem; }
+    .slider-rail { width: 100%; height: 6px; background: #1E3A4A; border-radius: 50px; position: relative; cursor: pointer; }
+    .slider-fill { position: absolute; height: 100%; border-radius: 50px; background: linear-gradient(90deg, #06232E 0%, #FFFFFF 100%); width: 0%; pointer-events: none; transition: width 0.1s ease-out; }
+    .slider-thumb { position: absolute; width: 24px; height: 24px; background: #FFFFFF; border-radius: 50%; top: 50%; transform: translate(-50%, -50%); cursor: grab; box-shadow: 0 0 0 0px rgba(255,255,255,0.3); transition: box-shadow 0.1s ease, left 0.15s ease; z-index: 3; }
+    .slider-thumb:active { cursor: grabbing; box-shadow: 0 0 0 6px rgba(255,255,255,0.25); }
+    .slider-labels { display: flex; justify-content: space-between; margin-top: 0.75rem; gap: 0.5rem; flex-wrap: wrap; }
+    .slider-labels span { flex: 1; text-align: center; font-size: 10px; font-weight: 600; color: #CFDEE0; line-height: 1.3; }
+    @media (max-width: 991px) { .slider-labels span br { display: block; } }
+    @media (min-width: 992px) { .slider-labels span br { display: none; } }
 
     /* === SELECTOR DE PLANES === */
-    .tier-buttons-container {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      margin: 1rem 0 0.5rem;
-      flex-wrap: wrap;
-    }
-    .tier-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .tier-btn {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      background: rgba(0, 0, 0, 0.7);
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      border-radius: 60px;
-      padding: 0.6rem 0.25rem;
-      cursor: pointer;
-      transition: all 250ms ease;
-    }
-    .tier-btn.active {
-      background: linear-gradient(90deg, #E40F63, #C32263);
-      border-color: rgba(255,255,255,0.5);
-      box-shadow: 0 0 12px #811347, 0 4px 12px rgba(0,0,0,0.3);
-      transform: scale(1.02) translateY(-2px);
-    }
-    .tier-icon img {
-      width: 24px;
-      height: auto;
-      display: block;
-    }
-    .tier-label {
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      color: #FFFFFF;
-    }
-    .tier-bajada {
-      font-size: 9px;
-      font-weight: 500;
-      color: #CFDEE0;
-      text-align: center;
-      line-height: 1.3;
-      margin-top: 0.2rem;
-    }
+    .tier-buttons-container { display: flex; justify-content: space-between; gap: 1rem; margin: 1rem 0 0.5rem; flex-wrap: wrap; }
+    .tier-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+    .tier-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(0, 0, 0, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.3); border-radius: 60px; padding: 0.6rem 0.25rem; cursor: pointer; transition: all 250ms ease; }
+    .tier-btn.active { background: linear-gradient(90deg, #E40F63, #C32263); border-color: rgba(255,255,255,0.5); box-shadow: 0 0 12px #811347, 0 4px 12px rgba(0,0,0,0.3); transform: scale(1.02) translateY(-2px); }
+    .tier-icon img { width: 24px; height: auto; display: block; }
+    .tier-label { font-size: 12px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #FFFFFF; }
+    .tier-bajada { font-size: 9px; font-weight: 500; color: #CFDEE0; text-align: center; line-height: 1.3; margin-top: 0.2rem; }
 
     /* === BLOQUE DE RESULTADOS === */
-    .metric-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1.8rem;
-    }
-    .metric-row:last-child {
-      margin-bottom: 0;
-    }
-    .metric-icon-col {
-      flex: 0 0 70px;
-      text-align: center;
-    }
-    .metric-icon-col img {
-      width: 52px;
-      height: auto;
-      display: inline-block;
-    }
-    .metric-text-col {
-      flex: 2;
-      text-align: center;
-    }
-    .metric-name {
-      font-size: 16px;
-      font-weight: 800;
-      color: #FFFFFF;
-      margin-bottom: 6px;
-    }
-    .metric-bajada {
-      font-size: 10px;
-      color: #CFDEE0;
-      line-height: 1.3;
-    }
-    .metric-value-col {
-      flex: 1;
-      text-align: right;
-    }
-    .metric-value {
-      font-size: 22px;
-      font-weight: 800;
-      color: #FFFFFF;
-      white-space: nowrap;
-    }
+    .metric-row { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.8rem; }
+    .metric-row:last-child { margin-bottom: 0; }
+    .metric-icon-col { flex: 0 0 70px; text-align: center; }
+    .metric-icon-col img { width: 52px; height: auto; display: inline-block; }
+    .metric-text-col { flex: 2; text-align: center; }
+    .metric-name { font-size: 16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px; }
+    .metric-bajada { font-size: 10px; color: #CFDEE0; line-height: 1.3; }
+    .metric-value-col { flex: 1; text-align: right; }
+    .metric-value { font-size: 22px; font-weight: 800; color: #FFFFFF; white-space: nowrap; }
 
     /* === FRASE FINAL === */
-    .frase-final {
-      text-align: center;
-      font-size: 14px;
-      font-weight: 600;
-      color: #FFFFFF;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 0.75rem 1rem;
-      border-radius: 60px;
-      margin: 0.5rem 0;
-      letter-spacing: -0.2px;
-      backdrop-filter: blur(4px);
-    }
+    .frase-final { text-align: center; font-size: 14px; font-weight: 600; color: #FFFFFF; background: rgba(0, 0, 0, 0.5); padding: 0.75rem 1rem; border-radius: 60px; margin: 0.5rem 0; letter-spacing: -0.2px; backdrop-filter: blur(4px); }
 
     /* === BOTÓN CTA === */
-    .cta-wrapper {
-      display: flex;
-      justify-content: center;
-      margin-top: 0.5rem;
-    }
-    .cta-button {
-      background: linear-gradient(90deg, #E40F63, #C32263);
-      border: none;
-      border-radius: 60px;
-      padding: 12px 24px;
-      cursor: pointer;
-      box-shadow: 0 4px 16px rgba(228, 15, 99, 0.5);
-      transition: transform 0.1s ease, filter 0.1s ease;
-      width: auto;
-      min-width: 240px;
-    }
-    .cta-button:active {
-      transform: scale(0.97);
-      filter: brightness(0.92);
-    }
-    .cta-text {
-      font-size: 15px;
-      font-weight: 700;
-      color: #FFFFFF;
-      white-space: nowrap;
-    }
+    .cta-wrapper { display: flex; justify-content: center; margin-top: 0.5rem; }
+    .cta-button { background: linear-gradient(90deg, #E40F63, #C32263); border: none; border-radius: 60px; padding: 12px 24px; cursor: pointer; box-shadow: 0 4px 16px rgba(228, 15, 99, 0.5); transition: transform 0.1s ease, filter 0.1s ease; width: auto; min-width: 240px; }
+    .cta-button:active { transform: scale(0.97); filter: brightness(0.92); }
+    .cta-text { font-size: 15px; font-weight: 700; color: #FFFFFF; white-space: nowrap; }
 
-    /* === LAYOUT DESKTOP (≥992px) === */
+    /* === LAYOUT DESKTOP === */
     @media (min-width: 992px) {
-      .app-container {
-        width: 85%;
-        max-width: 1300px;   /* solo en desktop ponemos un límite */
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        align-items: start;
-      }
-      .header {
-        grid-column: span 2;
-      }
-      .glass-card {
-        grid-column: 1 / 2;
-      }
-      .plan-selector-card {
-        grid-column: 1 / 2;
-      }
-      .metrics-card {
-        grid-column: 2 / 3;
-        grid-row: 2 / 4;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-      .frase-final {
-        grid-column: span 2;
-        width: 80%;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .cta-wrapper {
-        grid-column: span 2;
-      }
-      .metric-row {
-        gap: 1.5rem;
-      }
-      .metric-icon-col img {
-        width: 64px;
-      }
-      .metric-name {
-        font-size: 18px;
-      }
-      .metric-value {
-        font-size: 28px;
-      }
+      .app-container { width: 85%; max-width: 1300px; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+      .header { grid-column: span 2; }
+      .glass-card { grid-column: 1 / 2; }
+      .plan-selector-card { grid-column: 1 / 2; }
+      .metrics-card { grid-column: 2 / 3; grid-row: 2 / 4; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+      .frase-final { grid-column: span 2; width: 80%; margin-left: auto; margin-right: auto; }
+      .cta-wrapper { grid-column: span 2; }
+      .metric-row { gap: 1.5rem; }
+      .metric-icon-col img { width: 64px; }
+      .metric-name { font-size: 18px; }
+      .metric-value { font-size: 28px; }
     }
 
-    /* Ajustes móvil adicionales */
+    /* Ajustes móvil */
     @media (max-width: 991px) {
-      .app-container {
-        gap: 1.8rem;
-      }
-      .glass-card, .metrics-card, .plan-selector-card {
-        padding: 1.2rem 1rem;
-      }
-      .metric-value {
-        font-size: 18px;
-      }
-      .metric-icon-col {
-        flex-basis: 60px;
-      }
-      .metric-icon-col img {
-        width: 44px;
-      }
-      .metric-name {
-        font-size: 14px;
-      }
-      .metric-bajada {
-        font-size: 9px;
-      }
-      .h1-sim {
-        white-space: normal;
-        font-size: 28px;
-      }
-      .bajada-header {
-        font-size: 14px;
-      }
+      .app-container { gap: 1.8rem; }
+      .glass-card, .metrics-card, .plan-selector-card { padding: 1.2rem 1.2rem; }
+      .metric-value { font-size: 18px; }
+      .metric-icon-col { flex-basis: 60px; }
+      .metric-icon-col img { width: 44px; }
+      .metric-name { font-size: 14px; }
+      .metric-bajada { font-size: 9px; }
+      .h1-sim { white-space: normal; font-size: 28px; }
+      .bajada-header { font-size: 14px; }
     }
     @media (max-width: 380px) {
-      .app-container {
-        width: 95%;         /* en pantallas muy pequeñas, 95% para no perder contenido */
-      }
-      .glass-card, .metrics-card, .plan-selector-card {
-        padding: 1rem 0.8rem;
-      }
+      .app-container { width: 95%; }
+      .glass-card, .metrics-card, .plan-selector-card { padding: 1rem 0.8rem; }
     }
   </style>
 </head>
 <body>
-  <div class="hero-bg">
-    <img src="assets/bg_cerveceria.jpg" alt="Cervecería fondo">
-  </div>
+  <div class="hero-bg"><img src="assets/bg_cerveceria.jpg" alt="Cervecería fondo"></div>
   <div class="overlay-color"></div>
   <div class="vignette"></div>
 
   <div class="app-container">
-    <!-- HEADER -->
-    <div class="header animate-item">
+    <div class="header">
       <div class="h1-sim">Simulador de Alianza</div>
       <div class="h2-sim">¿Cuál es tu producción anual?</div>
-      <div class="bajada-header">
-        Proyecta cómo convertir tus medallas en resultados comerciales concretos. Ajusta tu nivel de producción y visualiza el impacto real en ventas, posicionamiento y rentabilidad.
-      </div>
+      <div class="bajada-header">Proyecta cómo convertir tus medallas en resultados comerciales concretos. Ajusta tu nivel de producción y visualiza el impacto real en ventas, posicionamiento y rentabilidad.</div>
     </div>
 
-    <!-- SLIDER -->
-    <div class="glass-card animate-item">
+    <div class="glass-card">
       <div class="section-title">SLIDER</div>
       <div class="section-subtitle">Escala de Producción</div>
       <div class="section-desc">Tu volumen define tu estrategia. Este modelo adapta la inversión y el potencial de crecimiento según tu realidad productiva.</div>
       <div class="slider-container">
         <div class="slider-track-wrapper" id="sliderWrapper">
-          <div class="slider-rail" id="sliderRail">
-            <div class="slider-fill" id="sliderFill"></div>
-          </div>
+          <div class="slider-rail" id="sliderRail"><div class="slider-fill" id="sliderFill"></div></div>
           <div class="slider-thumb" id="sliderThumb"></div>
         </div>
         <div class="slider-labels">
-          <span>&lt;500<br>hl</span>
-          <span>501 - 1000<br>hl</span>
-          <span>1001 - 5000<br>hl</span>
-          <span>5001 - 10000<br>hl</span>
-          <span>≥20000<br>hl</span>
+          <span>&lt;500<br>hl</span><span>501 - 1000<br>hl</span><span>1001 - 5000<br>hl</span><span>5001 - 10000<br>hl</span><span>≥20000<br>hl</span>
         </div>
       </div>
     </div>
 
-    <!-- SELECTOR DE PLANES -->
-    <div class="plan-selector-card animate-item">
+    <div class="plan-selector-card">
       <div class="section-title">SELECTOR DE PLANES</div>
       <div class="section-subtitle">Nivel de Alianza Estratégica</div>
       <div class="section-desc">Elige cómo quieres competir en el mercado: desde visibilidad inicial hasta posicionamiento como referente técnico.</div>
       <div class="tier-buttons-container" id="tierButtonsContainer">
-        <div class="tier-item">
-          <div class="tier-btn" data-tier="explorer" id="tierExplorer">
-            <div class="tier-icon"><img src="assets/explorer.png" alt="Explorer"></div>
-            <div class="tier-label">Explorer</div>
-          </div>
-          <div class="tier-bajada">1° Nivel de Visibilidad basada en datos reales</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-btn" data-tier="podium" id="tierPodium">
-            <div class="tier-icon"><img src="assets/podium.png" alt="Podium"></div>
-            <div class="tier-label">Podium</div>
-          </div>
-          <div class="tier-bajada">Optimización estratégica para competir con ventaja.</div>
-        </div>
-        <div class="tier-item">
-          <div class="tier-btn active" data-tier="champion" id="tierChampion">
-            <div class="tier-icon"><img src="assets/champion.png" alt="Champion"></div>
-            <div class="tier-label">Champion</div>
-          </div>
-          <div class="tier-bajada">Dominio de mercado con respaldo técnico y autoridad</div>
-        </div>
+        <div class="tier-item"><div class="tier-btn" data-tier="explorer" id="tierExplorer"><div class="tier-icon"><img src="assets/explorer.png" alt="Explorer"></div><div class="tier-label">Explorer</div></div><div class="tier-bajada">1° Nivel de Visibilidad basada en datos reales</div></div>
+        <div class="tier-item"><div class="tier-btn" data-tier="podium" id="tierPodium"><div class="tier-icon"><img src="assets/podium.png" alt="Podium"></div><div class="tier-label">Podium</div></div><div class="tier-bajada">Optimización estratégica para competir con ventaja.</div></div>
+        <div class="tier-item"><div class="tier-btn active" data-tier="champion" id="tierChampion"><div class="tier-icon"><img src="assets/champion.png" alt="Champion"></div><div class="tier-label">Champion</div></div><div class="tier-bajada">Dominio de mercado con respaldo técnico y autoridad</div></div>
       </div>
     </div>
 
-    <!-- BLOQUE DE RESULTADOS -->
-    <div class="metrics-card animate-item">
+    <div class="metrics-card">
       <div class="section-title">BLOQUE DE RESULTADOS</div>
       <div class="section-subtitle">Impacto en tu negocio</div>
       <div class="section-desc">Los indicadores clave para convertir data técnica en decisiones rentables. Así se ve, en números, lo que tus medallas realmente pueden hacer por tu negocio.</div>
-      
-      <div class="metric-row">
-        <div class="metric-icon-col">
-          <img src="assets/icono_inversion.png" alt="Inversión Inteligente">
-        </div>
-        <div class="metric-text-col">
-          <div class="metric-name">Inversión Inteligente</div>
-          <div class="metric-bajada">Una inversión diseñada para generar retorno,<br>no gasto: alineada a tu escala y potencial comercial</div>
-        </div>
-        <div class="metric-value-col">
-          <div class="metric-value" id="inversionValue">$1,200 USD</div>
-        </div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-icon-col">
-          <img src="assets/icono_valor.png" alt="Valor Recuperado">
-        </div>
-        <div class="metric-text-col">
-          <div class="metric-name">Valor Recuperado</div>
-          <div class="metric-bajada">Lo que hoy pierdes en decisiones sin data,<br>lo recuperas con estrategia basada en información validada</div>
-        </div>
-        <div class="metric-value-col">
-          <div class="metric-value" id="optimizacionValue">$14,500 USD</div>
-        </div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-icon-col">
-          <img src="assets/icono_impacto.png" alt="Impacto en Rentabilidad">
-        </div>
-        <div class="metric-text-col">
-          <div class="metric-name">Impacto en Rentabilidad</div>
-          <div class="metric-bajada">El retorno proyectado al transformar tus medallas<br>en una herramienta activa de ventas.</div>
-        </div>
-        <div class="metric-value-col">
-          <div class="metric-value" id="roiValue">65%</div>
-        </div>
-      </div>
+      <div class="metric-row"><div class="metric-icon-col"><img src="assets/icono_inversion.png" alt="Inversión Inteligente"></div><div class="metric-text-col"><div class="metric-name">Inversión Inteligente</div><div class="metric-bajada">Una inversión diseñada para generar retorno,<br>no gasto: alineada a tu escala y potencial comercial</div></div><div class="metric-value-col"><div class="metric-value" id="inversionValue">$1,200 USD</div></div></div>
+      <div class="metric-row"><div class="metric-icon-col"><img src="assets/icono_valor.png" alt="Valor Recuperado"></div><div class="metric-text-col"><div class="metric-name">Valor Recuperado</div><div class="metric-bajada">Lo que hoy pierdes en decisiones sin data,<br>lo recuperas con estrategia basada en información validada</div></div><div class="metric-value-col"><div class="metric-value" id="optimizacionValue">$14,500 USD</div></div></div>
+      <div class="metric-row"><div class="metric-icon-col"><img src="assets/icono_impacto.png" alt="Impacto en Rentabilidad"></div><div class="metric-text-col"><div class="metric-name">Impacto en Rentabilidad</div><div class="metric-bajada">El retorno proyectado al transformar tus medallas<br>en una herramienta activa de ventas.</div></div><div class="metric-value-col"><div class="metric-value" id="roiValue">65%</div></div></div>
     </div>
 
-    <!-- FRASE FINAL -->
-    <div class="frase-final animate-item">
-      Crecemos contigo: este modelo se adapta a tu realidad productiva y a tus objetivos comerciales.
-    </div>
-
-    <!-- CTA -->
-    <div class="cta-wrapper animate-item">
-      <button class="cta-button" id="ctaBtn">
-        <span class="cta-text">Agenda tu Diagnóstico Estratégico</span>
-      </button>
-    </div>
+    <div class="frase-final">Crecemos contigo: este modelo se adapta a tu realidad productiva y a tus objetivos comerciales.</div>
+    <div class="cta-wrapper"><button class="cta-button" id="ctaBtn"><span class="cta-text">Agenda tu Diagnóstico Estratégico</span></button></div>
   </div>
 
   <script>
-    // (Mismo JavaScript funcional de siempre)
     const metricsTable = [
       { inversion: "$150 USD", optimizacion: "$1,800 USD", roi: "30%", suggestedTier: "explorer" },
       { inversion: "$300 USD", optimizacion: "$3,600 USD", roi: "45%", suggestedTier: "explorer" },
@@ -593,7 +198,6 @@
       { inversion: "$1,200 USD", optimizacion: "$14,500 USD", roi: "65%", suggestedTier: "champion" },
       { inversion: "$2,500 USD", optimizacion: "$30,000 USD", roi: "70%", suggestedTier: "champion" }
     ];
-
     const sliderRail = document.getElementById('sliderRail');
     const sliderThumb = document.getElementById('sliderThumb');
     const sliderFill = document.getElementById('sliderFill');
@@ -603,173 +207,23 @@
     const inversionEl = document.getElementById('inversionValue');
     const optimizacionEl = document.getElementById('optimizacionValue');
     const roiEl = document.getElementById('roiValue');
-
-    let currentRangeIndex = 3;
-    let currentTier = "champion";
-    let allowAutoTier = true;
-    let isDragging = false;
-    let wrapperWidth = 0;
+    let currentRangeIndex = 3, currentTier = "champion", allowAutoTier = true, isDragging = false, wrapperWidth = 0;
     const stepPositions = [0, 0.25, 0.5, 0.75, 1];
-
-    function updateSliderVisual(index) {
-      const percent = stepPositions[index] * 100;
-      sliderFill.style.width = `${percent}%`;
-      const thumbLeft = (percent / 100) * wrapperWidth;
-      sliderThumb.style.left = `${thumbLeft}px`;
-    }
-
-    function animateValue(element, startVal, endVal, isCurrency = true, suffix = "") {
-      const duration = 600;
-      const startTime = performance.now();
-      const startNum = parseFloat(String(startVal).replace(/[^0-9.-]+/g, ""));
-      let endNum = parseFloat(String(endVal).replace(/[^0-9.-]+/g, ""));
-      if (isNaN(startNum) || isNaN(endNum)) {
-        element.innerText = endVal;
-        return;
-      }
-      function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        let progress = Math.min(1, elapsed / duration);
-        const easeOut = 1 - Math.pow(1 - progress, 2);
-        let currentNum = startNum + (endNum - startNum) * easeOut;
-        let formatted;
-        if (isCurrency) {
-          formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(currentNum);
-          formatted = formatted.replace('$', '$ ') + (suffix ? " " + suffix : "");
-        } else {
-          formatted = Math.round(currentNum) + (suffix ? suffix : "");
-        }
-        element.innerText = formatted;
-        if (progress < 1) requestAnimationFrame(update);
-        else element.innerText = endVal;
-      }
-      requestAnimationFrame(update);
-    }
-
+    function updateSliderVisual(index) { const percent = stepPositions[index] * 100; sliderFill.style.width = `${percent}%`; const thumbLeft = (percent / 100) * wrapperWidth; sliderThumb.style.left = `${thumbLeft}px`; }
+    function animateValue(element, startVal, endVal, isCurrency = true, suffix = "") { const duration = 600; const startTime = performance.now(); const startNum = parseFloat(String(startVal).replace(/[^0-9.-]+/g, "")); let endNum = parseFloat(String(endVal).replace(/[^0-9.-]+/g, "")); if (isNaN(startNum) || isNaN(endNum)) { element.innerText = endVal; return; } function update(currentTime) { const elapsed = currentTime - startTime; let progress = Math.min(1, elapsed / duration); const easeOut = 1 - Math.pow(1 - progress, 2); let currentNum = startNum + (endNum - startNum) * easeOut; let formatted; if (isCurrency) { formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(currentNum); formatted = formatted.replace('$', '$ ') + (suffix ? " " + suffix : ""); } else { formatted = Math.round(currentNum) + (suffix ? suffix : ""); } element.innerText = formatted; if (progress < 1) requestAnimationFrame(update); else element.innerText = endVal; } requestAnimationFrame(update); }
     function getCurrentMetrics() { return metricsTable[currentRangeIndex]; }
-    function updateMetrics() {
-      const newVals = getCurrentMetrics();
-      const oldInversion = inversionEl.innerText;
-      const oldOptim = optimizacionEl.innerText;
-      const oldRoi = roiEl.innerText;
-      animateValue(inversionEl, oldInversion, newVals.inversion, true, "USD");
-      animateValue(optimizacionEl, oldOptim, newVals.optimizacion, true, "USD");
-      animateValue(roiEl, oldRoi, newVals.roi, false, "%");
-    }
-    function updateTierButtonsActive() {
-      const btns = { explorer: tierExplorer, podium: tierPodium, champion: tierChampion };
-      Object.keys(btns).forEach(tier => {
-        if (tier === currentTier) btns[tier].classList.add('active');
-        else btns[tier].classList.remove('active');
-      });
-    }
-    function autoSelectTierFromRange() {
-      if (allowAutoTier) {
-        const suggested = metricsTable[currentRangeIndex].suggestedTier;
-        if (suggested && suggested !== currentTier) {
-          currentTier = suggested;
-          updateTierButtonsActive();
-        }
-      }
-    }
-    function setRangeByIndex(index, fromUser = true) {
-      if (index === currentRangeIndex && fromUser) return;
-      currentRangeIndex = index;
-      updateSliderVisual(currentRangeIndex);
-      if (fromUser) {
-        allowAutoTier = true;
-        autoSelectTierFromRange();
-      }
-      updateMetrics();
-    }
-
-    function getNearestStep(clientX) {
-      const rect = sliderRail.getBoundingClientRect();
-      let ratio = (clientX - rect.left) / rect.width;
-      ratio = Math.min(Math.max(ratio, 0), 1);
-      let distances = stepPositions.map(step => Math.abs(step - ratio));
-      return distances.indexOf(Math.min(...distances));
-    }
-    function onDragStart(e) {
-      isDragging = true;
-      e.preventDefault();
-      window.addEventListener('mousemove', onDragMove);
-      window.addEventListener('mouseup', onDragEnd);
-      window.addEventListener('touchmove', onDragMove);
-      window.addEventListener('touchend', onDragEnd);
-      sliderThumb.style.cursor = 'grabbing';
-    }
-    function onDragMove(e) {
-      if (!isDragging) return;
-      let clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
-      const rect = sliderRail.getBoundingClientRect();
-      let ratio = (clientX - rect.left) / rect.width;
-      ratio = Math.min(Math.max(ratio, 0), 1);
-      sliderFill.style.width = `${ratio * 100}%`;
-      let thumbX = ratio * wrapperWidth;
-      sliderThumb.style.left = `${thumbX}px`;
-    }
-    function onDragEnd(e) {
-      if (!isDragging) return;
-      isDragging = false;
-      let clientX = e.clientX ?? (e.changedTouches ? e.changedTouches[0].clientX : 0);
-      if (clientX === undefined) {
-        const rect = sliderRail.getBoundingClientRect();
-        clientX = rect.left + rect.width / 2;
-      }
-      const newIndex = getNearestStep(clientX);
-      setRangeByIndex(newIndex, true);
-      updateSliderVisual(currentRangeIndex);
-      sliderThumb.style.cursor = 'grab';
-      window.removeEventListener('mousemove', onDragMove);
-      window.removeEventListener('mouseup', onDragEnd);
-      window.removeEventListener('touchmove', onDragMove);
-      window.removeEventListener('touchend', onDragEnd);
-    }
-    function initSlider() {
-      const updateSize = () => {
-        wrapperWidth = sliderRail.clientWidth;
-        updateSliderVisual(currentRangeIndex);
-      };
-      updateSize();
-      window.addEventListener('resize', updateSize);
-      sliderThumb.addEventListener('mousedown', onDragStart);
-      sliderThumb.addEventListener('touchstart', onDragStart);
-      sliderRail.addEventListener('click', (e) => {
-        if (isDragging) return;
-        const idx = getNearestStep(e.clientX);
-        setRangeByIndex(idx, true);
-      });
-    }
-    function bindTierEvents() {
-      tierExplorer.addEventListener('click', () => {
-        allowAutoTier = false;
-        if (currentTier !== 'explorer') { currentTier = 'explorer'; updateTierButtonsActive(); }
-      });
-      tierPodium.addEventListener('click', () => {
-        allowAutoTier = false;
-        if (currentTier !== 'podium') { currentTier = 'podium'; updateTierButtonsActive(); }
-      });
-      tierChampion.addEventListener('click', () => {
-        allowAutoTier = false;
-        if (currentTier !== 'champion') { currentTier = 'champion'; updateTierButtonsActive(); }
-      });
-    }
-    const ctaBtn = document.getElementById('ctaBtn');
-    ctaBtn.addEventListener('click', () => {
-      if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
-      alert("📞 Diagnóstico estratégico – Un asesor te contactará para potenciar tu negocio.");
-    });
-    function init() {
-      initSlider();
-      bindTierEvents();
-      currentRangeIndex = 3;
-      currentTier = "champion";
-      allowAutoTier = true;
-      updateSliderVisual(3);
-      updateTierButtonsActive();
-      updateMetrics();
-    }
+    function updateMetrics() { const newVals = getCurrentMetrics(); const oldInversion = inversionEl.innerText; const oldOptim = optimizacionEl.innerText; const oldRoi = roiEl.innerText; animateValue(inversionEl, oldInversion, newVals.inversion, true, "USD"); animateValue(optimizacionEl, oldOptim, newVals.optimizacion, true, "USD"); animateValue(roiEl, oldRoi, newVals.roi, false, "%"); }
+    function updateTierButtonsActive() { const btns = { explorer: tierExplorer, podium: tierPodium, champion: tierChampion }; Object.keys(btns).forEach(tier => { if (tier === currentTier) btns[tier].classList.add('active'); else btns[tier].classList.remove('active'); }); }
+    function autoSelectTierFromRange() { if (allowAutoTier) { const suggested = metricsTable[currentRangeIndex].suggestedTier; if (suggested && suggested !== currentTier) { currentTier = suggested; updateTierButtonsActive(); } } }
+    function setRangeByIndex(index, fromUser = true) { if (index === currentRangeIndex && fromUser) return; currentRangeIndex = index; updateSliderVisual(currentRangeIndex); if (fromUser) { allowAutoTier = true; autoSelectTierFromRange(); } updateMetrics(); }
+    function getNearestStep(clientX) { const rect = sliderRail.getBoundingClientRect(); let ratio = (clientX - rect.left) / rect.width; ratio = Math.min(Math.max(ratio, 0), 1); let distances = stepPositions.map(step => Math.abs(step - ratio)); return distances.indexOf(Math.min(...distances)); }
+    function onDragStart(e) { isDragging = true; e.preventDefault(); window.addEventListener('mousemove', onDragMove); window.addEventListener('mouseup', onDragEnd); window.addEventListener('touchmove', onDragMove); window.addEventListener('touchend', onDragEnd); sliderThumb.style.cursor = 'grabbing'; }
+    function onDragMove(e) { if (!isDragging) return; let clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0); const rect = sliderRail.getBoundingClientRect(); let ratio = (clientX - rect.left) / rect.width; ratio = Math.min(Math.max(ratio, 0), 1); sliderFill.style.width = `${ratio * 100}%`; let thumbX = ratio * wrapperWidth; sliderThumb.style.left = `${thumbX}px`; }
+    function onDragEnd(e) { if (!isDragging) return; isDragging = false; let clientX = e.clientX ?? (e.changedTouches ? e.changedTouches[0].clientX : 0); if (clientX === undefined) { const rect = sliderRail.getBoundingClientRect(); clientX = rect.left + rect.width / 2; } const newIndex = getNearestStep(clientX); setRangeByIndex(newIndex, true); updateSliderVisual(currentRangeIndex); sliderThumb.style.cursor = 'grab'; window.removeEventListener('mousemove', onDragMove); window.removeEventListener('mouseup', onDragEnd); window.removeEventListener('touchmove', onDragMove); window.removeEventListener('touchend', onDragEnd); }
+    function initSlider() { const updateSize = () => { wrapperWidth = sliderRail.clientWidth; updateSliderVisual(currentRangeIndex); }; updateSize(); window.addEventListener('resize', updateSize); sliderThumb.addEventListener('mousedown', onDragStart); sliderThumb.addEventListener('touchstart', onDragStart); sliderRail.addEventListener('click', (e) => { if (isDragging) return; const idx = getNearestStep(e.clientX); setRangeByIndex(idx, true); }); }
+    function bindTierEvents() { tierExplorer.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'explorer') { currentTier = 'explorer'; updateTierButtonsActive(); } }); tierPodium.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'podium') { currentTier = 'podium'; updateTierButtonsActive(); } }); tierChampion.addEventListener('click', () => { allowAutoTier = false; if (currentTier !== 'champion') { currentTier = 'champion'; updateTierButtonsActive(); } }); }
+    const ctaBtn = document.getElementById('ctaBtn'); ctaBtn.addEventListener('click', () => { if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50); alert("📞 Diagnóstico estratégico – Un asesor te contactará para potenciar tu negocio."); });
+    function init() { initSlider(); bindTierEvents(); currentRangeIndex = 3; currentTier = "champion"; allowAutoTier = true; updateSliderVisual(3); updateTierButtonsActive(); updateMetrics(); }
     init();
   </script>
 </body>
