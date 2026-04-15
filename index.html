@@ -97,8 +97,18 @@
             border-left: 5px solid #e32c6c;
             padding-left: 1rem;
         }
-        .chart-container { width: 100%; flex: 1; min-height: 350px; position: relative; }
-        canvas { max-width: 100%; height: auto; }
+        .chart-container {
+            width: 100%;
+            flex: 1;
+            min-height: 350px;
+            height: 350px;
+            position: relative;
+        }
+        canvas {
+            display: block;
+            width: 100% !important;
+            max-width: 100%;
+        }
 
         /* Pódium – con tooltip interno */
         .podio-grid {
@@ -136,7 +146,6 @@
             font-size: 0.8rem;
             color: #1eab9b;
         }
-        /* Tooltip interno (estilo "dark mode") */
         .tooltip-box {
             visibility: hidden;
             position: absolute;
@@ -309,6 +318,47 @@
             font-weight: bold;
         }
 
+        @media (min-width: 769px) and (max-width: 1024px) {
+            body::before {
+                background-attachment: scroll;
+            }
+
+            .container {
+                padding: 1rem 1.2rem;
+            }
+
+            .stats {
+                gap: 1rem;
+                padding: 0.9rem 1.2rem;
+            }
+
+            .stat {
+                min-width: 0;
+            }
+
+            .stat-number {
+                font-size: 1.6rem;
+            }
+
+            .stat-label {
+                font-size: 0.68rem;
+                letter-spacing: 0.6px;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                min-height: 320px;
+                height: 320px;
+            }
+
+            .card-title {
+                font-size: 1.15rem;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .container { padding: 0.8rem; }
@@ -317,7 +367,7 @@
             .stat-number { font-size: 1.2rem; }
             .stat-label { font-size: 0.6rem; }
             .card-title { font-size: 1.1rem; }
-            .chart-container { min-height: 280px; }
+            .chart-container { min-height: 280px; height: 280px; }
             .micro-grid { grid-template-columns: 1fr; gap: 1rem; }
             .micro-chart { height: 220px; }
             .podio-grid { gap: 1rem; }
@@ -356,13 +406,11 @@
         </div>
     </div>
 
-    <!-- Podium por país (sin tilde) con tooltip interno -->
     <div class="card">
         <div class="card-title" style="font-size: 1.5rem;">🥇 PODIUM POR PAÍS</div>
         <div id="podio-container" class="podio-grid"></div>
     </div>
 
-    <!-- Micro gráficos -->
     <div class="micro-grid">
         <div class="micro-card">
             <div class="card-title">🏅 Top 5 Estilos (Global)</div>
@@ -378,9 +426,7 @@
         </div>
     </div>
 
-    <!-- AUDITORÍA: estructura de capas independientes -->
     <div class="auditoria-wrapper">
-        <!-- Contenedor de la tabla (tarjeta) -->
         <div class="auditoria-card">
             <div class="auditoria-title">
                 <span>📋</span> Auditoría Detallada
@@ -391,23 +437,21 @@
             <div class="table-wrapper">
                 <table class="medals-table">
                     <thead>
-                        <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th> </thead>
-                    <tbody id="tableBody"><td colspan="7">Cargando datos...</tbody>
+                        <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th></tr>
+                    </thead>
+                    <tbody id="tableBody"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Botón (fuera de la tarjeta) -->
         <a href="https://wa.me/56952184980?text=Quiero%20acceso%20completo%20a%20PodiumBeer" class="btn-desbloquear" target="_blank">🔓 DESBLOQUEAR ACCESO COMPLETO</a>
 
-        <!-- Redes sociales (fuera) -->
         <div class="social-footer-icons">
             <a href="https://www.instagram.com/catascolaborativascl/" target="_blank"><img src="assets/icon_instagram.png" class="big-icon" alt="Instagram"></a>
             <a href="https://wa.me/56952184980" target="_blank"><img src="assets/icon_wpp.png" class="big-icon" alt="WhatsApp"></a>
             <a href="https://catascolaborativas.cl/" target="_blank"><img src="assets/icon_web.png" class="big-icon" alt="Web"></a>
         </div>
 
-        <!-- Pie de página (fuera) -->
         <div class="copyright-text">
             Un Desarrollo de Catas Colaborativas | © 2026 PodiumBeer. Todos los derechos reservados.
         </div>
@@ -415,8 +459,6 @@
 </div>
 
 <script>
-    // ======================== 1. FUNCIONES DE LIMPIEZA ========================
-    // Para comparaciones (tooltip): elimina tildes y pasa a minúsculas
     function limpiarTexto(texto) {
         if (!texto) return "";
         return texto.toString()
@@ -426,16 +468,13 @@
             .trim();
     }
 
-    // Para presentación: mantiene tildes, aplica abreviaturas y capitalización
     function formatearTextoPresentacion(str) {
         if (!str) return '';
-        // Abreviaturas (no elimina tildes)
         str = str.replace(/\bBrewery\b/gi, "Brew.")
                  .replace(/\bBrewing\b/gi, "Brew.")
                  .replace(/\bCompany\b/gi, "Co.")
                  .replace(/\bCompañía\b/gi, "Cia.")
                  .replace(/Colaboración/gi, "(Colab.)");
-        // Primera letra mayúscula de cada palabra (mantiene tildes)
         return str.replace(/\b\w/g, l => l.toUpperCase());
     }
 
@@ -445,7 +484,6 @@
         return limpio === "PENDIENTE" || limpio === "COMPLETAR" || limpio === "-";
     }
 
-    // ======================== 2. CARGA DE CSV ========================
     let allData = [];
 
     function showError(msg) {
@@ -469,15 +507,12 @@
                 const fila = {};
                 encabezados.forEach((enc, idx) => {
                     let val = valores[idx] ? valores[idx].trim() : '';
-                    // Aplicar formato de presentación a campos de texto (con tildes)
                     if (enc === 'cerveceria' || enc === 'cerveza_ganadora' || enc === 'estilo' || enc === 'certamen') {
                         val = formatearTextoPresentacion(val);
                     }
                     fila[enc] = val;
                 });
-                // Excluir registros con medalla_base basura o vacía
                 if (esBasura(fila.medalla_base)) continue;
-                // Excluir cervecería basura
                 if (esBasura(fila.cerveceria)) continue;
                 datos.push(fila);
             }
@@ -500,7 +535,6 @@
         statsDiv[2].children[0].innerText = certamenes;
     }
 
-    // ======================== 3. GRÁFICOS ========================
     let evolucionChart;
     function renderEvolucionMensual(data) {
         const data2025 = data.filter(item => {
@@ -533,7 +567,8 @@
             type: 'line',
             data: { labels: meses, datasets },
             options: {
-                responsive: true, maintainAspectRatio: true,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: { tooltip: { mode: 'index', intersect: false }, legend: { labels: { color: '#fff' } } },
                 scales: {
                     y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
@@ -577,7 +612,9 @@
                 ]
             },
             options: {
-                indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } },
                     legend: { labels: { color: '#fff' } }
@@ -590,10 +627,9 @@
         });
     }
 
-    // ======================== 4. PÓDIUM CON TOOLTIP ========================
     function obtenerDetalleCervezas(nombreCerveceria, dataCompleta) {
         const busqueda = limpiarTexto(nombreCerveceria);
-        const medallas = dataCompleta.filter(d => 
+        const medallas = dataCompleta.filter(d =>
             limpiarTexto(d.cerveceria) === busqueda &&
             !esBasura(d.cerveza_ganadora) &&
             !esBasura(d.estilo)
@@ -612,7 +648,7 @@
             .sort((a, b) => b[1] - a[1])
             .slice(0, 2);
 
-        return mejores2.map(([nombre, total]) => 
+        return mejores2.map(([nombre, total]) =>
             `• ${nombre}: ${total} medallas`
         ).join('<br>');
     }
@@ -662,10 +698,8 @@
         });
     }
 
-    // ======================== 5. MICRO GRÁFICOS ========================
     let topEstilosGlobal, topEstilosChile, topRegionesChile;
     function renderMicroGraficos(data) {
-        // Global
         const estilosGlobal = {};
         data.forEach(item => {
             const estilo = item.estilo;
@@ -678,10 +712,14 @@
         topEstilosGlobal = new Chart(ctx1, {
             type: 'bar',
             data: { labels: topGlobal.map(e=>e[0]), datasets: [{ label: 'Medallas', data: topGlobal.map(e=>e[1]), backgroundColor: '#e32c6c' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } }
+            }
         });
 
-        // Chile
         const chileData = data.filter(item => item.pais === 'Chile');
         const estilosChile = {};
         chileData.forEach(item => {
@@ -695,10 +733,14 @@
         topEstilosChile = new Chart(ctx2, {
             type: 'bar',
             data: { labels: topChile.map(e=>e[0]), datasets: [{ label: 'Medallas', data: topChile.map(e=>e[1]), backgroundColor: '#1eab9b' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } }
+            }
         });
 
-        // Regiones Chile
         const regionesMap = {
             'Santiago': 'Metropolitana', 'Valparaíso': 'Valparaíso', 'Concepción': 'Biobío',
             'Talca': 'Maule', 'La Serena': 'Coquimbo', 'Antofagasta': 'Antofagasta',
@@ -718,11 +760,15 @@
         topRegionesChile = new Chart(ctx3, {
             type: 'bar',
             data: { labels: topRegiones.map(r=>r[0]), datasets: [{ label: 'Medallas', data: topRegiones.map(r=>r[1]), backgroundColor: '#f7c32f' }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } }
+            }
         });
     }
 
-    // ======================== 6. TABLA CON BÚSQUEDA ========================
     function renderTable(data, searchTerm = "") {
         const tbody = document.getElementById('tableBody');
         let filtered = data;
@@ -738,7 +784,7 @@
             );
         }
         if (filtered.length === 0) {
-            tbody.innerHTML = '}<td colspan="7">No hay coincidencias</td>';
+            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
             return;
         }
         tbody.innerHTML = filtered.slice(0, 200).map(item => {
@@ -761,7 +807,6 @@
         }).join('');
     }
 
-    // ======================== 7. INICIALIZACIÓN ========================
     async function init() {
         const data = await cargarCSV();
         if (!data.length) {
