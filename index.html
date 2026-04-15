@@ -1,132 +1,311 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>PodiumBeer - Resultados</title>
-    <style>
-        /* Reset básico */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<script>
+    // ======================== 1. FUNCIONES DE LIMPIEZA (sin cambios) ========================
+    function limpiarTexto(texto) {
+        if (!texto) return "";
+        return texto.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 16px;
-        }
+    function formatearTextoPresentacion(str) {
+        if (!str) return '';
+        str = str.replace(/\bBrewery\b/gi, "Brew.")
+                 .replace(/\bBrewing\b/gi, "Brew.")
+                 .replace(/\bCompany\b/gi, "Co.")
+                 .replace(/\bCompañía\b/gi, "Cia.")
+                 .replace(/Colaboración/gi, "(Colab.)");
+        return str.replace(/\b\w/g, l => l.toUpperCase());
+    }
 
-        /* Contenedor principal */
-        .container {
-            max-width: 768px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+    function esBasura(valor) {
+        if (!valor) return true;
+        const limpio = valor.toString().toUpperCase().trim();
+        return limpio === "PENDIENTE" || limpio === "COMPLETAR" || limpio === "-";
+    }
 
-        /* Tabla responsive: se desborda horizontalmente */
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+    // ======================== 2. CARGA DE CSV (compatible iOS 12, Android, desktop) ========================
+    let allData = [];
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            min-width: 600px;
-        }
+    function showError(msg) {
+        const errDiv = document.getElementById('error-message');
+        errDiv.innerText = msg;
+        errDiv.style.display = 'block';
+        console.error(msg);
+    }
 
-        th, td {
-            padding: 12px 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f8f8f8;
-            font-weight: 600;
-        }
-
-        /* Tarjetas en lugar de tabla para pantallas muy pequeñas (opcional) */
-        @media (max-width: 600px) {
-            .table-wrapper {
-                overflow-x: auto;
+    function parseCSV(texto) {
+        const lineas = texto.split(/\r?\n/);
+        if (lineas.length === 0) return [];
+        const encabezados = lineas[0].split(';').map(h => h.trim());
+        const datos = [];
+        for (let i = 1; i < lineas.length; i++) {
+            const linea = lineas[i].trim();
+            if (linea === "") continue;
+            const valores = linea.split(';');
+            const fila = {};
+            for (let j = 0; j < encabezados.length; j++) {
+                const enc = encabezados[j];
+                let val = valores[j] ? valores[j].trim() : '';
+                if (enc === 'cerveceria' || enc === 'cerveza_ganadora' || enc === 'estilo' || enc === 'certamen') {
+                    val = formatearTextoPresentacion(val);
+                }
+                fila[enc] = val;
+            }
+            if (!esBasura(fila.medalla_base) && !esBasura(fila.cerveceria)) {
+                datos.push(fila);
             }
         }
+        return datos;
+    }
 
-        /* Estilo para títulos */
-        h1 {
-            font-size: 24px;
-            padding: 16px;
-            background-color: #2c3e50;
-            color: white;
-            margin: 0;
+    function cargarCSV(callback) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'BBDD_Medallero_Chile.csv', true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    const datos = parseCSV(xhr.responseText);
+                    callback(null, datos);
+                } else {
+                    callback(new Error(`No se pudo cargar CSV (HTTP ${xhr.status})`), null);
+                }
+            }
+        };
+        xhr.onerror = function() {
+            callback(new Error("Error de red o archivo no encontrado"), null);
+        };
+        xhr.send();
+    }
+
+    // ======================== 3. GRÁFICOS, PÓDIUM, TABLA (igual que antes, pero con var/function para compatibilidad) ========================
+    let evolucionChart, rankingChileChart, topEstilosGlobal, topEstilosChile, topRegionesChile;
+
+    function renderEvolucionMensual(data) {
+        const data2025 = data.filter(item => (item.anio || (item.fecha ? item.fecha.split('-')[0] : '')) === '2025');
+        if (!data2025.length) return;
+        const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const paises = ['Brasil','Chile','Argentina'];
+        const agrupado = { Brasil: Array(12).fill(0), Chile: Array(12).fill(0), Argentina: Array(12).fill(0) };
+        data2025.forEach(item => {
+            const fecha = item.fecha;
+            if (!fecha) return;
+            const mes = fecha.split('-')[1];
+            const pais = item.pais;
+            if (!pais || !paises.includes(pais)) return;
+            const idx = parseInt(mes) - 1;
+            if (idx >= 0 && idx < 12) agrupado[pais][idx]++;
+        });
+        const ctx = document.getElementById('evolucionMensualChart').getContext('2d');
+        if (evolucionChart) evolucionChart.destroy();
+        const datasets = paises.map(p => ({
+            label: p,
+            data: agrupado[p],
+            borderColor: p === 'Brasil' ? '#f7c32f' : (p === 'Chile' ? '#e32c6c' : '#1eab9b'),
+            backgroundColor: p === 'Brasil' ? 'rgba(247,195,47,0.2)' : (p === 'Chile' ? 'rgba(227,44,108,0.2)' : 'rgba(30,171,155,0.2)'),
+            fill: true, tension: 0.4, pointRadius: 3, pointHoverRadius: 6
+        }));
+        evolucionChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: meses, datasets },
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                plugins: { tooltip: { mode: 'index', intersect: false }, legend: { labels: { color: '#fff' } } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    x: { ticks: { color: '#fff' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    function renderRankingChile(data) {
+        const chileData = data.filter(item => item.pais === 'Chile');
+        const breweries = {};
+        chileData.forEach(item => {
+            const nombre = item.cerveceria;
+            const medalla = item.medalla_base;
+            if (!nombre) return;
+            if (!breweries[nombre]) breweries[nombre] = { oro:0, plata:0, bronce:0 };
+            if (medalla && medalla.toLowerCase() === 'oro') breweries[nombre].oro++;
+            else if (medalla && medalla.toLowerCase() === 'plata') breweries[nombre].plata++;
+            else if (medalla && medalla.toLowerCase() === 'bronce') breweries[nombre].bronce++;
+        });
+        const ranking = Object.entries(breweries)
+            .map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals }))
+            .sort((a,b) => b.total - a.total).slice(0,10);
+        const ctx = document.getElementById('rankingChileChart').getContext('2d');
+        if (rankingChileChart) rankingChileChart.destroy();
+        rankingChileChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ranking.map(r => r.nom),
+                datasets: [
+                    { label: '🥇 Oro', data: ranking.map(r => r.oro), backgroundColor: '#e32c6c', stack: 'stack' },
+                    { label: '🥈 Plata', data: ranking.map(r => r.plata), backgroundColor: '#1eab9b', stack: 'stack' },
+                    { label: '🥉 Bronce', data: ranking.map(r => r.bronce), backgroundColor: '#f7c32f', stack: 'stack' }
+                ]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+                plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw} medallas` } }, legend: { labels: { color: '#fff' } } },
+                scales: { x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }, y: { stacked: true, ticks: { color: '#fff' }, grid: { display: false } } }
+            }
+        });
+    }
+
+    function obtenerDetalleCervezas(nombreCerveceria, dataCompleta) {
+        const busqueda = limpiarTexto(nombreCerveceria);
+        const medallas = dataCompleta.filter(d => limpiarTexto(d.cerveceria) === busqueda && !esBasura(d.cerveza_ganadora) && !esBasura(d.estilo));
+        if (medallas.length === 0) return "Sin medallas destacadas";
+        const conteo = {};
+        medallas.forEach(m => {
+            const nombreCerveza = m.cerveza_ganadora || "Sin nombre";
+            const estilo = m.estilo || "Estilo no definido";
+            const llave = `${nombreCerveza} (${estilo})`;
+            conteo[llave] = (conteo[llave] || 0) + 1;
+        });
+        const mejores2 = Object.entries(conteo).sort((a,b) => b[1] - a[1]).slice(0,2);
+        return mejores2.map(([nombre, total]) => `• ${nombre}: ${total} medallas`).join('<br>');
+    }
+
+    function renderPodio(data) {
+        const paises = ['Brasil', 'Chile', 'Argentina'];
+        const podio = {};
+        paises.forEach(p => {
+            const paisesData = data.filter(item => item.pais === p);
+            const breweries = {};
+            paisesData.forEach(item => {
+                const nombre = item.cerveceria;
+                if (!nombre) return;
+                breweries[nombre] = (breweries[nombre] || 0) + 1;
+            });
+            const top3 = Object.entries(breweries).sort((a,b) => b[1] - a[1]).slice(0,3).map(([name, count]) => ({ name, count }));
+            podio[p] = top3;
+        });
+        const container = document.getElementById('podio-container');
+        container.innerHTML = '';
+        paises.forEach(p => {
+            const col = document.createElement('div');
+            col.className = 'podio-col';
+            const totalMedallas = data.filter(item => item.pais === p).length;
+            col.innerHTML = `<h3>${p}</h3><div style="margin-bottom:0.5rem;">🏆 ${totalMedallas} medallas</div>`;
+            const items = podio[p];
+            if (items.length === 0) col.innerHTML += '<div>Sin datos</div>';
+            else {
+                items.forEach(b => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'podio-item';
+                    const tooltipHtml = obtenerDetalleCervezas(b.name, data);
+                    itemDiv.innerHTML = `${b.name}<br><span class="medal-count">${b.count} medallas</span><div class="tooltip-box">${tooltipHtml}</div>`;
+                    col.appendChild(itemDiv);
+                });
+            }
+            container.appendChild(col);
+        });
+    }
+
+    function renderMicroGraficos(data) {
+        // Global
+        const estilosGlobal = {};
+        data.forEach(item => { if (!esBasura(item.estilo)) estilosGlobal[item.estilo] = (estilosGlobal[item.estilo] || 0) + 1; });
+        const topGlobal = Object.entries(estilosGlobal).sort((a,b) => b[1] - a[1]).slice(0,5);
+        const ctx1 = document.getElementById('topEstilosGlobalChart').getContext('2d');
+        if (topEstilosGlobal) topEstilosGlobal.destroy();
+        topEstilosGlobal = new Chart(ctx1, {
+            type: 'bar',
+            data: { labels: topGlobal.map(e => e[0]), datasets: [{ label: 'Medallas', data: topGlobal.map(e => e[1]), backgroundColor: '#e32c6c' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+        });
+        // Chile
+        const chileData = data.filter(item => item.pais === 'Chile');
+        const estilosChile = {};
+        chileData.forEach(item => { if (!esBasura(item.estilo)) estilosChile[item.estilo] = (estilosChile[item.estilo] || 0) + 1; });
+        const topChile = Object.entries(estilosChile).sort((a,b) => b[1] - a[1]).slice(0,5);
+        const ctx2 = document.getElementById('topEstilosChileChart').getContext('2d');
+        if (topEstilosChile) topEstilosChile.destroy();
+        topEstilosChile = new Chart(ctx2, {
+            type: 'bar',
+            data: { labels: topChile.map(e => e[0]), datasets: [{ label: 'Medallas', data: topChile.map(e => e[1]), backgroundColor: '#1eab9b' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+        });
+        // Regiones
+        const regionesMap = { 'Santiago':'Metropolitana','Valparaíso':'Valparaíso','Concepción':'Biobío','Talca':'Maule','La Serena':'Coquimbo','Antofagasta':'Antofagasta','Temuco':'Araucanía','Rancagua':'O\'Higgins','Puerto Montt':'Los Lagos','Valdivia':'Los Ríos','Viña del Mar':'Valparaíso','Chillán':'Ñuble' };
+        const regiones = {};
+        chileData.forEach(item => {
+            const ciudad = item.ciudad;
+            if (esBasura(ciudad)) return;
+            const region = regionesMap[ciudad] || ciudad;
+            regiones[region] = (regiones[region] || 0) + 1;
+        });
+        const topRegiones = Object.entries(regiones).sort((a,b) => b[1] - a[1]).slice(0,5);
+        const ctx3 = document.getElementById('topRegionesChileChart').getContext('2d');
+        if (topRegionesChile) topRegionesChile.destroy();
+        topRegionesChile = new Chart(ctx3, {
+            type: 'bar',
+            data: { labels: topRegiones.map(r => r[0]), datasets: [{ label: 'Medallas', data: topRegiones.map(r => r[1]), backgroundColor: '#f7c32f' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } } }
+        });
+    }
+
+    function updateStats(data) {
+        if (!data.length) return;
+        const total = data.length;
+        const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
+        const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
+        const statsDiv = document.getElementById('stats-placeholder').children;
+        statsDiv[0].children[0].innerText = total;
+        statsDiv[1].children[0].innerText = oro;
+        statsDiv[2].children[0].innerText = certamenes;
+    }
+
+    function renderTable(data, searchTerm = "") {
+        const tbody = document.getElementById('tableBody');
+        let filtered = data;
+        if (searchTerm) {
+            const lower = searchTerm.toLowerCase();
+            filtered = data.filter(row =>
+                (row.certamen || '').toLowerCase().includes(lower) ||
+                (row.estilo || '').toLowerCase().includes(lower) ||
+                (row.medalla_base || '').toLowerCase().includes(lower) ||
+                (row.pais || '').toLowerCase().includes(lower) ||
+                (row.cerveceria || '').toLowerCase().includes(lower) ||
+                (row.cerveza_ganadora || '').toLowerCase().includes(lower)
+            );
         }
+        if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>'; return; }
+        tbody.innerHTML = filtered.slice(0,200).map(item => {
+            let medClass = '';
+            const med = (item.medalla_base || '').toLowerCase();
+            if (med === 'oro') medClass = 'medal-gold';
+            else if (med === 'plata') medClass = 'medal-silver';
+            else if (med === 'bronce') medClass = 'medal-bronze';
+            return `<tr>
+                <td>${item.certamen || '-'}</td>
+                <td>${item.fecha || item.anio || '-'}</td>
+                <td class="blur-column">${item.cerveceria || '-'}</td>
+                <td class="blur-column">${item.cerveza_ganadora || '-'}</td>
+                <td>${item.estilo || '-'}</td>
+                <td class="${medClass}">${item.medalla_base || '-'}</td>
+                <td>${item.pais || '-'}</td>
+            </tr>`;
+        }).join('');
+    }
 
-        /* Mensaje de error o carga */
-        .error {
-            color: red;
-            padding: 16px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>PodiumBeer - Resultados</h1>
-        <div class="table-wrapper">
-            <table id="result-table">
-                <thead>
-                    <tr>
-                        <th>Certamen</th>
-                        <th>Origen</th>
-                        <th>Año</th>
-                        <th>Cervecería</th>
-                        <th>Cerveza</th>
-                        <th>Estilo</th>
-                        <th>Premio</th>
-                        <th>País</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                    <tr><td colspan="8">Cargando datos...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <script>
-        // Aquí usted puede cargar los datos desde un CSV o desde una variable JavaScript.
-        // Ejemplo de datos estáticos:
-        const datos = [
-            ["World Beer Awards", "Internacional", "2025", "Diebels", "Freundliche Alt", "Altbier", "GOLD - COUNTRY WINNER", "Germany"],
-            // agregar más filas...
-        ];
-
-        function cargarTabla() {
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = '';
-            if (datos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8">No hay datos</td></tr>';
+    // ======================== INICIALIZACIÓN ========================
+    function init() {
+        cargarCSV((err, data) => {
+            if (err || !data.length) {
+                showError(`❌ Error: ${err ? err.message : 'archivo vacío'}. Verifica que "BBDD_Medallero_Chile.csv" esté en la misma carpeta.`);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos. Revisa la consola.</td></tr>';
                 return;
             }
-            for (let i = 0; i < datos.length; i++) {
-                const fila = datos[i];
-                const tr = document.createElement('tr');
-                for (let j = 0; j < fila.length; j++) {
-                    const td = document.createElement('td');
-                    td.textContent = fila[j];
-                    tr.appendChild(td);
-                }
-                tbody.appendChild(tr);
-            }
-        }
-
-        cargarTabla();
-    </script>
-</body>
-</html>
+            allData = data;
+            updateStats(data);
+            renderEvolucionMensual(data);
+            renderRankingChile(data);
+            renderPodio(data);
+            renderMicroGraficos(data);
+            renderTable(data, '');
+            document.getElementById('searchInput').addEventListener('input', (e) => renderTable(allData, e.target.value));
+        });
+    }
+    init();
+</script>
