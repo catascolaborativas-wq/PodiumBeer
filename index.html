@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>PodiumBeer – Auditoría de Desempeño Cervecero</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -38,11 +38,11 @@
             z-index: 1;
         }
 
-        /* Header – logo sólido */
         .header {
             text-align: center;
             margin: 0 auto 1.5rem auto;
         }
+
         .logo {
             max-width: 320px;
             width: 100%;
@@ -52,7 +52,6 @@
             background: none;
         }
 
-        /* Estadísticas */
         .stats {
             display: flex;
             flex-wrap: wrap;
@@ -64,20 +63,39 @@
             border-radius: 2rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .stat { text-align: center; flex: 1; min-width: 120px; }
-        .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; color: #f7c32f; }
-        .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #ccc; }
 
-        /* Gráficos principales – misma altura */
+        .stat {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 800;
+            color: #f7c32f;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ccc;
+        }
+
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
+
         @media (min-width: 1024px) {
-            .charts-grid { grid-template-columns: 1fr 1fr; }
+            .charts-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
+
         .card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -89,6 +107,7 @@
             flex-direction: column;
             height: 100%;
         }
+
         .card-title {
             font-size: 1.3rem;
             font-weight: 700;
@@ -97,37 +116,41 @@
             border-left: 5px solid #e32c6c;
             padding-left: 1rem;
         }
+
         .chart-container {
             width: 100%;
-            flex: 1;
-            min-height: 350px;
-            height: 350px;
             position: relative;
+            height: 350px;
+            min-height: 350px;
         }
+
         canvas {
             display: block;
             width: 100% !important;
+            height: 100% !important;
             max-width: 100%;
         }
 
-        /* Pódium – con tooltip interno */
         .podio-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin-top: 1rem;
         }
+
         .podio-col {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 20px;
             padding: 1rem;
             text-align: center;
         }
+
         .podio-col h3 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
             color: #f7c32f;
         }
+
         .podio-item {
             position: relative;
             background: rgba(255, 255, 255, 0.1);
@@ -139,13 +162,16 @@
             cursor: help;
             transition: background 0.2s;
         }
+
         .podio-item:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+
         .podio-item .medal-count {
             font-size: 0.8rem;
             color: #1eab9b;
         }
+
         .tooltip-box {
             visibility: hidden;
             position: absolute;
@@ -165,19 +191,21 @@
             opacity: 0;
             text-align: left;
             line-height: 1.4;
+            pointer-events: none;
         }
+
         .podio-item:hover .tooltip-box {
             visibility: visible;
             opacity: 1;
         }
 
-        /* Micro gráficos */
         .micro-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin: 1.5rem 0;
         }
+
         .micro-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -186,10 +214,18 @@
             display: flex;
             flex-direction: column;
         }
-        .micro-card .card-title { font-size: 1rem; margin-bottom: 0.8rem; }
-        .micro-chart { height: 200px; width: 100%; }
 
-        /* ===================== NUEVA ESTRUCTURA PARA AUDITORÍA ===================== */
+        .micro-card .card-title {
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .micro-chart {
+            width: 100%;
+            height: 220px;
+            position: relative;
+        }
+
         .auditoria-wrapper {
             display: flex;
             flex-direction: column;
@@ -197,6 +233,7 @@
             width: 100%;
             margin: 1.5rem 0;
         }
+
         .auditoria-card {
             background: rgba(10, 25, 35, 0.75);
             backdrop-filter: blur(10px);
@@ -205,6 +242,7 @@
             border: 1px solid rgba(30, 171, 155, 0.3);
             width: 100%;
         }
+
         .auditoria-title {
             font-size: 2rem;
             font-weight: 800;
@@ -214,7 +252,12 @@
             align-items: center;
             gap: 0.5rem;
         }
-        .search-bar { width: 100%; margin-bottom: 1.5rem; }
+
+        .search-bar {
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
         .search-bar input {
             width: 100%;
             padding: 0.8rem 1.2rem;
@@ -225,27 +268,33 @@
             font-size: 1rem;
             outline: none;
         }
+
         .search-bar input::placeholder {
             color: rgba(255, 255, 255, 0.5);
             font-style: italic;
         }
+
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             max-height: 450px;
             overflow-y: auto;
         }
+
         .medals-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
             min-width: 700px;
         }
-        .medals-table th, .medals-table td {
+
+        .medals-table th,
+        .medals-table td {
             padding: 0.8rem 0.6rem;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .medals-table th {
             background: rgba(227, 44, 108, 0.3);
             color: #f7c32f;
@@ -253,16 +302,17 @@
             position: sticky;
             top: 0;
         }
+
         .blur-column {
             filter: blur(10px);
             pointer-events: none;
             user-select: none;
         }
+
         .medal-gold { color: #f7c32f; font-weight: bold; }
         .medal-silver { color: #c0c0c0; font-weight: bold; }
         .medal-bronze { color: #cd7f32; font-weight: bold; }
 
-        /* Botón (ahora fuera de la tarjeta) */
         .btn-desbloquear {
             display: inline-block;
             background: #e32c6c;
@@ -279,23 +329,29 @@
             border: none;
             cursor: pointer;
         }
-        .btn-desbloquear:hover { background: #f7c32f; color: #06232e; }
 
-        /* Iconos RRSS grandes */
+        .btn-desbloquear:hover {
+            background: #f7c32f;
+            color: #06232e;
+        }
+
         .social-footer-icons {
             display: flex;
             justify-content: center;
             gap: 3rem;
             margin: 1rem 0;
         }
+
         .big-icon {
             width: 80px;
             height: 80px;
             transition: transform 0.2s;
         }
-        .big-icon:hover { transform: scale(1.05); }
 
-        /* Pie de página – mismo ancho que la tabla */
+        .big-icon:hover {
+            transform: scale(1.05);
+        }
+
         .copyright-text {
             text-align: center;
             font-size: 0.9rem;
@@ -316,6 +372,7 @@
             margin-bottom: 1rem;
             text-align: center;
             font-weight: bold;
+            white-space: pre-wrap;
         }
 
         @media (min-width: 769px) and (max-width: 1024px) {
@@ -329,7 +386,7 @@
 
             .stats {
                 gap: 1rem;
-                padding: 0.9rem 1.2rem;
+                padding: 0.9rem 1rem;
             }
 
             .stat {
@@ -337,12 +394,12 @@
             }
 
             .stat-number {
-                font-size: 1.6rem;
+                font-size: 1.55rem;
             }
 
             .stat-label {
                 font-size: 0.68rem;
-                letter-spacing: 0.6px;
+                letter-spacing: 0.5px;
             }
 
             .charts-grid {
@@ -350,16 +407,38 @@
             }
 
             .chart-container {
-                min-height: 320px;
-                height: 320px;
+                height: 300px;
+                min-height: 300px;
+            }
+
+            .micro-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .micro-chart {
+                height: 200px;
             }
 
             .card-title {
-                font-size: 1.15rem;
+                font-size: 1.12rem;
+            }
+
+            .podio-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .social-footer-icons {
+                gap: 2rem;
+            }
+
+            .big-icon {
+                width: 68px;
+                height: 68px;
             }
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .container { padding: 0.8rem; }
             .logo { max-width: 200px; }
@@ -367,10 +446,10 @@
             .stat-number { font-size: 1.2rem; }
             .stat-label { font-size: 0.6rem; }
             .card-title { font-size: 1.1rem; }
-            .chart-container { min-height: 280px; height: 280px; }
+            .chart-container { height: 280px; min-height: 280px; }
             .micro-grid { grid-template-columns: 1fr; gap: 1rem; }
             .micro-chart { height: 220px; }
-            .podio-grid { gap: 1rem; }
+            .podio-grid { grid-template-columns: 1fr; gap: 1rem; }
             .podio-col h3 { font-size: 1.2rem; }
             .podio-item { font-size: 0.8rem; }
             .auditoria-title { font-size: 1.5rem; }
@@ -437,9 +516,19 @@
             <div class="table-wrapper">
                 <table class="medals-table">
                     <thead>
-                        <tr><th>Certamen</th><th>Fecha</th><th class="blur-column">Cervecería</th><th class="blur-column">Cerveza Ganadora</th><th>Estilo</th><th>Medalla</th><th>País</th></tr>
+                        <tr>
+                            <th>Certamen</th>
+                            <th>Fecha</th>
+                            <th class="blur-column">Cervecería</th>
+                            <th class="blur-column">Cerveza Ganadora</th>
+                            <th>Estilo</th>
+                            <th>Medalla</th>
+                            <th>País</th>
+                        </tr>
                     </thead>
-                    <tbody id="tableBody"><tr><td colspan="7">Cargando datos...</td></tr></tbody>
+                    <tbody id="tableBody">
+                        <tr><td colspan="7">Cargando datos...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -459,372 +548,545 @@
 </div>
 
 <script>
+    var allData = [];
+    var evolucionChart = null;
+    var rankingChileChart = null;
+    var topEstilosGlobal = null;
+    var topEstilosChile = null;
+    var topRegionesChile = null;
+    var legacyIOS12 = /iPad|iPhone|iPod/.test(navigator.userAgent) && /OS 12_/.test(navigator.userAgent);
+
     function limpiarTexto(texto) {
         if (!texto) return "";
-        return texto.toString()
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .trim();
+        texto = texto.toString().toLowerCase();
+        if (texto.normalize) {
+            texto = texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+        return texto.trim();
     }
 
     function formatearTextoPresentacion(str) {
-        if (!str) return '';
+        if (!str) return "";
         str = str.replace(/\bBrewery\b/gi, "Brew.")
                  .replace(/\bBrewing\b/gi, "Brew.")
                  .replace(/\bCompany\b/gi, "Co.")
                  .replace(/\bCompañía\b/gi, "Cia.")
                  .replace(/Colaboración/gi, "(Colab.)");
-        return str.replace(/\b\w/g, l => l.toUpperCase());
+        return str.replace(/\b\w/g, function(l) { return l.toUpperCase(); });
     }
 
     function esBasura(valor) {
         if (!valor) return true;
-        const limpio = valor.toString().toUpperCase().trim();
+        var limpio = valor.toString().toUpperCase().trim();
         return limpio === "PENDIENTE" || limpio === "COMPLETAR" || limpio === "-";
     }
 
-    let allData = [];
-
     function showError(msg) {
-        const errDiv = document.getElementById('error-message');
+        var errDiv = document.getElementById("error-message");
         errDiv.innerText = msg;
-        errDiv.style.display = 'block';
+        errDiv.style.display = "block";
         console.error(msg);
     }
 
     async function cargarCSV() {
         try {
-            const response = await fetch('BBDD_Medallero_Chile.csv');
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const texto = await response.text();
-            const lineas = texto.split('\n');
-            const encabezados = lineas[0].split(';').map(h => h.trim());
-            const datos = [];
-            for (let i = 1; i < lineas.length; i++) {
+            var response = await fetch("BBDD_Medallero_Chile.csv", { cache: "no-store" });
+            if (!response.ok) throw new Error("HTTP " + response.status);
+
+            var texto = await response.text();
+            var lineas = texto.split("\n");
+            var encabezados = lineas[0].replace(/\r/g, "").split(";").map(function(h) { return h.trim(); });
+            var datos = [];
+
+            for (var i = 1; i < lineas.length; i++) {
                 if (!lineas[i].trim()) continue;
-                const valores = lineas[i].split(';');
-                const fila = {};
-                encabezados.forEach((enc, idx) => {
-                    let val = valores[idx] ? valores[idx].trim() : '';
-                    if (enc === 'cerveceria' || enc === 'cerveza_ganadora' || enc === 'estilo' || enc === 'certamen') {
+
+                var valores = lineas[i].replace(/\r/g, "").split(";");
+                var fila = {};
+
+                encabezados.forEach(function(enc, idx) {
+                    var val = valores[idx] ? valores[idx].trim() : "";
+                    if (enc === "cerveceria" || enc === "cerveza_ganadora" || enc === "estilo" || enc === "certamen") {
                         val = formatearTextoPresentacion(val);
                     }
                     fila[enc] = val;
                 });
+
                 if (esBasura(fila.medalla_base)) continue;
                 if (esBasura(fila.cerveceria)) continue;
                 datos.push(fila);
             }
-            console.log(`✅ CSV cargado: ${datos.length} registros válidos`);
+
             return datos;
         } catch (err) {
-            showError(`❌ Error al cargar CSV: ${err.message}\n\nAsegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz.`);
+            showError("❌ Error al cargar CSV: " + err.message + "\n\nAsegúrate de que el archivo 'BBDD_Medallero_Chile.csv' esté en la raíz.");
             return [];
         }
     }
 
     function updateStats(data) {
         if (!data.length) return;
-        const total = data.length;
-        const oro = data.filter(d => d.medalla_base && d.medalla_base.toLowerCase() === 'oro').length;
-        const certamenes = new Set(data.map(d => d.certamen).filter(Boolean)).size;
-        const statsDiv = document.getElementById('stats-placeholder').children;
+
+        var total = data.length;
+        var oro = data.filter(function(d) {
+            return d.medalla_base && d.medalla_base.toLowerCase() === "oro";
+        }).length;
+
+        var certamenes = {};
+        data.forEach(function(d) {
+            if (d.certamen) certamenes[d.certamen] = true;
+        });
+
+        var statsDiv = document.getElementById("stats-placeholder").children;
         statsDiv[0].children[0].innerText = total;
         statsDiv[1].children[0].innerText = oro;
-        statsDiv[2].children[0].innerText = certamenes;
+        statsDiv[2].children[0].innerText = Object.keys(certamenes).length;
     }
 
-    let evolucionChart;
     function renderEvolucionMensual(data) {
-        const data2025 = data.filter(item => {
-            const anio = item.anio || (item.fecha ? item.fecha.split('-')[0] : '');
-            return anio === '2025';
+        var data2025 = data.filter(function(item) {
+            var anio = item.anio || (item.fecha ? item.fecha.split("-")[0] : "");
+            return anio === "2025";
         });
+
         if (!data2025.length) return;
-        const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-        const paises = ['Brasil','Chile','Argentina'];
-        const agrupado = { Brasil: Array(12).fill(0), Chile: Array(12).fill(0), Argentina: Array(12).fill(0) };
-        data2025.forEach(item => {
-            const fecha = item.fecha;
-            if (!fecha) return;
-            const mes = fecha.split('-')[1];
-            const pais = item.pais;
-            if (!pais || !paises.includes(pais)) return;
-            const idx = parseInt(mes) - 1;
-            if (idx >= 0 && idx < 12) agrupado[pais][idx]++;
+
+        var meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+        var paises = ["Brasil","Chile","Argentina"];
+        var agrupado = {
+            Brasil: Array(12).fill(0),
+            Chile: Array(12).fill(0),
+            Argentina: Array(12).fill(0)
+        };
+
+        data2025.forEach(function(item) {
+            if (!item.fecha || !item.pais || paises.indexOf(item.pais) === -1) return;
+            var partes = item.fecha.split("-");
+            if (partes.length < 2) return;
+            var idx = parseInt(partes[1], 10) - 1;
+            if (idx >= 0 && idx < 12) agrupado[item.pais][idx]++;
         });
-        const ctx = document.getElementById('evolucionMensualChart').getContext('2d');
+
+        var ctx = document.getElementById("evolucionMensualChart").getContext("2d");
         if (evolucionChart) evolucionChart.destroy();
-        const datasets = paises.map(p => ({
-            label: p,
-            data: agrupado[p],
-            borderColor: p === 'Brasil' ? '#f7c32f' : (p === 'Chile' ? '#e32c6c' : '#1eab9b'),
-            backgroundColor: p === 'Brasil' ? 'rgba(247,195,47,0.2)' : (p === 'Chile' ? 'rgba(227,44,108,0.2)' : 'rgba(30,171,155,0.2)'),
-            fill: true, tension: 0.4, pointRadius: 3, pointHoverRadius: 6
-        }));
+
         evolucionChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels: meses, datasets },
+            type: "line",
+            data: {
+                labels: meses,
+                datasets: [
+                    {
+                        label: "Brasil",
+                        data: agrupado.Brasil,
+                        borderColor: "#f7c32f",
+                        backgroundColor: "rgba(247,195,47,0.18)",
+                        fill: true,
+                        lineTension: 0.35,
+                        pointRadius: 2,
+                        pointHoverRadius: 4,
+                        borderWidth: 2
+                    },
+                    {
+                        label: "Chile",
+                        data: agrupado.Chile,
+                        borderColor: "#e32c6c",
+                        backgroundColor: "rgba(227,44,108,0.18)",
+                        fill: true,
+                        lineTension: 0.35,
+                        pointRadius: 2,
+                        pointHoverRadius: 4,
+                        borderWidth: 2
+                    },
+                    {
+                        label: "Argentina",
+                        data: agrupado.Argentina,
+                        borderColor: "#1eab9b",
+                        backgroundColor: "rgba(30,171,155,0.18)",
+                        fill: true,
+                        lineTension: 0.35,
+                        pointRadius: 2,
+                        pointHoverRadius: 4,
+                        borderWidth: 2
+                    }
+                ]
+            },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { tooltip: { mode: 'index', intersect: false }, legend: { labels: { color: '#fff' } } },
+                animation: legacyIOS12 ? false : { duration: 700 },
+                legend: {
+                    labels: { fontColor: "#fff" }
+                },
+                tooltips: {
+                    mode: "index",
+                    intersect: false
+                },
                 scales: {
-                    y: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                    x: { ticks: { color: '#fff' }, grid: { display: false } }
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            fontColor: "#fff"
+                        },
+                        gridLines: {
+                            color: "rgba(255,255,255,0.1)"
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: { fontColor: "#fff" },
+                        gridLines: { display: false }
+                    }]
                 }
             }
         });
     }
 
-    let rankingChileChart;
     function renderRankingChile(data) {
-        const chileData = data.filter(item => item.pais === 'Chile');
-        const breweries = {};
-        chileData.forEach(item => {
-            const nombre = item.cerveceria;
-            const medalla = item.medalla_base;
+        var chileData = data.filter(function(item) { return item.pais === "Chile"; });
+        var breweries = {};
+
+        chileData.forEach(function(item) {
+            var nombre = item.cerveceria;
+            var medalla = item.medalla_base ? item.medalla_base.toLowerCase() : "";
             if (!nombre) return;
-            if (!breweries[nombre]) breweries[nombre] = { oro:0, plata:0, bronce:0 };
-            if (medalla && medalla.toLowerCase() === 'oro') breweries[nombre].oro++;
-            else if (medalla && medalla.toLowerCase() === 'plata') breweries[nombre].plata++;
-            else if (medalla && medalla.toLowerCase() === 'bronce') breweries[nombre].bronce++;
+
+            if (!breweries[nombre]) breweries[nombre] = { oro: 0, plata: 0, bronce: 0 };
+            if (medalla === "oro") breweries[nombre].oro++;
+            else if (medalla === "plata") breweries[nombre].plata++;
+            else if (medalla === "bronce") breweries[nombre].bronce++;
         });
-        const ranking = Object.entries(breweries)
-            .map(([nom, vals]) => ({ nom, total: vals.oro+vals.plata+vals.bronce, ...vals }))
-            .sort((a,b) => b.total - a.total)
-            .slice(0,10);
-        const labels = ranking.map(r => r.nom);
-        const oro = ranking.map(r => r.oro);
-        const plata = ranking.map(r => r.plata);
-        const bronce = ranking.map(r => r.bronce);
-        const ctx = document.getElementById('rankingChileChart').getContext('2d');
+
+        var ranking = Object.keys(breweries).map(function(nom) {
+            var vals = breweries[nom];
+            return {
+                nom: nom,
+                oro: vals.oro,
+                plata: vals.plata,
+                bronce: vals.bronce,
+                total: vals.oro + vals.plata + vals.bronce
+            };
+        }).sort(function(a, b) {
+            return b.total - a.total;
+        }).slice(0, 10);
+
+        var ctx = document.getElementById("rankingChileChart").getContext("2d");
         if (rankingChileChart) rankingChileChart.destroy();
+
         rankingChileChart = new Chart(ctx, {
-            type: 'bar',
+            type: "horizontalBar",
             data: {
-                labels,
+                labels: ranking.map(function(r) { return r.nom; }),
                 datasets: [
-                    { label: '🥇 Oro', data: oro, backgroundColor: '#e32c6c', stack: 'stack' },
-                    { label: '🥈 Plata', data: plata, backgroundColor: '#1eab9b', stack: 'stack' },
-                    { label: '🥉 Bronce', data: bronce, backgroundColor: '#f7c32f', stack: 'stack' }
+                    { label: "🥇 Oro", data: ranking.map(function(r) { return r.oro; }), backgroundColor: "#e32c6c" },
+                    { label: "🥈 Plata", data: ranking.map(function(r) { return r.plata; }), backgroundColor: "#1eab9b" },
+                    { label: "🥉 Bronce", data: ranking.map(function(r) { return r.bronce; }), backgroundColor: "#f7c32f" }
                 ]
             },
             options: {
-                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw} medallas` } },
-                    legend: { labels: { color: '#fff' } }
+                animation: legacyIOS12 ? false : { duration: 700 },
+                legend: {
+                    labels: { fontColor: "#fff" }
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, chartData) {
+                            var label = chartData.datasets[tooltipItem.datasetIndex].label || "";
+                            return label + ": " + tooltipItem.xLabel + " medallas";
+                        }
+                    }
                 },
                 scales: {
-                    x: { stacked: true, ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                    y: { stacked: true, ticks: { color: '#fff' }, grid: { display: false } }
+                    xAxes: [{
+                        stacked: true,
+                        ticks: {
+                            beginAtZero: true,
+                            fontColor: "#fff"
+                        },
+                        gridLines: {
+                            color: "rgba(255,255,255,0.1)"
+                        }
+                    }],
+                    yAxes: [{
+                        stacked: true,
+                        ticks: { fontColor: "#fff" },
+                        gridLines: { display: false }
+                    }]
                 }
             }
         });
     }
 
     function obtenerDetalleCervezas(nombreCerveceria, dataCompleta) {
-        const busqueda = limpiarTexto(nombreCerveceria);
-        const medallas = dataCompleta.filter(d =>
-            limpiarTexto(d.cerveceria) === busqueda &&
-            !esBasura(d.cerveza_ganadora) &&
-            !esBasura(d.estilo)
-        );
+        var busqueda = limpiarTexto(nombreCerveceria);
+        var medallas = dataCompleta.filter(function(d) {
+            return limpiarTexto(d.cerveceria) === busqueda &&
+                   !esBasura(d.cerveza_ganadora) &&
+                   !esBasura(d.estilo);
+        });
+
         if (medallas.length === 0) return "Sin medallas destacadas";
 
-        const conteo = {};
-        medallas.forEach(m => {
-            const nombreCerveza = m.cerveza_ganadora || "Sin nombre";
-            const estilo = m.estilo || "Estilo no definido";
-            const llave = `${nombreCerveza} (${estilo})`;
+        var conteo = {};
+        medallas.forEach(function(m) {
+            var nombreCerveza = m.cerveza_ganadora || "Sin nombre";
+            var estilo = m.estilo || "Estilo no definido";
+            var llave = nombreCerveza + " (" + estilo + ")";
             conteo[llave] = (conteo[llave] || 0) + 1;
         });
 
-        const mejores2 = Object.entries(conteo)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 2);
-
-        return mejores2.map(([nombre, total]) =>
-            `• ${nombre}: ${total} medallas`
-        ).join('<br>');
+        return Object.keys(conteo)
+            .map(function(k) { return [k, conteo[k]]; })
+            .sort(function(a, b) { return b[1] - a[1]; })
+            .slice(0, 2)
+            .map(function(item) {
+                return "• " + item[0] + ": " + item[1] + " medallas";
+            })
+            .join("<br>");
     }
 
     function renderPodio(data) {
-        const paises = ['Brasil', 'Chile', 'Argentina'];
-        const podio = {};
+        var paises = ["Brasil", "Chile", "Argentina"];
+        var container = document.getElementById("podio-container");
+        container.innerHTML = "";
 
-        paises.forEach(p => {
-            const paisesData = data.filter(item => item.pais === p);
-            const breweries = {};
-            paisesData.forEach(item => {
-                const nombre = item.cerveceria;
-                if (!nombre) return;
-                breweries[nombre] = (breweries[nombre] || 0) + 1;
+        paises.forEach(function(pais) {
+            var breweries = {};
+            var totalMedallas = 0;
+
+            data.forEach(function(item) {
+                if (item.pais !== pais) return;
+                totalMedallas++;
+                if (item.cerveceria) {
+                    breweries[item.cerveceria] = (breweries[item.cerveceria] || 0) + 1;
+                }
             });
-            const top3 = Object.entries(breweries)
-                .sort((a,b) => b[1] - a[1])
-                .slice(0,3)
-                .map(([name, count]) => ({ name, count }));
-            podio[p] = top3;
-        });
 
-        const container = document.getElementById('podio-container');
-        container.innerHTML = '';
-        paises.forEach(p => {
-            const col = document.createElement('div');
-            col.className = 'podio-col';
-            const totalMedallas = data.filter(item => item.pais === p).length;
-            col.innerHTML = `<h3>${p}</h3><div style="margin-bottom:0.5rem;">🏆 ${totalMedallas} medallas</div>`;
-            const items = podio[p];
-            if (items.length === 0) {
-                col.innerHTML += '<div>Sin datos</div>';
+            var top3 = Object.keys(breweries).map(function(name) {
+                return { name: name, count: breweries[name] };
+            }).sort(function(a, b) {
+                return b.count - a.count;
+            }).slice(0, 3);
+
+            var col = document.createElement("div");
+            col.className = "podio-col";
+            col.innerHTML = "<h3>" + pais + "</h3><div style='margin-bottom:0.5rem;'>🏆 " + totalMedallas + " medallas</div>";
+
+            if (!top3.length) {
+                col.innerHTML += "<div>Sin datos</div>";
             } else {
-                items.forEach(b => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'podio-item';
-                    const tooltipHtml = obtenerDetalleCervezas(b.name, data);
-                    itemDiv.innerHTML = `
-                        ${b.name}<br><span class="medal-count">${b.count} medallas</span>
-                        <div class="tooltip-box">${tooltipHtml}</div>
-                    `;
+                top3.forEach(function(b) {
+                    var itemDiv = document.createElement("div");
+                    itemDiv.className = "podio-item";
+                    itemDiv.innerHTML =
+                        b.name +
+                        "<br><span class='medal-count'>" + b.count + " medallas</span>" +
+                        "<div class='tooltip-box'>" + obtenerDetalleCervezas(b.name, data) + "</div>";
                     col.appendChild(itemDiv);
                 });
             }
+
             container.appendChild(col);
         });
     }
 
-    let topEstilosGlobal, topEstilosChile, topRegionesChile;
     function renderMicroGraficos(data) {
-        const estilosGlobal = {};
-        data.forEach(item => {
-            const estilo = item.estilo;
-            if (esBasura(estilo)) return;
-            estilosGlobal[estilo] = (estilosGlobal[estilo] || 0) + 1;
-        });
-        const topGlobal = Object.entries(estilosGlobal).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const ctx1 = document.getElementById('topEstilosGlobalChart').getContext('2d');
-        if (topEstilosGlobal) topEstilosGlobal.destroy();
-        topEstilosGlobal = new Chart(ctx1, {
-            type: 'bar',
-            data: { labels: topGlobal.map(e=>e[0]), datasets: [{ label: 'Medallas', data: topGlobal.map(e=>e[1]), backgroundColor: '#e32c6c' }] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } }
-            }
-        });
+        function topCinco(lista, campo, filtroPais) {
+            var conteo = {};
+            lista.forEach(function(item) {
+                if (filtroPais && item.pais !== filtroPais) return;
+                var valor = item[campo];
+                if (esBasura(valor)) return;
+                conteo[valor] = (conteo[valor] || 0) + 1;
+            });
 
-        const chileData = data.filter(item => item.pais === 'Chile');
-        const estilosChile = {};
-        chileData.forEach(item => {
-            const estilo = item.estilo;
-            if (esBasura(estilo)) return;
-            estilosChile[estilo] = (estilosChile[estilo] || 0) + 1;
-        });
-        const topChile = Object.entries(estilosChile).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const ctx2 = document.getElementById('topEstilosChileChart').getContext('2d');
-        if (topEstilosChile) topEstilosChile.destroy();
-        topEstilosChile = new Chart(ctx2, {
-            type: 'bar',
-            data: { labels: topChile.map(e=>e[0]), datasets: [{ label: 'Medallas', data: topChile.map(e=>e[1]), backgroundColor: '#1eab9b' }] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } }
-            }
-        });
+            return Object.keys(conteo)
+                .map(function(k) { return [k, conteo[k]]; })
+                .sort(function(a, b) { return b[1] - a[1]; })
+                .slice(0, 5);
+        }
 
-        const regionesMap = {
-            'Santiago': 'Metropolitana', 'Valparaíso': 'Valparaíso', 'Concepción': 'Biobío',
-            'Talca': 'Maule', 'La Serena': 'Coquimbo', 'Antofagasta': 'Antofagasta',
-            'Temuco': 'Araucanía', 'Rancagua': 'O\'Higgins', 'Puerto Montt': 'Los Lagos',
-            'Valdivia': 'Los Ríos', 'Viña del Mar': 'Valparaíso', 'Chillán': 'Ñuble'
+        var topGlobal = topCinco(data, "estilo", null);
+        var topChile = topCinco(data, "estilo", "Chile");
+
+        var regionesMap = {
+            "Santiago": "Metropolitana",
+            "Valparaíso": "Valparaíso",
+            "Concepción": "Biobío",
+            "Talca": "Maule",
+            "La Serena": "Coquimbo",
+            "Antofagasta": "Antofagasta",
+            "Temuco": "Araucanía",
+            "Rancagua": "O'Higgins",
+            "Puerto Montt": "Los Lagos",
+            "Valdivia": "Los Ríos",
+            "Viña del Mar": "Valparaíso",
+            "Chillán": "Ñuble"
         };
-        const regiones = {};
-        chileData.forEach(item => {
-            let ciudad = item.ciudad;
-            if (esBasura(ciudad)) return;
-            let region = regionesMap[ciudad] || ciudad;
+
+        var regiones = {};
+        data.forEach(function(item) {
+            if (item.pais !== "Chile" || esBasura(item.ciudad)) return;
+            var region = regionesMap[item.ciudad] || item.ciudad;
             regiones[region] = (regiones[region] || 0) + 1;
         });
-        const topRegiones = Object.entries(regiones).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const ctx3 = document.getElementById('topRegionesChileChart').getContext('2d');
-        if (topRegionesChile) topRegionesChile.destroy();
-        topRegionesChile = new Chart(ctx3, {
-            type: 'bar',
-            data: { labels: topRegiones.map(r=>r[0]), datasets: [{ label: 'Medallas', data: topRegiones.map(r=>r[1]), backgroundColor: '#f7c32f' }] },
+
+        var topRegiones = Object.keys(regiones)
+            .map(function(k) { return [k, regiones[k]]; })
+            .sort(function(a, b) { return b[1] - a[1]; })
+            .slice(0, 5);
+
+        var ctx1 = document.getElementById("topEstilosGlobalChart").getContext("2d");
+        if (topEstilosGlobal) topEstilosGlobal.destroy();
+        topEstilosGlobal = new Chart(ctx1, {
+            type: "bar",
+            data: {
+                labels: topGlobal.map(function(e) { return e[0]; }),
+                datasets: [{ data: topGlobal.map(function(e) { return e[1]; }), backgroundColor: "#e32c6c" }]
+            },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } }
+                animation: legacyIOS12 ? false : { duration: 700 },
+                legend: { display: false },
+                scales: {
+                    yAxes: [{
+                        ticks: { beginAtZero: true, fontColor: "#fff" },
+                        gridLines: { color: "rgba(255,255,255,0.1)" }
+                    }],
+                    xAxes: [{
+                        ticks: { fontColor: "#fff" },
+                        gridLines: { display: false }
+                    }]
+                }
+            }
+        });
+
+        var ctx2 = document.getElementById("topEstilosChileChart").getContext("2d");
+        if (topEstilosChile) topEstilosChile.destroy();
+        topEstilosChile = new Chart(ctx2, {
+            type: "bar",
+            data: {
+                labels: topChile.map(function(e) { return e[0]; }),
+                datasets: [{ data: topChile.map(function(e) { return e[1]; }), backgroundColor: "#1eab9b" }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: legacyIOS12 ? false : { duration: 700 },
+                legend: { display: false },
+                scales: {
+                    yAxes: [{
+                        ticks: { beginAtZero: true, fontColor: "#fff" },
+                        gridLines: { color: "rgba(255,255,255,0.1)" }
+                    }],
+                    xAxes: [{
+                        ticks: { fontColor: "#fff" },
+                        gridLines: { display: false }
+                    }]
+                }
+            }
+        });
+
+        var ctx3 = document.getElementById("topRegionesChileChart").getContext("2d");
+        if (topRegionesChile) topRegionesChile.destroy();
+        topRegionesChile = new Chart(ctx3, {
+            type: "bar",
+            data: {
+                labels: topRegiones.map(function(r) { return r[0]; }),
+                datasets: [{ data: topRegiones.map(function(r) { return r[1]; }), backgroundColor: "#f7c32f" }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: legacyIOS12 ? false : { duration: 700 },
+                legend: { display: false },
+                scales: {
+                    yAxes: [{
+                        ticks: { beginAtZero: true, fontColor: "#fff" },
+                        gridLines: { color: "rgba(255,255,255,0.1)" }
+                    }],
+                    xAxes: [{
+                        ticks: { fontColor: "#fff" },
+                        gridLines: { display: false }
+                    }]
+                }
             }
         });
     }
 
-    function renderTable(data, searchTerm = "") {
-        const tbody = document.getElementById('tableBody');
-        let filtered = data;
+    function renderTable(data, searchTerm) {
+        var tbody = document.getElementById("tableBody");
+        var filtered = data;
+
         if (searchTerm) {
-            const lower = searchTerm.toLowerCase();
-            filtered = data.filter(row =>
-                (row.certamen || '').toLowerCase().includes(lower) ||
-                (row.estilo || '').toLowerCase().includes(lower) ||
-                (row.medalla_base || '').toLowerCase().includes(lower) ||
-                (row.pais || '').toLowerCase().includes(lower) ||
-                (row.cerveceria || '').toLowerCase().includes(lower) ||
-                (row.cerveza_ganadora || '').toLowerCase().includes(lower)
-            );
+            var lower = searchTerm.toLowerCase();
+            filtered = data.filter(function(row) {
+                return (row.certamen || "").toLowerCase().includes(lower) ||
+                       (row.estilo || "").toLowerCase().includes(lower) ||
+                       (row.medalla_base || "").toLowerCase().includes(lower) ||
+                       (row.pais || "").toLowerCase().includes(lower) ||
+                       (row.cerveceria || "").toLowerCase().includes(lower) ||
+                       (row.cerveza_ganadora || "").toLowerCase().includes(lower);
+            });
         }
+
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">No hay coincidencias</td></tr>';
+            tbody.innerHTML = "<tr><td colspan='7'>No hay coincidencias</td></tr>";
             return;
         }
-        tbody.innerHTML = filtered.slice(0, 200).map(item => {
-            let medClass = '';
-            const med = (item.medalla_base || '').toLowerCase();
-            if (med === 'oro') medClass = 'medal-gold';
-            else if (med === 'plata') medClass = 'medal-silver';
-            else if (med === 'bronce') medClass = 'medal-bronze';
-            return `
-                <tr>
-                    <td>${item.certamen || '-'}</td>
-                    <td>${item.fecha || item.anio || '-'}</td>
-                    <td class="blur-column">${item.cerveceria || '-'}</td>
-                    <td class="blur-column">${item.cerveza_ganadora || '-'}</td>
-                    <td>${item.estilo || '-'}</td>
-                    <td class="${medClass}">${item.medalla_base || '-'}</td>
-                    <td>${item.pais || '-'}</td>
-                </tr>
-            `;
-        }).join('');
+
+        tbody.innerHTML = filtered.slice(0, 200).map(function(item) {
+            var medClass = "";
+            var med = (item.medalla_base || "").toLowerCase();
+            if (med === "oro") medClass = "medal-gold";
+            else if (med === "plata") medClass = "medal-silver";
+            else if (med === "bronce") medClass = "medal-bronze";
+
+            return "<tr>" +
+                "<td>" + (item.certamen || "-") + "</td>" +
+                "<td>" + (item.fecha || item.anio || "-") + "</td>" +
+                "<td class='blur-column'>" + (item.cerveceria || "-") + "</td>" +
+                "<td class='blur-column'>" + (item.cerveza_ganadora || "-") + "</td>" +
+                "<td>" + (item.estilo || "-") + "</td>" +
+                "<td class='" + medClass + "'>" + (item.medalla_base || "-") + "</td>" +
+                "<td>" + (item.pais || "-") + "</td>" +
+                "</tr>";
+        }).join("");
+    }
+
+    function safeRender(fn, data) {
+        try {
+            fn(data);
+        } catch (error) {
+            console.error("Error renderizando bloque:", error);
+        }
     }
 
     async function init() {
-        const data = await cargarCSV();
+        var data = await cargarCSV();
+
         if (!data.length) {
-            document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">⚠️ No se pudieron cargar datos.</td></tr>';
+            document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>⚠️ No se pudieron cargar datos.</td></tr>";
             return;
         }
+
         allData = data;
         updateStats(data);
-        renderEvolucionMensual(data);
-        renderRankingChile(data);
-        renderPodio(data);
-        renderMicroGraficos(data);
-        renderTable(data);
+        renderTable(data, "");
 
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('input', (e) => renderTable(allData, e.target.value));
+        safeRender(renderEvolucionMensual, data);
+        safeRender(renderRankingChile, data);
+        safeRender(renderPodio, data);
+        safeRender(renderMicroGraficos, data);
+
+        var searchInput = document.getElementById("searchInput");
+        searchInput.addEventListener("input", function(e) {
+            renderTable(allData, e.target.value);
+        });
     }
-    init();
+
+    window.addEventListener("load", init);
 </script>
 </body>
 </html>
